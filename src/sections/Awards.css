@@ -1,0 +1,113 @@
+.awards {
+  position: relative;
+  overflow: hidden;
+  background: var(--navy) url('../../elevatepro-website-assets/backgrounds/angular-navy.svg') left center / cover
+    no-repeat;
+}
+
+.awards__img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: 80% 50%;
+}
+
+.awards__media {
+  position: relative;
+}
+
+/* Blend the photo into the navy section */
+.awards__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, var(--navy) 0%, rgb(0 30 72 / 0) 45%);
+}
+
+.awards__inner {
+  position: relative;
+  padding-block: 0.5rem var(--section-y);
+}
+
+.award-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 2rem;
+}
+
+.award {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.5rem;
+  text-align: center;
+  border-left: 1px solid var(--line-dark);
+}
+
+.award:first-child {
+  border-left: 0;
+}
+
+.award__icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-bottom: 0.4rem;
+  color: var(--ice);
+}
+
+.award__title {
+  font-size: clamp(1.05rem, 0.9rem + 0.6vw, 1.4rem);
+  color: var(--white);
+}
+
+.award__prize {
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: clamp(0.9rem, 0.85rem + 0.25vw, 1.05rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-on-dark);
+}
+
+@media (min-width: 600px) and (max-width: 899px) {
+  .awards__img {
+    aspect-ratio: 2 / 1;
+  }
+}
+
+@media (min-width: 900px) {
+  .awards {
+    display: flex;
+    align-items: center;
+    min-height: 30rem;
+  }
+
+  .awards__media {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: 62%;
+  }
+
+  .awards__img {
+    height: 100%;
+    aspect-ratio: auto;
+    object-position: 70% 50%;
+  }
+
+  .awards__media::after {
+    background: linear-gradient(90deg, var(--navy) 0%, rgb(0 30 72 / 0.55) 30%, rgb(0 30 72 / 0) 60%);
+  }
+
+  .awards__inner {
+    padding-block: var(--section-y);
+  }
+
+  .awards__inner > * {
+    max-width: 38rem;
+  }
+
+  .award {
+    padding-inline: 1rem;
+  }
+}

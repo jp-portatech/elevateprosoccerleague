@@ -1,0 +1,86 @@
+.final-cta {
+  position: relative;
+  overflow: hidden;
+  background: var(--navy);
+}
+
+.final-cta__img {
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  object-fit: cover;
+  object-position: 18% 60%;
+}
+
+.final-cta__inner {
+  position: relative;
+  padding-block: 2.25rem 3.5rem;
+}
+
+.final-cta__title {
+  color: var(--white);
+}
+
+.final-cta__text {
+  margin-top: 0.9rem;
+  font-size: 1.15rem;
+  color: var(--text-on-dark);
+}
+
+.final-cta__actions {
+  margin-top: 1.75rem;
+}
+
+/* Ice rule on the angled top edge */
+.final-cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  height: 6px;
+  background: linear-gradient(100deg, var(--ice) 0 62%, transparent 62% 100%);
+}
+
+@media (min-width: 600px) and (max-width: 899px) {
+  .final-cta__img {
+    aspect-ratio: 16 / 6;
+  }
+}
+
+@media (min-width: 900px) {
+  .final-cta {
+    display: flex;
+    align-items: center;
+    min-height: 27rem;
+  }
+
+  .final-cta__media {
+    position: absolute;
+    inset: 0;
+  }
+
+  .final-cta__img {
+    height: 100%;
+    aspect-ratio: auto;
+    object-position: 0% 60%;
+  }
+
+  /* The photo is already dark on the right; deepen it so the copy reads cleanly */
+  .final-cta__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgb(0 30 72 / 0) 22%, rgb(0 30 72 / 0.82) 50%, rgb(0 30 72 / 0.94) 100%);
+  }
+
+  .final-cta__inner {
+    display: flex;
+    justify-content: flex-end;
+    padding-block: 4rem;
+  }
+
+  .final-cta__copy {
+    width: min(36rem, 52%);
+  }
+}

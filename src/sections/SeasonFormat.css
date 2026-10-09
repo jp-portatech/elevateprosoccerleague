@@ -1,0 +1,123 @@
+.format__grid {
+  display: grid;
+  gap: 2.25rem;
+}
+
+.format .section-intro {
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 0.03em;
+  color: var(--navy);
+}
+
+/* Mobile: stacked cards joined by downward arrows */
+.stages {
+  display: grid;
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stage__card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--navy);
+}
+
+.stage:last-child .stage__card {
+  background: var(--navy);
+  border-color: var(--navy);
+  --ink: var(--white);
+}
+
+.stage__icon {
+  width: 2.4rem;
+  height: 2.4rem;
+  color: var(--navy);
+}
+
+.stage:last-child .stage__icon {
+  color: var(--ice);
+}
+
+.stage__value {
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.stage__label {
+  margin-top: 0.2rem;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--steel);
+}
+
+.stage:last-child .stage__label {
+  color: var(--ice);
+}
+
+.stage__arrow {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-block: 0.4rem;
+  color: var(--steel);
+  transform: rotate(90deg);
+}
+
+.stage:last-child .stage__arrow {
+  display: none;
+}
+
+/* Tablet and up: horizontal progression */
+@media (min-width: 760px) {
+  .stages {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: 2.25rem;
+  }
+
+  .stage {
+    position: relative;
+    align-items: stretch;
+  }
+
+  .stage__card {
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%;
+    padding: 1.5rem 0.75rem;
+    text-align: center;
+    border-left: 1px solid var(--line);
+    border-top: 4px solid var(--navy);
+  }
+
+  .stage__arrow {
+    position: absolute;
+    top: 50%;
+    right: -1.125rem;
+    margin: 0;
+    transform: translate(50%, -50%);
+  }
+}
+
+@media (min-width: 1100px) {
+  .format__grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    align-items: center;
+    gap: 3rem;
+  }
+}

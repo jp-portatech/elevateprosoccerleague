@@ -1,0 +1,22 @@
+{
+  // Type-checks the Vercel functions (api/) and server code the way Vercel runs them:
+  // per-file Node ESM, so relative imports need explicit `.js` extensions. This also covers
+  // the shared src/ modules they import (config, form validation).
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.api.tsbuildinfo",
+    "target": "es2022",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["api", "server"]
+}

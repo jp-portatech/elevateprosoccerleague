@@ -1,0 +1,144 @@
+.placement__grid {
+  display: grid;
+  gap: 2rem;
+}
+
+.placement__img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: 50% 22%;
+}
+
+/* Navy offset frame — a subtle angular accent behind the photo */
+.placement__media {
+  position: relative;
+  isolation: isolate;
+}
+
+.placement__media::before {
+  content: '';
+  position: absolute;
+  inset: 1rem -0.6rem -0.6rem 1rem;
+  z-index: -1;
+  background: var(--navy);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 18% 100%);
+}
+
+.steps {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.step {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 1rem;
+  row-gap: 0.2rem;
+  align-items: start;
+  align-content: start;
+}
+
+.step__num {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: var(--navy);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.step__title {
+  padding-top: 0.15rem;
+  font-size: 1.15rem;
+}
+
+.step p {
+  font-size: 0.98rem;
+  line-height: 1.45;
+}
+
+.placement__cta {
+  margin-top: 2rem;
+}
+
+@media (min-width: 560px) and (max-width: 759px), (min-width: 960px) {
+  .steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 2rem;
+  }
+}
+
+@media (min-width: 560px) and (max-width: 759px) {
+  .placement__img {
+    aspect-ratio: 16 / 10;
+  }
+}
+
+@media (min-width: 760px) {
+  .placement__grid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: center;
+    gap: clamp(2rem, 4vw, 3.5rem);
+  }
+
+  .placement__img {
+    aspect-ratio: 4 / 4.6;
+  }
+}
+
+/* Wide screens: four steps in a row linked by arrows */
+@media (min-width: 1200px) {
+  .placement__grid {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  }
+
+  .steps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: 1.75rem;
+  }
+
+  .step {
+    grid-template-columns: 1fr;
+    row-gap: 0.6rem;
+  }
+
+  .step__num {
+    grid-row: auto;
+  }
+
+  .step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 0.8rem;
+    left: 3.5rem;
+    right: 0.25rem;
+    height: 1.15rem;
+    background: var(--steel);
+    -webkit-mask: url('../../elevatepro-website-assets/icons/arrow.svg') right center / contain no-repeat;
+    mask: url('../../elevatepro-website-assets/icons/arrow.svg') right center / contain no-repeat;
+  }
+
+  .step:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    top: 1.36rem;
+    left: 3.5rem;
+    right: 1.1rem;
+    height: 2px;
+    background: var(--ice);
+  }
+}
+
+@media (max-width: 559px) {
+  .placement__cta {
+    width: 100%;
+  }
+}

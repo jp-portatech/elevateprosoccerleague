@@ -1,0 +1,135 @@
+.pricing__head {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.plans {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 2.25rem;
+}
+
+.plan {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.75rem 1.25rem 2rem;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-top: 5px solid var(--navy);
+}
+
+.plan--player {
+  border-top-color: var(--ice);
+}
+
+.plan__head {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.plan__icon {
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: 0.65rem;
+  background: var(--pale);
+  color: var(--navy);
+}
+
+.plan__title {
+  font-size: clamp(1.7rem, 1.4rem + 1.2vw, 2.25rem);
+}
+
+.plan__summary {
+  margin-top: 0.4rem;
+}
+
+.plan__price {
+  padding-block: 1rem;
+  border-block: 1px solid var(--line);
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.plan__price--pending {
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.plan__amount {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.plan__pay-note {
+  margin-top: 0.35rem;
+  font-family: var(--font-body);
+  font-weight: 400;
+  color: var(--text);
+}
+
+.plan__unit {
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--steel);
+}
+
+.plan__includes {
+  margin-bottom: 0.85rem;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--steel);
+}
+
+.plan .checklist {
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+.plan__cta {
+  margin-top: auto;
+  align-self: flex-start;
+  justify-self: start;
+}
+
+@media (max-width: 559px) {
+  .plan__cta {
+    align-self: stretch;
+  }
+}
+
+@media (min-width: 640px) {
+  .plan {
+    padding: 2.25rem 2rem 2.5rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .plans {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 2rem;
+  }
+
+  /* Align head / price / inclusions / button rows across both cards */
+  @supports (grid-template-rows: subgrid) {
+    .plan {
+      display: grid;
+      grid-row: span 4;
+      grid-template-rows: subgrid;
+      row-gap: 1.5rem;
+    }
+
+    .plan__price {
+      align-self: start;
+    }
+  }
+}
