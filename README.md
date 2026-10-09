@@ -1,5 +1,7 @@
 # ElevatePro Soccer League website
 
+Live at **https://www.elevateprosoccer.com** (Vercel; `elevateprosoccer.com` redirects to `www`).
+
 Single-page React + TypeScript + Vite site for ElevatePro Soccer League, built from the
 image pack in `elevatepro-website-assets/`. Registration fees are paid through Stripe
 Checkout, using two small Vercel functions in `api/`.
@@ -25,7 +27,8 @@ npm run preview   # serve the production build locally (no api/ routes)
 | Registration form fields and validation (shared with the server) | `src/registration/forms.ts` |
 | FAQ answers (built from the config) | `src/content/faq.tsx` |
 | Image registry (paths, sizes, alt text) | `src/content/images.ts` |
-| Page title, description and social meta tags | `index.html` |
+| Page title, description, canonical URL and link-preview tags | `index.html` |
+| Link-preview image, robots.txt, sitemap.xml (served as-is from the site root) | `public/` |
 | Design tokens (colors, fonts, spacing) | `src/styles/base.css` |
 
 Anything set to `null` in `league.ts` is unconfirmed, so the site hides it or shows "coming soon".
@@ -73,5 +76,4 @@ Keep secret keys out of the code and out of git. `.env.local` is already ignored
 - Check the transparent logo's lettering against `brand/elevatepro-logo-original.png`. The
   background-removed version was AI-derived.
 - Replace the AI-generated illustrative photos with real league photography when available.
-- Add `og:image` and a canonical URL in `index.html` once the production domain is known.
 - Decide on refund and roster policies before taking payments. The site doesn't state any.
