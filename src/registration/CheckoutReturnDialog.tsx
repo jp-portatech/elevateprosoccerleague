@@ -48,7 +48,7 @@ export function CheckoutReturnDialog({ sessionId, onClose, onRetry }: CheckoutRe
           {status.registrationType === 'player' &&
             ' ElevatePro will place your player on a team and send your team and season information.'}
         </p>
-        {status.email && <p>Stripe is emailing a receipt to {status.email}.</p>}
+        {status.email && <p>A confirmation email with your registration details is on its way to {status.email}.</p>}
         <p>
           The season starts {startDateLabel}, with games on {gameDays} at {league.venue.name}.
         </p>

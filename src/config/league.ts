@@ -44,6 +44,10 @@ export interface SocialLink {
 export interface LeagueConfig {
   name: string
   shortName: string
+  /** Public site address, used for links and images in emails. No trailing slash. */
+  siteUrl: string
+  /** Time zone for dates in emails, e.g. payment time. */
+  timeZone: string
   divisions: Division[]
   /** Shown under the divisions while any division's eligibility is still null. */
   eligibilityPendingNote: string
@@ -84,6 +88,18 @@ export interface LeagueConfig {
     phones: string[]
   }
   social: SocialLink[]
+  /**
+   * Registration emails sent after a successful payment (server/webhook.ts → Resend).
+   * The sender's domain must be verified in Resend — see README.md.
+   */
+  email: {
+    /** Sender shown to families, e.g. "ElevatePro Soccer League <registration@example.com>". */
+    from: string
+    /** Where families' replies go. */
+    replyTo: string
+    /** Receives a copy of every paid registration with all form details. Empty sends none. */
+    notify: string[]
+  }
   registration: {
     /**
      * When true, submitting a registration form creates a Stripe Checkout session
@@ -99,6 +115,8 @@ export interface LeagueConfig {
 export const league: LeagueConfig = {
   name: 'ElevatePro Soccer League',
   shortName: 'ElevatePro',
+  siteUrl: 'https://www.elevateprosoccer.com',
+  timeZone: 'America/Denver',
 
   divisions: [
     { id: 'U8', bornOnOrAfter: '2018-08-01' },
@@ -158,6 +176,12 @@ export const league: LeagueConfig = {
     { label: 'Instagram', url: null },
     { label: 'Facebook', url: null },
   ],
+
+  email: {
+    from: 'ElevatePro Soccer League <registration@elevateprosoccer.com>',
+    replyTo: 'elevateprosoccer@gmail.com',
+    notify: ['elevateprosoccer@gmail.com'],
+  },
 
   registration: {
     onlinePayments: true,

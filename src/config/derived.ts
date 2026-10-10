@@ -19,6 +19,15 @@ export const gameDays = `${season.gameDay}s`
 export const startDateLabel =
   `${season.startMonth} ${season.startDay}` + (season.startYear ? `, ${season.startYear}` : '')
 
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+/** "Sunday, October 25, 2026" once the year is set, otherwise the short label. */
+export const startDateFull = season.startYear
+  ? new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(
+      new Date(Date.UTC(season.startYear, MONTHS.indexOf(season.startMonth), season.startDay, 12)),
+    )
+  : startDateLabel
+
 /** "South Jordan, Utah" */
 export const venueLocation = `${venue.city}, ${venue.region}`
 

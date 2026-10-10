@@ -12,6 +12,7 @@ function vercelApiDev(): Plugin {
   const routes: Record<string, string> = {
     '/register': '/api/register.ts',
     '/registration-status': '/api/registration-status.ts',
+    '/stripe-webhook': '/api/stripe-webhook.ts',
   }
   const readBody = async (req: IncomingMessage) => {
     const chunks: Buffer[] = []
@@ -58,7 +59,7 @@ function vercelApiDev(): Plugin {
 // so Vite fingerprints them and only the files the site uses end up in dist/.
 export default defineConfig(({ mode }) => {
   // Server-only secrets for the dev API (never exposed to the browser bundle).
-  Object.assign(process.env, loadEnv(mode, process.cwd(), 'STRIPE_'))
+  Object.assign(process.env, loadEnv(mode, process.cwd(), ['STRIPE_', 'RESEND_']))
   return {
     plugins: [react(), vercelApiDev()],
   }

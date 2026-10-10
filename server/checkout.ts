@@ -9,11 +9,12 @@
  *
  * Amounts always come from the config on the server, never from the request.
  */
-import Stripe from 'stripe'
+import type Stripe from 'stripe'
 import { startDateLabel } from '../src/config/derived.js'
 import { league } from '../src/config/league.js'
 import { formFields, validateForm, type FormValues } from '../src/registration/forms.js'
 import type { RegistrationKind } from '../src/registration/types.js'
+import { stripeClient } from './stripe.js'
 
 export interface ServerEnv {
   STRIPE_SECRET_KEY?: string
@@ -30,7 +31,7 @@ const json = (body: unknown, status = 200) =>
 const fail = (error: CheckoutErrorCode, status: number, extra: Record<string, unknown> = {}) =>
   json({ error, ...extra }, status)
 
-const isKind = (value: unknown): value is RegistrationKind => value === 'team' || value === 'player'
+export const isKind = (value: unknown): value is RegistrationKind => value === 'team' || value === 'player'
 
 /** Keeps only this form's known fields, as trimmed strings. */
 function pickFields(kind: RegistrationKind, raw: unknown): FormValues {
@@ -57,6 +58,22 @@ export function toMetadata(kind: RegistrationKind, fields: FormValues): Record<s
     }
   }
   return metadata
+}
+
+/** Reverses toMetadata: the registration's form answers (display values) from Stripe metadata. */
+export function registrationFromMetadata(
+  metadata: Record<string, string> | null | undefined,
+): { kind: RegistrationKind; fields: FormValues } | null {
+  const kind = metadata?.registration_type
+  if (!metadata || !isKind(kind)) return null
+  const fields: FormValues = {}
+  for (const field of formFields[kind]) {
+    const key = snakeCase(field.name)
+    const chunks: string[] = [] // long values were split into key_1, key_2, …
+    for (let i = 1; metadata[`${key}_${i}`] !== undefined; i++) chunks.push(metadata[`${key}_${i}`])
+    fields[field.name] = metadata[key] ?? chunks.join('')
+  }
+  return { kind, fields }
 }
 
 /** Pure — builds the Checkout Session request for validated fields. */
@@ -118,7 +135,7 @@ export async function createCheckout(request: Request, env: ServerEnv): Promise<
   if (!league.pricing[kind] || !env.STRIPE_SECRET_KEY) return fail('not-configured', 503)
 
   try {
-    const stripe = new Stripe(env.STRIPE_SECRET_KEY)
+    const stripe = stripeClient(env.STRIPE_SECRET_KEY)
     const session = await stripe.checkout.sessions.create(
       buildCheckoutParams(kind, fields, new URL(request.url).origin),
     )
@@ -139,7 +156,7 @@ export async function checkoutStatus(request: Request, env: ServerEnv): Promise<
   if (!env.STRIPE_SECRET_KEY) return fail('not-configured', 503)
 
   try {
-    const stripe = new Stripe(env.STRIPE_SECRET_KEY)
+    const stripe = stripeClient(env.STRIPE_SECRET_KEY)
     const session = await stripe.checkout.sessions.retrieve(sessionId)
     const meta = session.metadata ?? {}
     const kind = meta.registration_type
