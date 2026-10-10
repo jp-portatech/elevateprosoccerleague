@@ -160,6 +160,6 @@ export const league: LeagueConfig = {
   ],
 
   registration: {
-    onlinePayments: false,
+    onlinePayments: true,
   },
 }
