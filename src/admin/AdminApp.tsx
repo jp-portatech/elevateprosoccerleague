@@ -227,6 +227,11 @@ function Setup({ missing }: { missing: string }) {
           The dashboard’s database isn’t connected yet. In Vercel, open the project → <strong>Storage</strong> →{' '}
           <strong>Create Database</strong> → <strong>Neon</strong>, connect it to this project, then redeploy.
         </p>
+      ) : missing === 'password-length' ? (
+        <p>
+          <code>ADMIN_PASSWORD</code> is set, but it’s shorter than 12 characters. In Vercel →{' '}
+          <strong>Settings → Environment Variables</strong>, edit it to something longer, then redeploy.
+        </p>
       ) : (
         <p>
           The admin password isn’t set. In Vercel → <strong>Settings → Environment Variables</strong>, add{' '}

@@ -224,7 +224,8 @@ export async function handleAdmin(request: Request, env: AdminEnv): Promise<Resp
   if (request.method !== 'POST') return json({ error: 'method-not-allowed' }, 405)
 
   const password = env.ADMIN_PASSWORD ?? ''
-  if (password.length < MIN_PASSWORD_LENGTH) return json({ error: 'not-configured', missing: 'password' }, 503)
+  if (!password) return json({ error: 'not-configured', missing: 'password' }, 503)
+  if (password.length < MIN_PASSWORD_LENGTH) return json({ error: 'not-configured', missing: 'password-length' }, 503)
   const db = getDb(env)
   if (!db) return json({ error: 'not-configured', missing: 'database' }, 503)
 
