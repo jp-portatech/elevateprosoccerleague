@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
+import { league } from '../config/league'
 import { logo } from '../content/images'
 import { navLinks } from '../content/navigation'
+import { PartnerLogo } from './PartnerLogo'
 import { RegisterButton } from './RegisterButton'
 import { RegisterMenu } from './RegisterMenu'
 import './Header.css'
 
 const DESKTOP_NAV = '(min-width: 1024px)'
+const { venue } = league
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -38,21 +41,34 @@ export function Header() {
   return (
     <header className="site-header">
       <div className="container site-header__inner">
-        <a className="brand" href="#top">
-          <img
-            className="brand__logo"
-            src={logo.src}
-            srcSet={logo.srcSet}
-            sizes="(min-width: 1024px) 60px, 48px"
-            width={256}
-            height={256}
-            alt={logo.alt}
-          />
-          <span className="brand__text" aria-hidden="true">
-            ElevatePro
-            <span className="brand__sub">Soccer League</span>
-          </span>
-        </a>
+        <div className="site-header__brands">
+          <a className="brand" href="#top">
+            <img
+              className="brand__logo"
+              src={logo.src}
+              srcSet={logo.srcSet}
+              sizes="(min-width: 1024px) 60px, 48px"
+              width={256}
+              height={256}
+              alt={logo.alt}
+            />
+            <span className="brand__text" aria-hidden="true">
+              ElevatePro
+              <span className="brand__sub">Soccer League</span>
+            </span>
+          </a>
+
+          {venue.partnerLabel && (
+            <a className="partner" href="#venue">
+              <PartnerLogo className="partner__logo" sizes="(min-width: 1024px) 37px, 31px" />
+              {/* Visually hidden on phones, where only the shield fits */}
+              <span className="partner__text">
+                <span className="partner__label">{venue.partnerLabel}</span>{' '}
+                <span className="partner__name">{venue.name}</span>
+              </span>
+            </a>
+          )}
+        </div>
 
         <nav className="primary-nav" aria-label="Main">
           <ul>

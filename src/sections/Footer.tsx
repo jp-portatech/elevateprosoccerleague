@@ -1,3 +1,4 @@
+import { PartnerLogo } from '../components/PartnerLogo'
 import { divisionRange, gameDays, telHref, venueAddress, venueLocation } from '../config/derived'
 import { league } from '../config/league'
 import { logo } from '../content/images'
@@ -33,6 +34,15 @@ export function Footer({ home = '' }: { home?: string }) {
                 <br />
                 {league.venue.name}, {venueAddress ?? venueLocation}
               </p>
+              {league.venue.partnerLabel && (
+                <a className="site-footer__partner" href={`${home}#venue`}>
+                  <PartnerLogo className="site-footer__partner-logo" sizes="39px" lazy />
+                  <span>
+                    <span className="site-footer__partner-label">{league.venue.partnerLabel}</span>{' '}
+                    <span className="site-footer__partner-name">{league.venue.name}</span>
+                  </span>
+                </a>
+              )}
             </div>
           </div>
 

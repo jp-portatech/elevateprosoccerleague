@@ -39,6 +39,11 @@ Vercel, the Gmail inbox). If you add a form field, a service, analytics or cooki
 `src/privacy/PrivacyPage.tsx` and its `LAST_UPDATED` date in the same change. `vercel.json` turns on
 `cleanUrls`, which serves `privacy.html` at `/privacy`.
 
+Axe House Sports appears as the official venue partner in the header, the Venue section and the
+footer. Change the wording with `venue.partnerLabel` in `league.ts`, or set it to `null` to remove the
+partnership everywhere. The logo was supplied by Axe House and is used with their permission. The web
+versions are trimmed copies of `brand/axe_house_sports_logo.png` (see `venueLogo` in `src/content/images.ts`).
+
 Anything set to `null` in `league.ts` is unconfirmed, so the site hides it or shows "coming soon".
 Social links are placeholders: add each profile URL to `social` and it becomes a link.
 

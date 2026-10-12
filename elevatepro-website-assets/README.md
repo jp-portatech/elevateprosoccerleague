@@ -92,6 +92,9 @@ Generated with the built-in image-generation tool. Prompt set is in docs/generat
 | `brand/elevatepro-logo-256.webp` | Header / footer logo | 256×256 | ElevatePro Soccer League |
 | `brand/elevatepro-logo-512.webp` | Header / footer logo | 512×512 | ElevatePro Soccer League |
 | `brand/elevatepro-logo-transparent.png` | Header and footer | 1254×1254 | ElevatePro Soccer League |
+| `brand/axe_house_sports_logo.png` | Source file supplied by Axe House Sports (official venue partner) | 1000×1000 | Axe House Sports |
+| `brand/axe-house-sports-logo-128.webp` | Venue partner shield: header, Venue section, footer | 128×159 | (decorative next to the name; empty alt) |
+| `brand/axe-house-sports-logo-256.webp` | Venue partner shield: header, Venue section, footer | 256×318 | (decorative next to the name; empty alt) |
 | `icons/team.svg` | Quick facts / benefits / format / awards / UI | 32×32 | (decorative; empty alt) |
 | `icons/player.svg` | Quick facts / benefits / format / awards / UI | 32×32 | (decorative; empty alt) |
 | `icons/calendar.svg` | Quick facts / benefits / format / awards / UI | 32×32 | (decorative; empty alt) |

@@ -1,4 +1,5 @@
 import { Icon } from '../components/Icon'
+import { PartnerLogo } from '../components/PartnerLogo'
 import { Picture } from '../components/Picture'
 import { SectionHeading } from '../components/SectionHeading'
 import { venueAddressLines, venueLocation } from '../config/derived'
@@ -18,8 +19,13 @@ export function Venue() {
           </SectionHeading>
 
           <div className="venue__place">
-            <Icon name="pin" className="venue__pin" />
+            {venue.partnerLabel ? (
+              <PartnerLogo className="venue__partner-logo" sizes="64px" lazy />
+            ) : (
+              <Icon name="pin" className="venue__pin" />
+            )}
             <div>
+              {venue.partnerLabel && <p className="venue__partner-label">{venue.partnerLabel}</p>}
               <h3 className="label venue__name">{venue.name}</h3>
               {venueAddressLines ? (
                 <address className="venue__address">

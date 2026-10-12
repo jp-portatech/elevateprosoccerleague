@@ -15,11 +15,16 @@
 
 /* ---------- Brand ---------- */
 
+.site-header__brands {
+  display: flex;
+  align-items: center;
+  margin-right: auto;
+}
+
 .brand {
   display: flex;
   align-items: center;
   gap: 0.7rem;
-  margin-right: auto;
   color: var(--navy);
   text-decoration: none;
 }
@@ -52,6 +57,79 @@
   .brand__logo {
     width: 60px;
     height: 60px;
+  }
+}
+
+/* ---------- Venue partner (beside the brand, after a divider) ---------- */
+
+.partner {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-left: 0.65rem;
+  padding: 0.2rem 0 0.2rem 0.65rem;
+  border-left: 1px solid var(--line);
+  color: var(--navy);
+  text-decoration: none;
+}
+
+/* About 80% of the ElevatePro logo's height, so the league's own brand leads */
+.partner__logo {
+  width: auto;
+  height: 38px;
+}
+
+.partner__text {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-condensed);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.partner__label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--steel);
+}
+
+.partner__name {
+  margin-top: 0.3rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.partner:hover .partner__name {
+  text-decoration: underline;
+  text-decoration-color: var(--ice);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+}
+
+/* Phones: shield only. The text stays available to screen readers. */
+@media (max-width: 719px) {
+  .partner__text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 720px) {
+  .partner {
+    margin-left: 1rem;
+    padding-left: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .partner__logo {
+    height: 46px;
   }
 }
 
@@ -332,7 +410,7 @@ html:has(.mobile-menu:not([hidden])) {
   }
 }
 
-@media (max-width: 339px) {
+@media (max-width: 359px) {
   .brand__text {
     display: none;
   }

@@ -73,6 +73,11 @@ export interface LeagueConfig {
     directionsUrl: string | null
     /** Confirmed facility amenities. Empty hides the list. */
     amenities: string[]
+    /**
+     * Partnership label shown with the venue's logo in the header, venue section and footer.
+     * Null hides the logo and label everywhere.
+     */
+    partnerLabel: string | null
   }
   awards: Array<{ id: 'champions' | 'runners-up' | 'mvp'; title: string; prize: string }>
   pricing: {
@@ -152,6 +157,7 @@ export const league: LeagueConfig = {
       '2 water fountains with bottle fillers',
       'Heated indoor play all winter long',
     ],
+    partnerLabel: 'Official venue partner',
   },
 
   awards: [

@@ -16,10 +16,32 @@
   align-items: flex-start;
 }
 
+.venue__place:has(.venue__partner-logo) {
+  gap: 1.1rem;
+  align-items: center;
+}
+
 .venue__pin {
   width: 2.4rem;
   height: 2.4rem;
   color: var(--navy);
+}
+
+.venue__partner-logo {
+  flex: none;
+  width: auto;
+  height: 5rem;
+}
+
+.venue__partner-label {
+  margin-bottom: 0.3rem;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--steel);
 }
 
 .venue__name {

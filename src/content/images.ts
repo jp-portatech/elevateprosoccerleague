@@ -14,6 +14,7 @@ const files = import.meta.glob<string>(
     '/elevatepro-website-assets/{hero,registration,awards,gallery,venue}/*.{webp,jpg}',
     '/elevatepro-website-assets/backgrounds/cta-*.{webp,jpg}',
     '/elevatepro-website-assets/brand/elevatepro-logo-*.webp',
+    '/elevatepro-website-assets/brand/axe-house-sports-logo-*.webp',
   ],
   { eager: true, query: '?url', import: 'default' },
 )
@@ -129,4 +130,16 @@ export const logo = {
   src: assetUrl('brand/elevatepro-logo-256.webp'),
   srcSet: [128, 256, 512].map((w) => `${assetUrl(`brand/elevatepro-logo-${w}.webp`)} ${w}w`).join(', '),
   alt: 'ElevatePro Soccer League',
+}
+
+/**
+ * Axe House Sports shield (official venue partner), supplied by Axe House and used with their
+ * permission. Trimmed from brand/axe_house_sports_logo.png, unaltered otherwise. Lossless WebP.
+ */
+export const venueLogo = {
+  src: assetUrl('brand/axe-house-sports-logo-128.webp'),
+  srcSet: [128, 256].map((w) => `${assetUrl(`brand/axe-house-sports-logo-${w}.webp`)} ${w}w`).join(', '),
+  width: 570,
+  height: 708,
+  alt: 'Axe House Sports',
 }
