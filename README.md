@@ -24,7 +24,9 @@ npm run preview   # serve the production build locally (no api/ routes)
 | League details: divisions and birth-date cutoffs, season date, games, playoff teams, venue and amenities, awards, prices, contact, social links, online-payments switch | `src/config/league.ts` |
 | Stripe Checkout logic (validation, pricing, metadata) | `server/checkout.ts` |
 | Vercel functions | `api/register.ts`, `api/registration-status.ts`, `api/stripe-webhook.ts` |
-| Post-payment emails: webhook handling, sending (Resend), wording and layout | `server/webhook.ts`, `server/email.ts`, `server/emails/registrationEmails.ts` |
+| Post-payment emails: webhook handling, sending (Resend), wording | `server/webhook.ts`, `server/email.ts`, `server/emails/registrationEmails.ts` |
+| Contact form ("Not ready to register?"): section, fields and validation, server, emails | `src/sections/Contact.tsx`, `src/contact/leadForm.ts`, `server/lead.ts`, `server/emails/leadEmails.ts` |
+| Look shared by every email (header, footer, boxes, season details) | `server/emails/layout.ts` |
 | Email sender, reply-to and league-copy addresses | `email` in `src/config/league.ts` |
 | Browser side of registration (submit, redirect, draft restore) | `src/registration/submitRegistration.ts` |
 | Registration form fields and validation (shared with the server) | `src/registration/forms.ts` |
@@ -145,6 +147,41 @@ Stripe retries for up to 3 days. Emails that fail before Resend is set up still 
 Sandbox and live webhooks are separate. When you switch Stripe to the live account, add the same
 endpoint in live mode and update `STRIPE_WEBHOOK_SECRET` with the live signing secret.
 Resend's free plan allows 100 emails a day. Each registration sends 2.
+
+## Contact form (leads)
+
+The **"Not ready to register?"** section (after the FAQ, linked as **Contact** in the menu) collects
+name, email, phone, what they're interested in, their player's age group, a message, and an optional
+**"Yes, send me news and offers by email and text"** checkbox. When someone sends it:
+
+1. The league inbox gets a **"New contact request"** email with everything they entered, whether they
+   agreed to news and offers, and which language they used. Reply to write back, or tap **Call**.
+2. They get a **thank-you email** in their language, with a Register button and the season details.
+3. They're saved to your **Resend contact list**. People who ticked the box can receive
+   Broadcasts; everyone else is saved as unsubscribed, so Broadcasts skip them. Follow up with them
+   one-to-one only.
+
+Only step 1 has to work: if it fails, the visitor is told. Steps 2 and 3 never block the form.
+Spam protection: a hidden field that only bots fill in, plus a minimum time on the form.
+
+**Setup (one time):**
+
+1. **Give the Resend key Full access.** The key from "Registration emails" is Sending access, which
+   can send email but can't add contacts. Resend → **API Keys → Create** with **Full access** →
+   replace `RESEND_API_KEY` in Vercel (Production and Preview) → **Redeploy** → delete the old key in
+   Resend. Until then, leads still reach the inbox; they just aren't added to the contact list.
+2. **Optional segment:** in Resend, create a segment such as "Website leads", copy its ID and add it
+   in Vercel as `RESEND_LEADS_SEGMENT_ID`, then redeploy. New leads are added to it, so you can send a
+   Broadcast to just them.
+3. Send a test message from the site with your own email address.
+
+**Emailing your leads later:** Resend → **Broadcasts** → pick the segment. Resend adds the
+unsubscribe link and skips unsubscribed contacts. US rules (CAN-SPAM) also require your mailing
+address in marketing emails. Text messages need an SMS service, which isn't set up; the checkbox
+records consent for when you add one.
+
+Each contact form message sends 2 emails, which count toward Resend's daily limit along with
+registration emails.
 
 ## Before launch
 

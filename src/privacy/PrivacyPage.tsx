@@ -26,8 +26,8 @@ interface PolicySection {
 /**
  * Plain-language privacy policy at /privacy and /es/privacy. It describes what the site
  * actually does — the registration fields in src/registration/forms.ts, Stripe Checkout,
- * Resend emails, the league inbox, the checkout draft in sessionStorage and the remembered
- * language in localStorage — so update it whenever any of those change.
+ * Resend emails and contact list, the league inbox, the contact form (src/contact/leadForm.ts),
+ * the checkout draft in sessionStorage and the remembered language in localStorage — so update it whenever any of those change.
  */
 const COPY = localized<{
   skip: string
@@ -48,13 +48,13 @@ const COPY = localized<{
     logoAlt: `${logo.alt} home`,
     title: 'Privacy policy',
     updated: 'Last updated',
-    intro: `This page explains what information ${shortName} collects when you register a team or player on this website, how we use it, and who helps us handle it.`,
+    intro: `This page explains what information ${shortName} collects when you register a team or player, or contact us, on this website, how we use it, and who helps us handle it.`,
     glanceTitle: 'At a glance',
     glance: [
-      'We collect only what we need to register you and run the league.',
+      'We collect only what we need to register you, follow up with you and run the league.',
       'Card details go straight to Stripe. We never see your full card number.',
       'This website doesn’t use cookies, analytics or advertising trackers.',
-      'We don’t sell your information or use it for advertising.',
+      'We don’t sell your information, and we only send news and offers if you say yes.',
       'You can ask us to see, correct or delete your details at any time.',
     ],
     sections: [
@@ -80,6 +80,11 @@ const COPY = localized<{
                 limited card details such as the card type and last four digits — never the full card number.
               </li>
               <li>
+                <strong>Contact requests:</strong> if you use the “Not ready to register?” form, your name, email
+                address, phone number and what you’re interested in and, if you add them, your player’s age group and a
+                message.
+              </li>
+              <li>
                 <strong>When you contact us:</strong> anything you choose to share by email or phone.
               </li>
             </ul>
@@ -99,9 +104,13 @@ const COPY = localized<{
                 To send your registration confirmation, schedule and season information, and other messages about the
                 league.
               </li>
-              <li>To answer your questions.</li>
+              <li>To answer your questions and contact requests, and follow up with you about joining the league.</li>
+              <li>
+                If you say yes on the contact form, to send you news and offers by email and text message. You can opt
+                out at any time.
+              </li>
             </ul>
-            <p>We don’t sell your information, and we don’t use it for advertising.</p>
+            <p>We don’t sell your information or share it with advertisers.</p>
           </>
         ),
       },
@@ -120,7 +129,7 @@ const COPY = localized<{
                 payment.
               </li>
               <li>
-                <strong>Resend</strong> delivers our registration confirmation emails.
+                <strong>Resend</strong> delivers our emails and keeps our contact list.
               </li>
               <li>
                 <strong>Vercel</strong> hosts this website and the registration form.
@@ -179,7 +188,9 @@ const COPY = localized<{
         body: (
           <p>
             We keep registration details for as long as we need them to run the season and keep accurate financial
-            records. Stripe also keeps its own payment records, as financial regulations require.
+            records. Stripe also keeps its own payment records, as financial regulations require. We keep contact
+            requests for as long as we need them to follow up, and keep you on our contact list until you ask us to
+            remove you.
           </p>
         ),
       },
@@ -189,7 +200,8 @@ const COPY = localized<{
         body: (
           <p>
             You can ask us to see, correct or delete the information we hold about you or your child. We may need to
-            keep some payment records for accounting and tax purposes, even after deleting the rest.
+            keep some payment records for accounting and tax purposes, even after deleting the rest. You can stop news
+            and offers at any time with the unsubscribe link in our emails, or by contacting us.
           </p>
         ),
       },
@@ -220,13 +232,13 @@ const COPY = localized<{
     logoAlt: `${logo.alt}: inicio`,
     title: 'Política de privacidad',
     updated: 'Última actualización:',
-    intro: `Esta página explica qué información recopila ${shortName} cuando inscribes a un equipo o a un jugador en este sitio, cómo la usamos y quién nos ayuda a manejarla.`,
+    intro: `Esta página explica qué información recopila ${shortName} cuando inscribes a un equipo o a un jugador, o te comunicas con nosotros, en este sitio, cómo la usamos y quién nos ayuda a manejarla.`,
     glanceTitle: 'De un vistazo',
     glance: [
-      'Solo recopilamos lo necesario para inscribirte y organizar la liga.',
+      'Solo recopilamos lo necesario para inscribirte, darte seguimiento y organizar la liga.',
       'Los datos de tu tarjeta van directo a Stripe. Nunca vemos el número completo de tu tarjeta.',
       'Este sitio no usa cookies, herramientas de análisis ni rastreadores publicitarios.',
-      'No vendemos tu información ni la usamos para publicidad.',
+      'No vendemos tu información y solo te enviamos noticias y ofertas si aceptas.',
       'Puedes pedirnos ver, corregir o borrar tus datos en cualquier momento.',
     ],
     sections: [
@@ -254,6 +266,11 @@ const COPY = localized<{
                 el número completo.
               </li>
               <li>
+                <strong>Solicitudes de contacto:</strong> si usas el formulario “¿Todavía no estás listo para
+                inscribirte?”, tu nombre, correo electrónico, teléfono y lo que te interesa y, si los agregas, la
+                división de edad de tu jugador y un mensaje.
+              </li>
+              <li>
                 <strong>Cuando te comunicas con nosotros:</strong> lo que decidas compartir por correo o por teléfono.
               </li>
             </ul>
@@ -276,9 +293,15 @@ const COPY = localized<{
                 Para enviarte la confirmación de tu inscripción, el calendario, la información de la temporada y otros
                 mensajes sobre la liga.
               </li>
-              <li>Para responder tus preguntas.</li>
+              <li>
+                Para responder tus preguntas y solicitudes de contacto, y darte seguimiento sobre cómo unirte a la liga.
+              </li>
+              <li>
+                Si aceptas en el formulario de contacto, para enviarte noticias y ofertas por correo electrónico y mensaje
+                de texto. Puedes darte de baja en cualquier momento.
+              </li>
             </ul>
-            <p>No vendemos tu información ni la usamos para publicidad.</p>
+            <p>No vendemos tu información ni la compartimos con anunciantes.</p>
           </>
         ),
       },
@@ -296,7 +319,7 @@ const COPY = localized<{
                 <strong>Stripe</strong> procesa los pagos y guarda los datos de inscripción vinculados a cada pago.
               </li>
               <li>
-                <strong>Resend</strong> envía nuestros correos de confirmación de inscripción.
+                <strong>Resend</strong> envía nuestros correos y guarda nuestra lista de contactos.
               </li>
               <li>
                 <strong>Vercel</strong> aloja este sitio web y el formulario de inscripción.
@@ -360,7 +383,8 @@ const COPY = localized<{
           <p>
             Guardamos los datos de inscripción mientras los necesitemos para organizar la temporada y mantener registros
             financieros correctos. Stripe también guarda sus propios registros de pago, como lo exigen las regulaciones
-            financieras.
+            financieras. Guardamos las solicitudes de contacto mientras las necesitemos para darte seguimiento, y te
+            mantenemos en nuestra lista de contactos hasta que nos pidas que te quitemos.
           </p>
         ),
       },
@@ -371,7 +395,8 @@ const COPY = localized<{
           <p>
             Puedes pedirnos ver, corregir o borrar la información que tenemos sobre ti o sobre tu hijo o hija. Es
             posible que debamos conservar algunos registros de pago por motivos contables y fiscales, aun después de
-            borrar lo demás.
+            borrar lo demás. Puedes dejar de recibir noticias y ofertas en cualquier momento con el enlace para darte de
+            baja en nuestros correos, o comunicándote con nosotros.
           </p>
         ),
       },

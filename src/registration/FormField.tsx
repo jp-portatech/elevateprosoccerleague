@@ -33,6 +33,42 @@ export function FormField({ field, idPrefix, value, error, onChange, onBlur }: F
     onBlur: () => onBlur(field.name),
   }
 
+  if (field.type === 'checkbox') {
+    // The label is a full sentence after the box, e.g. "Yes, send me news and offers".
+    return (
+      <div className={['field', 'field--checkbox', error && 'field--error'].filter(Boolean).join(' ')}>
+        <div className="field__check">
+          <input
+            id={id}
+            name={field.name}
+            type="checkbox"
+            className="field__checkbox"
+            checked={value === 'yes'}
+            required={field.required}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={describedBy}
+            onChange={(e) => onChange(field.name, e.target.checked ? 'yes' : '')}
+            onBlur={() => onBlur(field.name)}
+          />
+          <label className="field__check-label" htmlFor={id}>
+            {field.label[locale]}
+          </label>
+        </div>
+        {field.hint && (
+          <p className="field__hint" id={hintId}>
+            {field.hint[locale]}
+          </p>
+        )}
+        {error && (
+          <p className="field__error" id={errorId}>
+            <span className="visually-hidden">Error: </span>
+            {error}
+          </p>
+        )}
+      </div>
+    )
+  }
+
   let control
   if (field.type === 'select') {
     control = (

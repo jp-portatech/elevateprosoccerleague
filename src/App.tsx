@@ -3,6 +3,7 @@ import { LocaleProvider } from './i18n/LocaleProvider'
 import { useLocale } from './i18n/useLocale'
 import { RegistrationProvider } from './registration/RegistrationProvider'
 import { Awards } from './sections/Awards'
+import { Contact } from './sections/Contact'
 import { Divisions } from './sections/Divisions'
 import { Faq } from './sections/Faq'
 import { FinalCta } from './sections/FinalCta'
@@ -48,6 +49,7 @@ function Home() {
         <SundayExperience />
         <Registration />
         <Faq />
+        <Contact />
         <FinalCta />
       </main>
       <Footer />

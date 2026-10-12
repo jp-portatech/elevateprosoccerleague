@@ -5,7 +5,7 @@ import { league } from '../config/league.js'
 import { intlLocale, localized, type Locale, type Localized } from '../i18n/locale.js'
 import type { RegistrationKind } from './types.js'
 
-export type FieldType = 'text' | 'email' | 'tel' | 'date' | 'select' | 'textarea'
+export type FieldType = 'text' | 'email' | 'tel' | 'date' | 'select' | 'textarea' | 'checkbox'
 
 export interface FieldDef {
   name: string
@@ -26,6 +26,16 @@ export interface FieldDef {
 export type FormValues = Record<string, string>
 export type FormErrors = Record<string, string>
 
+/** One option per division, e.g. "U10 — born on or after Aug 1, 2016" when `showEligibility`. */
+export const divisionOptions = (showEligibility: boolean): NonNullable<FieldDef['options']> =>
+  league.divisions.map((d) => {
+    const label = (locale: Locale) => {
+      const eligibility = showEligibility ? eligibilityText(d, locale, true) : null
+      return eligibility ? `${d.id} — ${eligibility}` : d.id
+    }
+    return { value: d.id, label: { en: label('en'), es: label('es') } }
+  })
+
 const divisionField = (hint: Localized, showEligibility: boolean): FieldDef => ({
   name: 'division',
   label: { en: 'Division', es: 'División' },
@@ -33,17 +43,11 @@ const divisionField = (hint: Localized, showEligibility: boolean): FieldDef => (
   required: true,
   requiredMessage: { en: 'Select a division.', es: 'Selecciona una división.' },
   hint,
-  options: league.divisions.map((d) => {
-    const label = (locale: Locale) => {
-      const eligibility = showEligibility ? eligibilityText(d, locale, true) : null
-      return eligibility ? `${d.id} — ${eligibility}` : d.id
-    }
-    return { value: d.id, label: { en: label('en'), es: label('es') } }
-  }),
+  options: divisionOptions(showEligibility),
   placeholderOption: { en: 'Select a division', es: 'Selecciona una división' },
 })
 
-const phoneField: FieldDef = {
+export const phoneField: FieldDef = {
   name: 'phone',
   label: { en: 'Phone', es: 'Teléfono' },
   type: 'tel',
@@ -272,6 +276,8 @@ export function validateField(field: FieldDef, raw: string, locale: Locale = 'en
       return null
     case 'select':
       return field.options?.some((o) => o.value === value) ? null : t.select(label)
+    case 'checkbox':
+      return value === 'yes' ? null : t.select(label)
     default:
       return null
   }

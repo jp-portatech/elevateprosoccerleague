@@ -13,6 +13,7 @@ function vercelApiDev(): Plugin {
     '/register': '/api/register.ts',
     '/registration-status': '/api/registration-status.ts',
     '/stripe-webhook': '/api/stripe-webhook.ts',
+    '/contact': '/api/contact.ts',
   }
   const readBody = async (req: IncomingMessage) => {
     const chunks: Buffer[] = []

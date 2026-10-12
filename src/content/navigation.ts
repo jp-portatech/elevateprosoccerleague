@@ -7,4 +7,5 @@ export const navLinks: Array<{ label: Localized; href: string }> = [
   { label: { en: 'Format', es: 'Formato' }, href: '#format' },
   { label: { en: 'Venue', es: 'Sede' }, href: '#venue' },
   { label: { en: 'FAQ', es: 'Preguntas' }, href: '#faq' },
+  { label: { en: 'Contact', es: 'Contacto' }, href: '#contact' },
 ]

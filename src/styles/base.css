@@ -121,6 +121,11 @@ a {
   text-underline-offset: 0.2em;
 }
 
+/* Keep phone numbers on one line ("801-688-0833", not "801-" / "688-0833") */
+a[href^='tel:'] {
+  white-space: nowrap;
+}
+
 :focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 3px;
