@@ -25,7 +25,7 @@ const COPY = localized({
     title: 'Tu cancha de cada domingo.',
     directions: 'Cómo llegar',
     newTab: ' (se abre en una pestaña nueva)',
-    caption: 'Imagen ilustrativa de una instalación bajo techo — no es Axe House Sports',
+    caption: 'Imagen ilustrativa de una instalación indoor — no es Axe House Sports',
     amenities: 'En las instalaciones',
   },
 })

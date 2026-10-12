@@ -13,9 +13,9 @@ export const PAGE_META: Record<Page, Localized<{ title: string; description: str
         'Competitive Sunday indoor soccer for U8–U14 players and teams at Axe House Sports in South Jordan, Utah. Season starts October 25, 2026. Register a team, or register a player individually and ElevatePro will place them on a team.',
     },
     es: {
-      title: 'ElevatePro Soccer League | Fútbol juvenil bajo techo en South Jordan, Utah',
+      title: 'ElevatePro Soccer League | Fútbol juvenil indoor en South Jordan, Utah',
       description:
-        'Fútbol competitivo bajo techo los domingos para jugadores y equipos U8–U14 en Axe House Sports, South Jordan, Utah. La temporada inicia el 25 de octubre de 2026. Inscribe a tu equipo, o inscribe a un jugador de forma individual y ElevatePro le asignará un equipo.',
+        'Fútbol indoor competitivo los domingos para jugadores y equipos U8–U14 en Axe House Sports, South Jordan, Utah. La temporada inicia el 25 de octubre de 2026. Inscribe a tu equipo, o inscribe a un jugador de forma individual y ElevatePro le asignará un equipo.',
     },
   },
   privacy: {

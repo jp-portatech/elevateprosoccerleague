@@ -25,7 +25,7 @@ const COPY = localized({
   es: {
     display: (
       <>
-        Liga juvenil de <span className="hero__accent">fútbol bajo techo</span>
+        Liga juvenil de <span className="hero__accent">fútbol indoor</span>
       </>
     ),
     lede: `Fútbol competitivo los ${gameDays.es} para jugadores y equipos ${divisionRange} en ${league.venue.city}.`,

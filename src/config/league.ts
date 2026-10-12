@@ -165,7 +165,7 @@ export const league: LeagueConfig = {
       { en: 'Small-sided futsal field with futsal goals', es: 'Cancha reducida de futsal con porterías de futsal' },
       { en: 'Access to 4 bathrooms', es: 'Acceso a 4 baños' },
       { en: '2 water fountains with bottle fillers', es: '2 bebederos con llenador de botellas' },
-      { en: 'Heated indoor play all winter long', es: 'Juego bajo techo con calefacción todo el invierno' },
+      { en: 'Heated indoor play all winter long', es: 'Juego indoor con calefacción todo el invierno' },
     ],
     partnerLabel: { en: 'Official venue partner', es: 'Sede oficial' },
   },

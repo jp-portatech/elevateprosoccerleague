@@ -23,7 +23,7 @@ const COPY = localized({
     top: 'Back to top',
   },
   es: {
-    tagline: 'Fútbol juvenil bajo techo',
+    tagline: 'Fútbol juvenil indoor',
     nav: 'Pie de página',
     explore: 'Explorar',
     registration: 'Inscripción',

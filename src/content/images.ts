@@ -77,7 +77,7 @@ export const images = {
     ],
     {
       en: 'Youth players dribbling a soccer ball on an indoor pitch.',
-      es: 'Jóvenes futbolistas conduciendo el balón en una cancha bajo techo.',
+      es: 'Jóvenes futbolistas conduciendo el balón en una cancha indoor.',
     },
   ),
   heroMobile: responsive(
@@ -86,11 +86,11 @@ export const images = {
       [640, 853],
       [768, 1024],
     ],
-    { en: 'Youth soccer players on an indoor pitch.', es: 'Jóvenes futbolistas en una cancha bajo techo.' },
+    { en: 'Youth soccer players on an indoor pitch.', es: 'Jóvenes futbolistas en una cancha indoor.' },
   ),
   team: responsive('registration/team', LANDSCAPE_3_2, {
     en: 'Youth soccer teammates huddling before an indoor match.',
-    es: 'Compañeros de equipo juveniles reunidos antes de un partido bajo techo.',
+    es: 'Compañeros de equipo juveniles reunidos antes de un partido indoor.',
   }),
   player: responsive(
     'registration/player',
@@ -100,7 +100,7 @@ export const images = {
     ],
     {
       en: 'Young soccer player smiling with a ball on an indoor pitch.',
-      es: 'Joven futbolista sonriendo con un balón en una cancha bajo techo.',
+      es: 'Joven futbolista sonriendo con un balón en una cancha indoor.',
     },
   ),
   awards: responsive('awards/awards', WIDE_16_9_1600, {
@@ -112,7 +112,7 @@ export const images = {
     LANDSCAPE_3_2,
     {
       en: 'Two youth soccer players competing for the ball indoors.',
-      es: 'Dos jóvenes futbolistas disputando el balón bajo techo.',
+      es: 'Dos jóvenes futbolistas disputando el balón en una cancha indoor.',
     },
   ),
   galleryCoaching: responsive(
@@ -128,7 +128,7 @@ export const images = {
     LANDSCAPE_3_2,
     {
       en: 'Youth teammates celebrating with high fives indoors.',
-      es: 'Compañeros de equipo juveniles chocando las manos para celebrar bajo techo.',
+      es: 'Compañeros de equipo juveniles chocando las manos para celebrar en una cancha indoor.',
     },
   ),
   /** Generic, imagined indoor pitch — NOT Axe House Sports. Replace with a real facility photo. */
@@ -137,7 +137,7 @@ export const images = {
     WIDE_16_9_1600,
     {
       en: 'Illustration of a generic indoor soccer field; not Axe House Sports.',
-      es: 'Ilustración de una cancha de fútbol bajo techo genérica; no es Axe House Sports.',
+      es: 'Ilustración de una cancha de fútbol indoor genérica; no es Axe House Sports.',
     },
   ),
   /** Decorative background for the final call to action. */

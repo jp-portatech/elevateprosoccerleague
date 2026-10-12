@@ -69,7 +69,7 @@ browser remembers the choice, so a family who picked Spanish sees Spanish on the
   descriptions and preview text that Google, WhatsApp and Facebook read. `src/i18n/pageMeta.ts`
   repeats the titles for in-page switching; keep the two in sync.
 
-The Spanish translation uses friendly "tú" and Latin American terms ("fútbol bajo techo",
+The Spanish translation uses friendly "tú" and Latin American terms ("fútbol indoor",
 "cancha", "inscripción"). Have a native speaker from the league read it before promoting the
 Spanish site.
 
