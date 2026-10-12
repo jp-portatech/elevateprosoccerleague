@@ -30,8 +30,14 @@ npm run preview   # serve the production build locally (no api/ routes)
 | FAQ answers (built from the config) | `src/content/faq.tsx` |
 | Image registry (paths, sizes, alt text) | `src/content/images.ts` |
 | Page title, description, canonical URL and link-preview tags | `index.html` |
+| Privacy policy page at `/privacy` (wording and "Last updated" date) | `src/privacy/PrivacyPage.tsx`, `privacy.html` |
 | Link-preview image, robots.txt, sitemap.xml (served as-is from the site root) | `public/` |
 | Design tokens (colors, fonts, spacing) | `src/styles/base.css` |
+
+The privacy policy describes what the site actually collects and who handles it (Stripe, Resend,
+Vercel, the Gmail inbox). If you add a form field, a service, analytics or cookies, update
+`src/privacy/PrivacyPage.tsx` and its `LAST_UPDATED` date in the same change. `vercel.json` turns on
+`cleanUrls`, which serves `privacy.html` at `/privacy`.
 
 Anything set to `null` in `league.ts` is unconfirmed, so the site hides it or shows "coming soon".
 Social links are placeholders: add each profile URL to `social` and it becomes a link.
@@ -118,3 +124,5 @@ Resend's free plan allows 100 emails a day. Each registration sends 2.
   background-removed version was AI-derived.
 - Replace the AI-generated illustrative photos with real league photography when available.
 - Decide on refund and roster policies before taking payments. The site doesn't state any.
+- Add `https://www.elevateprosoccer.com/privacy` as the privacy policy URL in Stripe
+  (Settings → Business → Public details).

@@ -16,6 +16,7 @@ import {
   venueLocation,
 } from '../../src/config/derived.js'
 import { league } from '../../src/config/league.js'
+import { privacyPath } from '../../src/content/navigation.js'
 import { formFields, type FormValues } from '../../src/registration/forms.js'
 import type { RegistrationKind } from '../../src/registration/types.js'
 
@@ -128,6 +129,7 @@ const button = (href: string, label: string) =>
   `<a href="${esc(href)}" style="display:inline-block;margin-top:6px;padding:12px 22px;background:${NAVY};color:#ffffff;font-family:${FONT};font-size:14px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;text-decoration:none;">${esc(label)}</a>`
 
 const SITE = league.siteUrl.replace(/^https?:\/\/(www\.)?/, '')
+const PRIVACY_URL = `${league.siteUrl}${privacyPath}`
 
 function layout(title: string, preheader: string, bodyHtml: string, footerNote: string) {
   const logo = `${league.siteUrl}/email/logo.png`
@@ -157,7 +159,7 @@ function layout(title: string, preheader: string, bodyHtml: string, footerNote: 
         ${bodyHtml}
       </td></tr>
       <tr><td style="padding:20px 28px;background:${NAVY};font-family:${FONT};font-size:12px;line-height:1.6;color:#D6E4F3;">
-        ${esc(league.name)} · <a href="${esc(league.siteUrl)}" style="color:#ffffff;">${esc(SITE)}</a><br>
+        ${esc(league.name)} · <a href="${esc(league.siteUrl)}" style="color:#ffffff;">${esc(SITE)}</a> · <a href="${esc(PRIVACY_URL)}" style="color:#ffffff;">Privacy policy</a><br>
         ${esc(footerNote)}
       </td></tr>
     </table>
@@ -284,6 +286,8 @@ export function buildWelcomeEmail(reg: PaidRegistration): RenderedEmail {
     'See you on the field,',
     league.name,
     league.siteUrl,
+    '',
+    `Privacy policy: ${PRIVACY_URL}`,
   ].join('\n')
 
   return { subject, html, text }

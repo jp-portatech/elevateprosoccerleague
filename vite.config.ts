@@ -62,5 +62,11 @@ export default defineConfig(({ mode }) => {
   Object.assign(process.env, loadEnv(mode, process.cwd(), ['STRIPE_', 'RESEND_']))
   return {
     plugins: [react(), vercelApiDev()],
+    build: {
+      // Two pages: the homepage and /privacy (served without .html via cleanUrls in vercel.json).
+      rolldownOptions: {
+        input: { main: 'index.html', privacy: 'privacy.html' },
+      },
+    },
   }
 })

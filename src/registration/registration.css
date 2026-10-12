@@ -316,6 +316,10 @@ textarea.field__control {
   }
 }
 
+.reg-form__privacy {
+  margin-top: 1rem;
+}
+
 .reg-form__switch {
   margin-top: 1.25rem;
   padding-top: 1.25rem;

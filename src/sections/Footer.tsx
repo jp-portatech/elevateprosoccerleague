@@ -1,12 +1,13 @@
 import { divisionRange, gameDays, telHref, venueAddress, venueLocation } from '../config/derived'
 import { league } from '../config/league'
 import { logo } from '../content/images'
-import { navLinks } from '../content/navigation'
+import { navLinks, privacyPath } from '../content/navigation'
 import './Footer.css'
 
 const COPYRIGHT_YEAR = new Date().getFullYear()
 
-export function Footer() {
+/** `home` prefixes the section links, so pages other than the homepage pass "/". */
+export function Footer({ home = '' }: { home?: string }) {
   const { email, phones } = league.contact
   const hasContact = Boolean(email || phones.length || league.social.length)
 
@@ -40,11 +41,11 @@ export function Footer() {
             <ul>
               {navLinks.map((link) => (
                 <li key={link.href}>
-                  <a href={link.href}>{link.label}</a>
+                  <a href={home + link.href}>{link.label}</a>
                 </li>
               ))}
               <li>
-                <a href="#register">Registration</a>
+                <a href={`${home}#register`}>Registration</a>
               </li>
             </ul>
           </nav>
@@ -86,6 +87,10 @@ export function Footer() {
         <div className="site-footer__bottom">
           <p>
             © {COPYRIGHT_YEAR} {league.name}
+            <span aria-hidden="true"> · </span>
+            <a href={privacyPath} className="site-footer__legal">
+              Privacy policy
+            </a>
           </p>
           <p>Photos on this site are illustrative and do not show actual league players, awards or facilities.</p>
           <a href="#top" className="site-footer__top-link">

@@ -1,0 +1,80 @@
+/* Narrow reading column for the policy text */
+.privacy__container {
+  max-width: calc(46rem + 2 * var(--gutter));
+}
+
+.privacy-hero {
+  padding-block: clamp(2.5rem, 1.5rem + 4vw, 4.5rem);
+  border-bottom: 1px solid var(--line);
+}
+
+.privacy-hero__updated {
+  margin-top: 0.9rem;
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--steel);
+}
+
+.privacy-hero .lede {
+  margin-top: 1.25rem;
+  max-width: none;
+}
+
+.privacy-body {
+  padding-block: clamp(2.5rem, 1.5rem + 3vw, 4rem) var(--section-y);
+}
+
+.privacy-summary {
+  padding: 1.5rem 1.5rem 1.6rem;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--ice);
+  background: var(--white);
+}
+
+.privacy-summary__title {
+  margin-bottom: 1rem;
+  font-family: var(--font-condensed);
+  font-size: 1.3rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.privacy-section {
+  margin-top: 2.75rem;
+}
+
+.privacy-section h2 {
+  margin-bottom: 0.85rem;
+  font-family: var(--font-condensed);
+  font-size: clamp(1.45rem, 1.25rem + 0.7vw, 1.75rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.privacy-section p + p,
+.privacy-section ul + p,
+.privacy-section p + ul {
+  margin-top: 1rem;
+}
+
+.privacy-section ul {
+  display: grid;
+  gap: 0.6rem;
+  padding-left: 1.25rem;
+}
+
+.privacy-section li::marker {
+  color: var(--steel);
+}
+
+.privacy-section strong {
+  color: var(--ink);
+}
+
+.privacy-contact {
+  padding-top: 2.25rem;
+  border-top: 1px solid var(--line);
+}

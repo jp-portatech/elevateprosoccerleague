@@ -119,6 +119,10 @@
   color: var(--text-on-dark);
 }
 
+.site-footer a.site-footer__legal {
+  text-decoration: underline;
+}
+
 .site-footer__top-link {
   justify-self: start;
   font-family: var(--font-condensed);

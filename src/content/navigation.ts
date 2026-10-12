@@ -6,3 +6,6 @@ export const navLinks = [
   { label: 'Venue', href: '#venue' },
   { label: 'FAQ', href: '#faq' },
 ] as const
+
+/** The privacy policy page (privacy.html, served without the extension — see vercel.json). */
+export const privacyPath = '/privacy'

@@ -1,6 +1,7 @@
 import { useRef, useState, type SubmitEvent } from 'react'
 import { formatPrice, onlinePayments } from '../config/derived'
 import { league } from '../config/league'
+import { privacyPath } from '../content/navigation'
 import { ContactLine } from './ContactLine'
 import type { RegistrationKind, RegistrationRequest } from './context'
 import { FormField } from './FormField'
@@ -198,6 +199,14 @@ export function RegistrationForm({ kind, request, hidden, onSwitch }: Registrati
             : 'No payment is collected on this form.'}
         </p>
       </div>
+
+      <p className="fine-print reg-form__privacy">
+        See how we use and protect your information in our{' '}
+        <a href={privacyPath} target="_blank" rel="noopener">
+          privacy policy<span className="visually-hidden"> (opens in a new tab)</span>
+        </a>
+        .
+      </p>
 
       <p className="reg-form__switch">
         {kind === 'team' ? 'Registering one player without a team?' : 'Registering a whole team?'}{' '}
