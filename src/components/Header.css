@@ -108,8 +108,15 @@
   text-underline-offset: 0.2em;
 }
 
-/* Phones: shield only. The text stays available to screen readers. */
+/*
+ * Phones: just the two shields and the divider, no words. The ElevatePro logo's alt text
+ * and the partner text below stay available to screen readers.
+ */
 @media (max-width: 719px) {
+  .site-header__brands:has(.partner) .brand__text {
+    display: none;
+  }
+
   .partner__text {
     position: absolute;
     width: 1px;
