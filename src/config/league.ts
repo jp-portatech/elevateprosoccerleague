@@ -8,9 +8,13 @@
  * `null` means "not confirmed yet". The site hides that detail, or shows a
  * "coming soon" note, instead of guessing.
  *
+ * Text visitors read is written in English and Spanish: `{ en: '…', es: '…' }`.
+ *
  * Imports in this file use `.js` extensions because the Vercel functions load it as
  * plain Node ESM (see tsconfig.api.json).
  */
+
+import type { Localized } from '../i18n/locale.js'
 
 export type DivisionId = 'U8' | 'U10' | 'U12' | 'U14'
 
@@ -27,9 +31,9 @@ export interface Price {
   /** Amount in whole currency units, e.g. 350 for $350. Also what Stripe charges. */
   amount: number
   /** Short qualifier shown after the amount, e.g. "per team". */
-  unit: string
+  unit: Localized
   /** Optional fine print shown under the price. */
-  note?: string
+  note?: Localized
 }
 
 export interface SocialLink {
@@ -50,13 +54,14 @@ export interface LeagueConfig {
   timeZone: string
   divisions: Division[]
   /** Shown under the divisions while any division's eligibility is still null. */
-  eligibilityPendingNote: string
+  eligibilityPendingNote: Localized
   season: {
-    /** Singular weekday games are played on, e.g. "Sunday". */
-    gameDay: string
-    startMonth: string
-    startDay: number
-    startYear: number | null
+    /** Weekday games are played on, e.g. "Sunday" / "domingo". */
+    gameDay: Localized
+    /** Plural, e.g. "Sundays" / "domingos". */
+    gameDays: Localized
+    /** First game day, as YYYY-MM-DD. */
+    startDate: string
     regularSeasonGames: number
     playoffTeams: number
   }
@@ -72,14 +77,14 @@ export interface LeagueConfig {
     /** Maps link. Null hides the "Get directions" button. */
     directionsUrl: string | null
     /** Confirmed facility amenities. Empty hides the list. */
-    amenities: string[]
+    amenities: Localized[]
     /**
      * Partnership label shown with the venue's logo in the header, venue section and footer.
      * Null hides the logo and label everywhere.
      */
-    partnerLabel: string | null
+    partnerLabel: Localized | null
   }
-  awards: Array<{ id: 'champions' | 'runners-up' | 'mvp'; title: string; prize: string }>
+  awards: Array<{ id: 'champions' | 'runners-up' | 'mvp'; title: Localized; prize: Localized }>
   pricing: {
     /** ISO 4217 currency code, used for display and for Stripe. */
     currency: string
@@ -129,13 +134,15 @@ export const league: LeagueConfig = {
     { id: 'U12', bornOnOrAfter: '2014-08-01' },
     { id: 'U14', bornOnOrAfter: '2012-08-01' },
   ],
-  eligibilityPendingNote: 'Birth-year eligibility for each division will be confirmed by ElevatePro.',
+  eligibilityPendingNote: {
+    en: 'Birth-year eligibility for each division will be confirmed by ElevatePro.',
+    es: 'ElevatePro confirmará las fechas de nacimiento de cada división.',
+  },
 
   season: {
-    gameDay: 'Sunday',
-    startMonth: 'October',
-    startDay: 25,
-    startYear: 2026,
+    gameDay: { en: 'Sunday', es: 'domingo' },
+    gameDays: { en: 'Sundays', es: 'domingos' },
+    startDate: '2026-10-25',
     regularSeasonGames: 8,
     playoffTeams: 4,
   },
@@ -150,26 +157,37 @@ export const league: LeagueConfig = {
     directionsUrl:
       'https://www.google.com/maps/search/?api=1&query=Axe%20House%20Sports%2C%206345%20Crimson%20View%20Drive%2C%20South%20Jordan%2C%20UT%2084009',
     amenities: [
-      '6,000 sq. ft. lower-level warehouse',
-      'Indoor turf with a 10 mm shock pad, so it never feels like concrete',
-      'Small-sided futsal field with futsal goals',
-      'Access to 4 bathrooms',
-      '2 water fountains with bottle fillers',
-      'Heated indoor play all winter long',
+      { en: '6,000 sq. ft. lower-level warehouse', es: 'Bodega de 6,000 pies cuadrados en el nivel inferior' },
+      {
+        en: 'Indoor turf with a 10 mm shock pad, so it never feels like concrete',
+        es: 'Pasto sintético con base amortiguadora de 10 mm, para que nunca se sienta como concreto',
+      },
+      { en: 'Small-sided futsal field with futsal goals', es: 'Cancha reducida de futsal con porterías de futsal' },
+      { en: 'Access to 4 bathrooms', es: 'Acceso a 4 baños' },
+      { en: '2 water fountains with bottle fillers', es: '2 bebederos con llenador de botellas' },
+      { en: 'Heated indoor play all winter long', es: 'Juego bajo techo con calefacción todo el invierno' },
     ],
-    partnerLabel: 'Official venue partner',
+    partnerLabel: { en: 'Official venue partner', es: 'Sede oficial' },
   },
 
   awards: [
-    { id: 'champions', title: 'Champions', prize: 'Trophy + medals' },
-    { id: 'runners-up', title: 'Runners-up', prize: 'Medals' },
-    { id: 'mvp', title: 'MVP', prize: 'Gift card' },
+    {
+      id: 'champions',
+      title: { en: 'Champions', es: 'Campeones' },
+      prize: { en: 'Trophy + medals', es: 'Trofeo + medallas' },
+    },
+    {
+      id: 'runners-up',
+      title: { en: 'Runners-up', es: 'Subcampeones' },
+      prize: { en: 'Medals', es: 'Medallas' },
+    },
+    { id: 'mvp', title: { en: 'MVP', es: 'MVP' }, prize: { en: 'Gift card', es: 'Tarjeta de regalo' } },
   ],
 
   pricing: {
     currency: 'USD',
-    team: { amount: 350, unit: 'per team' },
-    player: { amount: 50, unit: 'per player' },
+    team: { amount: 350, unit: { en: 'per team', es: 'por equipo' } },
+    player: { amount: 50, unit: { en: 'per player', es: 'por jugador' } },
   },
 
   contact: {

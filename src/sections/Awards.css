@@ -61,6 +61,14 @@
   color: var(--white);
 }
 
+/* Narrow phones: long titles ("Subcampeones") must fit a third of the screen */
+@media (max-width: 374px) {
+  .award__title {
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+  }
+}
+
 .award__prize {
   font-family: var(--font-condensed);
   font-weight: 600;

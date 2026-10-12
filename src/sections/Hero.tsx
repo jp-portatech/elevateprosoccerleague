@@ -1,13 +1,44 @@
 import { Icon } from '../components/Icon'
 import { RegisterButton } from '../components/RegisterButton'
-import { divisionIds, divisionRange, gameDays, startDateLabel, venueLocation } from '../config/derived'
+import { capitalize, divisionIds, divisionRange, gameDays, startDateLabel, venueLocation } from '../config/derived'
 import { league } from '../config/league'
 import { images } from '../content/images'
+import { useLocale } from '../i18n/useLocale'
+import { localized } from '../i18n/locale'
 import './Hero.css'
 
 const { hero, heroMobile } = images
 
+const COPY = localized({
+  en: {
+    display: (
+      <>
+        Youth indoor <span className="hero__accent">soccer league</span>
+      </>
+    ),
+    lede: `Competitive ${league.season.gameDay.en} soccer for ${divisionRange} players and teams in ${league.venue.city}.`,
+    when: capitalize(gameDays.en),
+    starts: `Starts ${startDateLabel.en}`,
+    noteLead: 'No team? No problem.',
+    note: 'Register your player individually and ElevatePro will assign them to a team.',
+  },
+  es: {
+    display: (
+      <>
+        Liga juvenil de <span className="hero__accent">fútbol bajo techo</span>
+      </>
+    ),
+    lede: `Fútbol competitivo los ${gameDays.es} para jugadores y equipos ${divisionRange} en ${league.venue.city}.`,
+    when: capitalize(gameDays.es),
+    starts: `Inicia el ${startDateLabel.es}`,
+    noteLead: '¿No tienes equipo? No hay problema.',
+    note: 'Inscribe a tu jugador de forma individual y ElevatePro le asignará un equipo.',
+  },
+})
+
 export function Hero() {
+  const locale = useLocale()
+  const t = COPY[locale]
   return (
     <section className="hero" aria-labelledby="hero-title">
       {/* Art direction: landscape photo from 600px up (text over its bright left side at 900px+),
@@ -38,7 +69,7 @@ export function Hero() {
             sizes="100vw"
             width={heroMobile.width}
             height={heroMobile.height}
-            alt={hero.alt}
+            alt={hero.alt[locale]}
             loading="eager"
             fetchPriority="high"
           />
@@ -50,14 +81,10 @@ export function Hero() {
           <h1 className="hero__title" id="hero-title">
             <span className="hero__eyebrow">Elevate Pro Soccer League</span>
             <span className="visually-hidden">: </span>
-            <span className="hero__display">
-              Youth indoor <span className="hero__accent">soccer league</span>
-            </span>
+            <span className="hero__display">{t.display}</span>
           </h1>
 
-          <p className="hero__lede">
-            Competitive {league.season.gameDay} soccer for {divisionRange} players and teams in {league.venue.city}.
-          </p>
+          <p className="hero__lede">{t.lede}</p>
 
           <div className="hero__meta">
             <p className="hero__divisions">
@@ -66,8 +93,8 @@ export function Hero() {
               ))}
             </p>
             <p className="hero__when">
-              <span>{gameDays}</span>
-              <span>Starts {startDateLabel}</span>
+              <span>{t.when}</span>
+              <span>{t.starts}</span>
             </p>
           </div>
 
@@ -77,8 +104,7 @@ export function Hero() {
           </div>
 
           <p className="hero__note">
-            <strong>No team? No problem.</strong> Register your player individually and ElevatePro will assign them
-            to a team.
+            <strong>{t.noteLead}</strong> {t.note}
           </p>
 
           <p className="hero__location">

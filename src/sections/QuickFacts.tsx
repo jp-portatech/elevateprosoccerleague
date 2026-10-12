@@ -1,21 +1,49 @@
 import { Icon, type IconName } from '../components/Icon'
-import { divisionIds, divisionRange, gameDays } from '../config/derived'
+import { capitalize, divisionIds, divisionRange, gameDays } from '../config/derived'
 import { league } from '../config/league'
+import { useLocale } from '../i18n/useLocale'
+import { localized, type Locale } from '../i18n/locale'
 import './QuickFacts.css'
 
-const NUMBER_WORDS = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten']
-const count = (n: number) => NUMBER_WORDS[n] ?? String(n)
+const NUMBER_WORDS = localized({
+  en: ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten'],
+  // "división" is feminine: "Una división", "Cuatro divisiones"
+  es: ['Cero', 'Una', 'Dos', 'Tres', 'Cuatro', 'Cinco', 'Seis', 'Siete', 'Ocho', 'Nueve', 'Diez'],
+})
+const count = (n: number, locale: Locale) => NUMBER_WORDS[locale][n] ?? String(n)
+const divisionCount = divisionIds.length
+const games = league.season.regularSeasonGames
 
-const facts: Array<{ icon: IconName; value: string; label: string }> = [
-  { icon: 'team', value: divisionRange, label: `${count(divisionIds.length)} age divisions` },
-  { icon: 'calendar', value: gameDays, label: 'Weekly matches' },
-  { icon: 'field', value: `${league.season.regularSeasonGames} games`, label: 'Regular season' },
-  { icon: 'pin', value: league.venue.city, label: league.venue.name },
-]
+const COPY = localized({
+  en: {
+    label: 'League at a glance',
+    divisions: `${count(divisionCount, 'en')} age divisions`,
+    gameDays: capitalize(gameDays.en),
+    weekly: 'Weekly matches',
+    games: `${games} games`,
+    regularSeason: 'Regular season',
+  },
+  es: {
+    label: 'La liga de un vistazo',
+    divisions: `${count(divisionCount, 'es')} divisiones de edad`,
+    gameDays: capitalize(gameDays.es),
+    weekly: 'Partidos cada semana',
+    games: `${games} partidos`,
+    regularSeason: 'Temporada regular',
+  },
+})
 
 export function QuickFacts() {
+  const t = COPY[useLocale()]
+  const facts: Array<{ icon: IconName; value: string; label: string }> = [
+    { icon: 'team', value: divisionRange, label: t.divisions },
+    { icon: 'calendar', value: t.gameDays, label: t.weekly },
+    { icon: 'field', value: t.games, label: t.regularSeason },
+    { icon: 'pin', value: league.venue.city, label: league.venue.name },
+  ]
+
   return (
-    <section className="quick-facts section--white" aria-label="League at a glance">
+    <section className="quick-facts section--white" aria-label={t.label}>
       <div className="container">
         <ul className="facts">
           {facts.map((fact) => (

@@ -7,6 +7,8 @@
  * the Axe House Sports facility.
  */
 
+import type { Localized } from '../i18n/locale'
+
 const ASSET_ROOT = '/elevatepro-website-assets/'
 
 const files = import.meta.glob<string>(
@@ -35,11 +37,12 @@ export interface ResponsiveImage {
   /** Intrinsic size of the largest variant (sets the aspect ratio and prevents layout shift) */
   width: number
   height: number
-  alt: string
+  /** Alt text in each language ("" for decorative images). */
+  alt: Localized
 }
 
 /** `variants` are [width, height] pairs for files named `${base}-${width}.{webp,jpg}`. */
-function responsive(base: string, variants: Array<[number, number]>, alt: string): ResponsiveImage {
+function responsive(base: string, variants: Array<[number, number]>, alt: Localized): ResponsiveImage {
   const srcset = (ext: string) =>
     variants.map(([w]) => `${assetUrl(`${base}-${w}.${ext}`)} ${w}w`).join(', ')
   const [width, height] = variants[variants.length - 1]
@@ -72,7 +75,10 @@ export const images = {
       [960, 540],
       [1920, 1080],
     ],
-    'Youth players dribbling a soccer ball on an indoor pitch.',
+    {
+      en: 'Youth players dribbling a soccer ball on an indoor pitch.',
+      es: 'Jóvenes futbolistas conduciendo el balón en una cancha bajo techo.',
+    },
   ),
   heroMobile: responsive(
     'hero/hero-mobile',
@@ -80,38 +86,59 @@ export const images = {
       [640, 853],
       [768, 1024],
     ],
-    'Youth soccer players on an indoor pitch.',
+    { en: 'Youth soccer players on an indoor pitch.', es: 'Jóvenes futbolistas en una cancha bajo techo.' },
   ),
-  team: responsive('registration/team', LANDSCAPE_3_2, 'Youth soccer teammates huddling before an indoor match.'),
+  team: responsive('registration/team', LANDSCAPE_3_2, {
+    en: 'Youth soccer teammates huddling before an indoor match.',
+    es: 'Compañeros de equipo juveniles reunidos antes de un partido bajo techo.',
+  }),
   player: responsive(
     'registration/player',
     [
       [640, 800],
       [960, 1200],
     ],
-    'Young soccer player smiling with a ball on an indoor pitch.',
+    {
+      en: 'Young soccer player smiling with a ball on an indoor pitch.',
+      es: 'Joven futbolista sonriendo con un balón en una cancha bajo techo.',
+    },
   ),
-  awards: responsive('awards/awards', WIDE_16_9_1600, 'Soccer trophy and silver medals with navy ribbons.'),
+  awards: responsive('awards/awards', WIDE_16_9_1600, {
+    en: 'Soccer trophy and silver medals with navy ribbons.',
+    es: 'Trofeo de fútbol y medallas plateadas con listones azul marino.',
+  }),
   galleryAction: responsive(
     'gallery/gallery-action',
     LANDSCAPE_3_2,
-    'Two youth soccer players competing for the ball indoors.',
+    {
+      en: 'Two youth soccer players competing for the ball indoors.',
+      es: 'Dos jóvenes futbolistas disputando el balón bajo techo.',
+    },
   ),
   galleryCoaching: responsive(
     'gallery/gallery-coaching',
     LANDSCAPE_3_2,
-    'Coach explaining a soccer drill to youth players.',
+    {
+      en: 'Coach explaining a soccer drill to youth players.',
+      es: 'Entrenador explicando un ejercicio a jóvenes futbolistas.',
+    },
   ),
   galleryCelebration: responsive(
     'gallery/gallery-celebration',
     LANDSCAPE_3_2,
-    'Youth teammates celebrating with high fives indoors.',
+    {
+      en: 'Youth teammates celebrating with high fives indoors.',
+      es: 'Compañeros de equipo juveniles chocando las manos para celebrar bajo techo.',
+    },
   ),
   /** Generic, imagined indoor pitch — NOT Axe House Sports. Replace with a real facility photo. */
   venue: responsive(
     'venue/venue',
     WIDE_16_9_1600,
-    'Illustration of a generic indoor soccer field; not Axe House Sports.',
+    {
+      en: 'Illustration of a generic indoor soccer field; not Axe House Sports.',
+      es: 'Ilustración de una cancha de fútbol bajo techo genérica; no es Axe House Sports.',
+    },
   ),
   /** Decorative background for the final call to action. */
   cta: responsive(
@@ -121,7 +148,7 @@ export const images = {
       [960, 320],
       [1920, 640],
     ],
-    '',
+    { en: '', es: '' },
   ),
 } satisfies Record<string, ResponsiveImage>
 

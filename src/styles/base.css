@@ -193,6 +193,16 @@ a {
   color: var(--ink);
 }
 
+/* Spanish capitals carry accents (Á, É, Í, Ó, Ú). At these tight line-heights they would
+   touch the line above, so display headings get a little more room in Spanish. */
+.h2:lang(es) {
+  line-height: 1.06;
+}
+
+.h3-display:lang(es) {
+  line-height: 1.08;
+}
+
 .label {
   font-family: var(--font-condensed);
   font-weight: 700;

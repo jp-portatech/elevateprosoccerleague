@@ -12,6 +12,7 @@
 import type Stripe from 'stripe'
 import { startDateLabel } from '../src/config/derived.js'
 import { league } from '../src/config/league.js'
+import { isLocale, localized, pagePath, type Locale } from '../src/i18n/locale.js'
 import { formFields, validateForm, type FormValues } from '../src/registration/forms.js'
 import type { RegistrationKind } from '../src/registration/types.js'
 import { stripeClient } from './stripe.js'
@@ -43,13 +44,17 @@ function pickFields(kind: RegistrationKind, raw: unknown): FormValues {
 
 const snakeCase = (name: string) => name.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`)
 
-/** Stripe metadata: ≤ 50 keys, keys ≤ 40 chars, values ≤ 500 chars. Long text is split. */
-export function toMetadata(kind: RegistrationKind, fields: FormValues): Record<string, string> {
-  const metadata: Record<string, string> = { registration_type: kind, season_start: startDateLabel }
+/**
+ * Stripe metadata: ≤ 50 keys, keys ≤ 40 chars, values ≤ 500 chars. Long text is split.
+ * Values are in English for the league (Stripe Dashboard, league email); `locale` records
+ * the language the family registered in, so their welcome email matches it.
+ */
+export function toMetadata(kind: RegistrationKind, fields: FormValues, locale: Locale = 'en'): Record<string, string> {
+  const metadata: Record<string, string> = { registration_type: kind, locale, season_start: startDateLabel.en }
   for (const field of formFields[kind]) {
     const value = fields[field.name]
     if (!value) continue
-    const display = field.options?.find((o) => o.value === value && field.name !== 'division')?.label ?? value
+    const display = field.options?.find((o) => o.value === value && field.name !== 'division')?.label.en ?? value
     const key = snakeCase(field.name)
     if (display.length <= 500) {
       metadata[key] = display
@@ -63,7 +68,7 @@ export function toMetadata(kind: RegistrationKind, fields: FormValues): Record<s
 /** Reverses toMetadata: the registration's form answers (display values) from Stripe metadata. */
 export function registrationFromMetadata(
   metadata: Record<string, string> | null | undefined,
-): { kind: RegistrationKind; fields: FormValues } | null {
+): { kind: RegistrationKind; locale: Locale; fields: FormValues } | null {
   const kind = metadata?.registration_type
   if (!metadata || !isKind(kind)) return null
   const fields: FormValues = {}
@@ -73,24 +78,46 @@ export function registrationFromMetadata(
     for (let i = 1; metadata[`${key}_${i}`] !== undefined; i++) chunks.push(metadata[`${key}_${i}`])
     fields[field.name] = metadata[key] ?? chunks.join('')
   }
-  return { kind, fields }
+  return { kind, locale: isLocale(metadata.locale) ? metadata.locale : 'en', fields }
 }
+
+/** What the family sees on Stripe's checkout page. */
+const CHECKOUT_COPY = localized({
+  en: {
+    product: (kind: RegistrationKind, division: string) =>
+      `${kind === 'team' ? 'Team' : 'Individual player'} registration — ${division}`,
+    seasonStarts: `Season starts ${startDateLabel.en}`,
+  },
+  es: {
+    product: (kind: RegistrationKind, division: string) =>
+      `${kind === 'team' ? 'Inscripción de equipo' : 'Inscripción individual de jugador'} — ${division}`,
+    seasonStarts: `La temporada inicia el ${startDateLabel.es}`,
+  },
+})
+
+/** Stripe Checkout's own interface language: Latin American Spanish for the Spanish site. */
+const STRIPE_LOCALE: Record<Locale, Stripe.Checkout.SessionCreateParams.Locale> = { en: 'en', es: 'es-419' }
 
 /** Pure — builds the Checkout Session request for validated fields. */
 export function buildCheckoutParams(
   kind: RegistrationKind,
   fields: FormValues,
   origin: string,
+  locale: Locale = 'en',
 ): Stripe.Checkout.SessionCreateParams {
   const price = league.pricing[kind]
   if (!price) throw new Error(`No ${kind} price configured`)
   const isTeam = kind === 'team'
   const subject = isTeam ? fields.teamName : `${fields.playerFirstName} ${fields.playerLastName}`
-  const metadata = toMetadata(kind, fields)
+  const metadata = toMetadata(kind, fields, locale)
+  const copy = CHECKOUT_COPY[locale]
+  // Stripe sends the family back to the homepage in the language they registered in.
+  const home = `${origin}${pagePath('home', locale)}`
 
   return {
     mode: 'payment',
     submit_type: 'pay',
+    locale: STRIPE_LOCALE[locale],
     customer_email: isTeam ? fields.email : fields.guardianEmail,
     line_items: [
       {
@@ -99,8 +126,8 @@ export function buildCheckoutParams(
           currency: league.pricing.currency.toLowerCase(),
           unit_amount: Math.round(price.amount * 100),
           product_data: {
-            name: `${isTeam ? 'Team' : 'Individual player'} registration — ${fields.division}`,
-            description: `${league.name} · ${subject} · Season starts ${startDateLabel}`,
+            name: copy.product(kind, fields.division),
+            description: `${league.name} · ${subject} · ${copy.seasonStarts}`,
           },
         },
       },
@@ -110,8 +137,8 @@ export function buildCheckoutParams(
       metadata,
       description: `${league.name} ${isTeam ? 'team' : 'player'} registration — ${fields.division} — ${subject}`,
     },
-    success_url: `${origin}/?registration=success&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin}/?registration=cancelled&type=${kind}`,
+    success_url: `${home}?registration=success&session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${home}?registration=cancelled&type=${kind}`,
   }
 }
 
@@ -127,9 +154,11 @@ export async function createCheckout(request: Request, env: ServerEnv): Promise<
   }
   const kind = (body as { registrationType?: unknown } | null)?.registrationType
   if (!isKind(kind)) return fail('invalid-request', 400)
+  const requested = (body as { locale?: unknown }).locale
+  const locale: Locale = isLocale(requested) ? requested : 'en'
 
   const fields = pickFields(kind, (body as { fields?: unknown }).fields)
-  const errors = validateForm(kind, fields)
+  const errors = validateForm(kind, fields, locale)
   if (Object.keys(errors).length > 0) return fail('invalid-fields', 400, { fields: errors })
 
   if (!league.pricing[kind] || !env.STRIPE_SECRET_KEY) return fail('not-configured', 503)
@@ -137,7 +166,7 @@ export async function createCheckout(request: Request, env: ServerEnv): Promise<
   try {
     const stripe = stripeClient(env.STRIPE_SECRET_KEY)
     const session = await stripe.checkout.sessions.create(
-      buildCheckoutParams(kind, fields, new URL(request.url).origin),
+      buildCheckoutParams(kind, fields, new URL(request.url).origin, locale),
     )
     if (!session.url) throw new Error('Checkout session has no URL')
     return json({ url: session.url })

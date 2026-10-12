@@ -1,4 +1,6 @@
 import { useEffect, useRef } from 'react'
+import { useLocale } from '../i18n/useLocale'
+import { localized } from '../i18n/locale'
 import type { RegistrationKind, RegistrationRequest } from './context'
 import { RegistrationForm } from './RegistrationForm'
 import './registration.css'
@@ -10,16 +12,32 @@ interface RegistrationDialogProps {
   onSwitch: (kind: RegistrationKind) => void
 }
 
-const COPY: Record<RegistrationKind, { title: string; intro: string }> = {
-  team: {
-    title: 'Register a team',
-    intro: 'Register your complete club, academy, neighborhood or independent team for the ElevatePro season.',
+const COPY = localized({
+  en: {
+    close: 'Close registration',
+    team: {
+      title: 'Register a team',
+      intro: 'Register your complete club, academy, neighborhood or independent team for the ElevatePro season.',
+    },
+    player: {
+      title: 'Register a player',
+      intro: 'No team? No problem. Register your player individually and ElevatePro will place them on a team.',
+    },
   },
-  player: {
-    title: 'Register a player',
-    intro: 'No team? No problem. Register your player individually and ElevatePro will place them on a team.',
+  es: {
+    close: 'Cerrar inscripción',
+    team: {
+      title: 'Inscribir un equipo',
+      intro:
+        'Inscribe a tu equipo completo, ya sea de club, de academia, del barrio o independiente, en la temporada de ElevatePro.',
+    },
+    player: {
+      title: 'Inscribir a un jugador',
+      intro:
+        '¿No tienes equipo? No hay problema. Inscribe a tu jugador de forma individual y ElevatePro le asignará un equipo.',
+    },
   },
-}
+})
 
 /**
  * Native <dialog> opened with showModal(): the browser traps focus, makes the page
@@ -32,6 +50,7 @@ export function RegistrationDialog({ request, open, onClose, onSwitch }: Registr
   const bodyRef = useRef<HTMLDivElement>(null)
   const returnFocusRef = useRef<HTMLElement | null>(null)
   const kind = request?.kind ?? 'team'
+  const t = COPY[useLocale()]
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -66,13 +85,13 @@ export function RegistrationDialog({ request, open, onClose, onSwitch }: Registr
         <div>
           <p className="dialog__eyebrow">ElevatePro Soccer League</p>
           <h2 className="dialog__title" id="registration-title" ref={titleRef} tabIndex={-1}>
-            {COPY[kind].title}
+            {t[kind].title}
           </h2>
         </div>
         <button
           type="button"
           className="dialog__close"
-          aria-label="Close registration"
+          aria-label={t.close}
           onClick={() => dialogRef.current?.close()}
         >
           <span aria-hidden="true" />
@@ -80,7 +99,7 @@ export function RegistrationDialog({ request, open, onClose, onSwitch }: Registr
       </div>
       <div className="dialog__body" ref={bodyRef}>
         <p className="dialog__intro" id="registration-intro">
-          {COPY[kind].intro}
+          {t[kind].intro}
         </p>
         {(['team', 'player'] as const).map((k) => (
           <RegistrationForm

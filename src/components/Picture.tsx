@@ -1,4 +1,5 @@
 import type { ResponsiveImage } from '../content/images'
+import { useLocale } from '../i18n/useLocale'
 
 interface PictureProps {
   image: ResponsiveImage
@@ -13,6 +14,7 @@ interface PictureProps {
 
 /** WebP with JPG fallback, responsive srcset and intrinsic dimensions. */
 export function Picture({ image, sizes, className, priority = false, alt }: PictureProps) {
+  const locale = useLocale()
   return (
     <picture>
       <source type="image/webp" srcSet={image.webp} sizes={sizes} />
@@ -23,7 +25,7 @@ export function Picture({ image, sizes, className, priority = false, alt }: Pict
         sizes={sizes}
         width={image.width}
         height={image.height}
-        alt={alt ?? image.alt}
+        alt={alt ?? image.alt[locale]}
         loading={priority ? 'eager' : 'lazy'}
         decoding={priority ? 'auto' : 'async'}
         fetchPriority={priority ? 'high' : undefined}

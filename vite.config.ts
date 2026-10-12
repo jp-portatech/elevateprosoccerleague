@@ -63,9 +63,15 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react(), vercelApiDev()],
     build: {
-      // Two pages: the homepage and /privacy (served without .html via cleanUrls in vercel.json).
+      // The homepage and privacy policy in English (/, /privacy) and Spanish (/es, /es/privacy).
+      // Served without .html via cleanUrls in vercel.json.
       rolldownOptions: {
-        input: { main: 'index.html', privacy: 'privacy.html' },
+        input: {
+          main: 'index.html',
+          privacy: 'privacy.html',
+          es: 'es.html',
+          esPrivacy: 'es/privacy.html',
+        },
       },
     },
   }

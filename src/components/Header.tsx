@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { league } from '../config/league'
 import { logo } from '../content/images'
 import { navLinks } from '../content/navigation'
+import { useLocale } from '../i18n/useLocale'
+import { localized } from '../i18n/locale'
+import { LanguageToggle } from './LanguageToggle'
 import { PartnerLogo } from './PartnerLogo'
 import { RegisterButton } from './RegisterButton'
 import { RegisterMenu } from './RegisterMenu'
@@ -10,7 +13,14 @@ import './Header.css'
 const DESKTOP_NAV = '(min-width: 1024px)'
 const { venue } = league
 
+const COPY = localized({
+  en: { nav: 'Main', menu: 'Menu', register: 'Register' },
+  es: { nav: 'Principal', menu: 'Menú', register: 'Inscripción' },
+})
+
 export function Header() {
+  const locale = useLocale()
+  const t = COPY[locale]
   const [menuOpen, setMenuOpen] = useState(false)
   const toggleRef = useRef<HTMLButtonElement>(null)
 
@@ -62,21 +72,23 @@ export function Header() {
             <a className="partner" href="#venue">
               <PartnerLogo className="partner__logo" sizes="(min-width: 1024px) 37px, 31px" />
               <span className="visually-hidden">
-                {venue.partnerLabel}: {venue.name}
+                {venue.partnerLabel[locale]}: {venue.name}
               </span>
             </a>
           )}
         </div>
 
-        <nav className="primary-nav" aria-label="Main">
+        <nav className="primary-nav" aria-label={t.nav}>
           <ul>
             {navLinks.map((link) => (
               <li key={link.href}>
-                <a href={link.href}>{link.label}</a>
+                <a href={link.href}>{link.label[locale]}</a>
               </li>
             ))}
           </ul>
         </nav>
+
+        <LanguageToggle />
 
         <RegisterMenu />
 
@@ -91,25 +103,25 @@ export function Header() {
           <span className="menu-toggle__bars" aria-hidden="true">
             <span />
           </span>
-          <span className="menu-toggle__label">Menu</span>
+          <span className="menu-toggle__label">{t.menu}</span>
         </button>
       </div>
 
       <div className="mobile-menu" id="mobile-menu" hidden={!menuOpen}>
         <div className="container">
-          <nav aria-label="Main">
+          <nav aria-label={t.nav}>
             <ul className="mobile-menu__links">
               {navLinks.map((link) => (
                 <li key={link.href}>
                   <a href={link.href} onClick={closeMenu}>
-                    {link.label}
+                    {link.label[locale]}
                   </a>
                 </li>
               ))}
             </ul>
           </nav>
           <div className="mobile-menu__actions">
-            <p className="eyebrow">Register</p>
+            <p className="eyebrow">{t.register}</p>
             <RegisterButton kind="team" onBeforeOpen={closeMenuForDialog} />
             <RegisterButton kind="player" onBeforeOpen={closeMenuForDialog} />
           </div>

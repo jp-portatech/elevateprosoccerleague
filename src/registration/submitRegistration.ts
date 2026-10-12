@@ -11,6 +11,7 @@
  * With it off, nothing is sent and the form tells the visitor so.
  */
 import { onlinePayments } from '../config/derived'
+import type { Locale } from '../i18n/locale'
 import type { FormErrors, FormValues } from './forms'
 import type { RegistrationKind } from './types'
 
@@ -21,9 +22,10 @@ export type SubmitResult =
   | { status: 'not-connected' }
   | { status: 'redirecting' }
   | { status: 'invalid'; errors: FormErrors }
-  | { status: 'error'; message: string }
+  | { status: 'error'; reason: 'network' | 'not-configured' | 'checkout' }
 
-export async function submitRegistration(kind: RegistrationKind, values: FormValues): Promise<SubmitResult> {
+/** `locale` makes the server answer (and Stripe Checkout show) in the visitor's language. */
+export async function submitRegistration(kind: RegistrationKind, values: FormValues, locale: Locale): Promise<SubmitResult> {
   if (!onlinePayments) return { status: 'not-connected' }
 
   let response: Response
@@ -31,10 +33,10 @@ export async function submitRegistration(kind: RegistrationKind, values: FormVal
     response = await fetch(CHECKOUT_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ registrationType: kind, fields: values }),
+      body: JSON.stringify({ registrationType: kind, locale, fields: values }),
     })
   } catch {
-    return { status: 'error', message: 'We couldn’t reach the registration service. Check your connection.' }
+    return { status: 'error', reason: 'network' }
   }
 
   const data = (await response.json().catch(() => null)) as { url?: string; error?: string; fields?: FormErrors } | null
@@ -44,8 +46,8 @@ export async function submitRegistration(kind: RegistrationKind, values: FormVal
     return { status: 'redirecting' }
   }
   if (data?.error === 'invalid-fields' && data.fields) return { status: 'invalid', errors: data.fields }
-  if (data?.error === 'not-configured') return { status: 'error', message: 'Online payment isn’t switched on yet.' }
-  return { status: 'error', message: 'We couldn’t start the secure checkout.' }
+  if (data?.error === 'not-configured') return { status: 'error', reason: 'not-configured' }
+  return { status: 'error', reason: 'checkout' }
 }
 
 // ---- Draft kept in this tab while the visitor is on Stripe, so "Back" restores the form ----

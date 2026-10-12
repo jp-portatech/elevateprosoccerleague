@@ -1,3 +1,4 @@
+import { intlLocale, type Locale, type Localized } from '../i18n/locale.js'
 import { league, type Division, type Price } from './league.js'
 
 /** Display strings derived from the league config, so copy stays in sync with the data. */
@@ -9,24 +10,38 @@ export const divisionIds = divisions.map((d) => d.id)
 /** "U8–U14" (word joiners keep it from breaking across lines) */
 export const divisionRange = `${divisionIds[0]}⁠–⁠${divisionIds[divisionIds.length - 1]}`
 
-/** "U8, U10, U12 and U14" */
-export const divisionSentence = `${divisionIds.slice(0, -1).join(', ')} and ${divisionIds[divisionIds.length - 1]}`
+const listOf = (items: string[], and: string) => `${items.slice(0, -1).join(', ')} ${and} ${items[items.length - 1]}`
 
-/** "Sundays" */
-export const gameDays = `${season.gameDay}s`
+/** "U8, U10, U12 and U14" / "U8, U10, U12 y U14" */
+export const divisionSentence: Localized = { en: listOf(divisionIds, 'and'), es: listOf(divisionIds, 'y') }
 
-/** "October 25, 2026" (or "October 25" while the year is unconfirmed). */
-export const startDateLabel =
-  `${season.startMonth} ${season.startDay}` + (season.startYear ? `, ${season.startYear}` : '')
+/** "Sundays" / "domingos" */
+export const gameDays: Localized = season.gameDays
 
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+/** First letter uppercase, e.g. "domingos" → "Domingos" for labels. */
+export const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1)
 
-/** "Sunday, October 25, 2026" once the year is set, otherwise the short label. */
-export const startDateFull = season.startYear
-  ? new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(
-      new Date(Date.UTC(season.startYear, MONTHS.indexOf(season.startMonth), season.startDay, 12)),
-    )
-  : startDateLabel
+/** Formats a YYYY-MM-DD date without time-zone drift, e.g. "July 31, 2019" / "31 de julio de 2019". */
+export function formatIsoDate(
+  iso: string,
+  locale: Locale = 'en',
+  options: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric', year: 'numeric' },
+): string {
+  const [y, m, d] = iso.split('-').map(Number)
+  return new Intl.DateTimeFormat(intlLocale[locale], { ...options, timeZone: 'UTC' }).format(
+    new Date(Date.UTC(y, m - 1, d, 12)),
+  )
+}
+
+const bothLocales = (format: (locale: Locale) => string): Localized => ({ en: format('en'), es: format('es') })
+
+/** "October 25, 2026" / "25 de octubre de 2026" */
+export const startDateLabel = bothLocales((locale) => formatIsoDate(season.startDate, locale))
+
+/** "Sunday, October 25, 2026" / "domingo, 25 de octubre de 2026" */
+export const startDateFull = bothLocales((locale) =>
+  formatIsoDate(season.startDate, locale, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }),
+)
 
 /** "South Jordan, Utah" */
 export const venueLocation = `${venue.city}, ${venue.region}`
@@ -39,17 +54,22 @@ export const venueAddressLines = venue.streetAddress
 /** Postal address on one line, or null. */
 export const venueAddress = venueAddressLines?.join(', ') ?? null
 
-/** Formats a YYYY-MM-DD date without time-zone drift, e.g. "July 31, 2019". */
-export function formatIsoDate(iso: string, month: 'long' | 'short' = 'long'): string {
-  const [y, m, d] = iso.split('-').map(Number)
-  return new Intl.DateTimeFormat('en-US', { month, day: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(
-    new Date(Date.UTC(y, m - 1, d)),
-  )
+/**
+ * Mid-sentence eligibility, e.g. "born on or after August 1, 2016" /
+ * "nacidos a partir del 1 de agosto de 2016". Null when eligibility isn't set.
+ * `short` abbreviates the English month ("Aug 1, 2016"); Spanish always spells it out.
+ */
+export function eligibilityText(division: Division, locale: Locale, short = false): string | null {
+  if (!division.bornOnOrAfter) return null
+  if (locale === 'es') return `nacidos a partir del ${formatIsoDate(division.bornOnOrAfter, 'es')}`
+  const month = short ? 'short' : 'long'
+  return `born on or after ${formatIsoDate(division.bornOnOrAfter, 'en', { month, day: 'numeric', year: 'numeric' })}`
 }
 
-/** "Born on or after July 31, 2019", or null when eligibility isn't set. */
-export function eligibilityLabel(division: Division, month: 'long' | 'short' = 'long'): string | null {
-  return division.bornOnOrAfter ? `Born on or after ${formatIsoDate(division.bornOnOrAfter, month)}` : null
+/** Eligibility as a label, e.g. "Born on or after Aug 1, 2016". */
+export function eligibilityLabel(division: Division, locale: Locale, short = false): string | null {
+  const text = eligibilityText(division, locale, short)
+  return text && capitalize(text)
 }
 
 /** Divisions a player born on `dateOfBirth` (YYYY-MM-DD) is young enough to join. */
@@ -59,15 +79,18 @@ export function eligibleDivisions(dateOfBirth: string): Division[] {
 
 export const eligibilityPending = divisions.some((d) => d.bornOnOrAfter === null)
 
-export const PRICE_COMING_SOON = 'Pricing coming soon'
+export const PRICE_COMING_SOON: Localized = { en: 'Pricing coming soon', es: 'Precios próximamente' }
 
-export function formatPrice(price: Price): string {
-  return new Intl.NumberFormat('en-US', {
+export function formatPrice(price: Price, locale: Locale = 'en'): string {
+  return new Intl.NumberFormat(intlLocale[locale], {
     style: 'currency',
     currency: league.pricing.currency,
     maximumFractionDigits: price.amount % 1 === 0 ? 0 : 2,
   }).format(price.amount)
 }
+
+/** "$350 per team" / "$350 por equipo" */
+export const priceWithUnit = (price: Price, locale: Locale) => `${formatPrice(price, locale)} ${price.unit[locale]}`
 
 export const onlinePayments = league.registration.onlinePayments
 

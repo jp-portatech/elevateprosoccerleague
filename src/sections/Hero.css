@@ -43,6 +43,11 @@
   color: var(--navy);
 }
 
+/* Room for accented capitals in the Spanish headline ("FÚTBOL") */
+.hero__display:lang(es) {
+  line-height: 1.03;
+}
+
 .hero__accent {
   display: block;
   color: var(--steel);

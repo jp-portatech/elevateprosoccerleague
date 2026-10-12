@@ -1,3 +1,18 @@
+/* Header: logo, language toggle and Home. The wordmark needs more room than phones have. */
+.site-header--simple .site-header__inner {
+  gap: 0.75rem;
+}
+
+.site-header--simple .brand {
+  margin-right: auto;
+}
+
+@media (max-width: 559px) {
+  .site-header--simple .brand__text {
+    display: none;
+  }
+}
+
 /* Narrow reading column for the policy text */
 .privacy__container {
   max-width: calc(46rem + 2 * var(--gutter));

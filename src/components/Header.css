@@ -147,6 +147,46 @@
   }
 }
 
+/* ---------- Language toggle (EN | ES), visible at every width ---------- */
+
+.lang-toggle {
+  display: inline-flex;
+  flex: none;
+  border: 2px solid var(--navy);
+  border-radius: var(--radius);
+}
+
+/* 40px + the 2px border top and bottom = 44px, the same height as the Register and Menu buttons */
+.lang-toggle__option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  padding: 0 0.5rem;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: var(--navy);
+  text-decoration: none;
+}
+
+.lang-toggle__option:not([aria-current='true']):hover {
+  background: var(--pale);
+}
+
+.lang-toggle__option[aria-current='true'] {
+  background: var(--navy);
+  color: var(--white);
+}
+
+.lang-toggle__option:focus-visible {
+  position: relative;
+  z-index: 1;
+}
+
 /* ---------- Register menu ---------- */
 
 .register-menu {
@@ -376,5 +416,18 @@ html:has(.mobile-menu:not([hidden])) {
 @media (max-width: 359px) {
   .brand__text {
     display: none;
+  }
+}
+
+/* Very narrow phones: the Menu button shows only its icon so the language toggle fits.
+   "Menu" stays available to screen readers. */
+@media (max-width: 374px) {
+  .menu-toggle__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 }

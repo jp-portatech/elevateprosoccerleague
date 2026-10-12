@@ -1,4 +1,5 @@
 import type { ChangeEvent } from 'react'
+import { useLocale } from '../i18n/useLocale'
 import { fieldId, todayIso, type FieldDef } from './forms'
 
 interface FormFieldProps {
@@ -11,6 +12,8 @@ interface FormFieldProps {
 }
 
 export function FormField({ field, idPrefix, value, error, onChange, onBlur }: FormFieldProps) {
+  const locale = useLocale()
+  const es = locale === 'es'
   const id = fieldId(idPrefix, field.name)
   const hintId = field.hint ? `${id}-hint` : undefined
   const errorId = error ? `${id}-error` : undefined
@@ -34,10 +37,10 @@ export function FormField({ field, idPrefix, value, error, onChange, onBlur }: F
   if (field.type === 'select') {
     control = (
       <select {...shared}>
-        <option value="">{field.placeholderOption ?? 'Select an option'}</option>
+        <option value="">{field.placeholderOption?.[locale] ?? (es ? 'Selecciona una opción' : 'Select an option')}</option>
         {field.options?.map((o) => (
           <option key={o.value} value={o.value}>
-            {o.label}
+            {o.label[locale]}
           </option>
         ))}
       </select>
@@ -59,12 +62,12 @@ export function FormField({ field, idPrefix, value, error, onChange, onBlur }: F
   return (
     <div className={['field', field.half && 'field--half', error && 'field--error'].filter(Boolean).join(' ')}>
       <label className="field__label" htmlFor={id}>
-        {field.label}
-        {!field.required && <span className="field__optional"> (optional)</span>}
+        {field.label[locale]}
+        {!field.required && <span className="field__optional"> ({es ? 'opcional' : 'optional'})</span>}
       </label>
       {field.hint && (
         <p className="field__hint" id={hintId}>
-          {field.hint}
+          {field.hint[locale]}
         </p>
       )}
       {error && (

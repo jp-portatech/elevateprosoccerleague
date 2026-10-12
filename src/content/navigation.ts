@@ -1,11 +1,10 @@
-/** Primary navigation. Each href targets a section id on the homepage. */
-export const navLinks = [
-  { label: 'League', href: '#league' },
-  { label: 'Divisions', href: '#divisions' },
-  { label: 'Format', href: '#format' },
-  { label: 'Venue', href: '#venue' },
-  { label: 'FAQ', href: '#faq' },
-] as const
+import type { Localized } from '../i18n/locale'
 
-/** The privacy policy page (privacy.html, served without the extension — see vercel.json). */
-export const privacyPath = '/privacy'
+/** Primary navigation. Each href targets a section id on the homepage. */
+export const navLinks: Array<{ label: Localized; href: string }> = [
+  { label: { en: 'League', es: 'Liga' }, href: '#league' },
+  { label: { en: 'Divisions', es: 'Divisiones' }, href: '#divisions' },
+  { label: { en: 'Format', es: 'Formato' }, href: '#format' },
+  { label: { en: 'Venue', es: 'Sede' }, href: '#venue' },
+  { label: { en: 'FAQ', es: 'Preguntas' }, href: '#faq' },
+]

@@ -1,6 +1,7 @@
 # ElevatePro Soccer League website
 
-Live at **https://www.elevateprosoccer.com** (Vercel; `elevateprosoccer.com` redirects to `www`).
+Live at **https://www.elevateprosoccer.com** (Vercel; `elevateprosoccer.com` redirects to `www`),
+in English and Spanish (**https://www.elevateprosoccer.com/es**).
 
 Single-page React + TypeScript + Vite site for ElevatePro Soccer League, built from the
 image pack in `elevatepro-website-assets/`. Registration fees are paid through Stripe
@@ -29,8 +30,9 @@ npm run preview   # serve the production build locally (no api/ routes)
 | Registration form fields and validation (shared with the server) | `src/registration/forms.ts` |
 | FAQ answers (built from the config) | `src/content/faq.tsx` |
 | Image registry (paths, sizes, alt text) | `src/content/images.ts` |
-| Page title, description, canonical URL and link-preview tags | `index.html` |
-| Privacy policy page at `/privacy` (wording and "Last updated" date) | `src/privacy/PrivacyPage.tsx`, `privacy.html` |
+| Page title, description, canonical URL and link-preview tags | `index.html` (English), `es.html` (Spanish) |
+| Privacy policy page at `/privacy` and `/es/privacy` (wording and "Last updated" date) | `src/privacy/PrivacyPage.tsx`, `privacy.html`, `es/privacy.html` |
+| Languages: URLs, the EN/ES switch, remembering the choice, titles shown after switching | `src/i18n/`, `src/components/LanguageToggle.tsx` |
 | Link-preview image, robots.txt, sitemap.xml (served as-is from the site root) | `public/` |
 | Design tokens (colors, fonts, spacing) | `src/styles/base.css` |
 
@@ -46,6 +48,30 @@ versions are trimmed copies of `brand/axe_house_sports_logo.png` (see `venueLogo
 
 Anything set to `null` in `league.ts` is unconfirmed, so the site hides it or shows "coming soon".
 Social links are placeholders: add each profile URL to `social` and it becomes a link.
+
+## English and Spanish
+
+Every page exists in both languages: `/` and `/privacy` in English, `/es` and `/es/privacy` in
+Spanish. The **EN | ES** switch in the header (on every screen size) changes the language in place,
+without reloading, and swaps the address so a refresh or a shared link keeps the language. The
+browser remembers the choice, so a family who picked Spanish sees Spanish on their next visit.
+
+- **Editing text:** each section keeps its English and Spanish side by side in a `COPY` object at
+  the top of its file (for example `src/sections/Hero.tsx`). League details in `league.ts` that
+  visitors read (amenities, awards, price units, the partner label) are written as `{ en, es }`.
+  TypeScript refuses to build if a Spanish line is missing, so the two languages can't drift apart.
+- **Registration in Spanish:** form labels, hints and error messages (`src/registration/forms.ts`,
+  also used by the server), Stripe's checkout page (Latin American Spanish), the confirmation
+  message and the **welcome email** are all in Spanish. Stripe returns Spanish-speaking families to `/es`.
+- **The league copy stays in English**, with every answer as typed. Its subject ends in "· Spanish"
+  and it notes the family registered in Spanish, so you know which language to reply in.
+- **Titles and link previews:** `es.html` and `es/privacy.html` hold the Spanish page titles,
+  descriptions and preview text that Google, WhatsApp and Facebook read. `src/i18n/pageMeta.ts`
+  repeats the titles for in-page switching; keep the two in sync.
+
+The Spanish translation uses friendly "tú" and Latin American terms ("fútbol bajo techo",
+"cancha", "inscripción"). Have a native speaker from the league read it before promoting the
+Spanish site.
 
 ## How registration and payment work
 

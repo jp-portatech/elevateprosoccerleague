@@ -1,14 +1,45 @@
 import { PartnerLogo } from '../components/PartnerLogo'
-import { divisionRange, gameDays, telHref, venueAddress, venueLocation } from '../config/derived'
+import { capitalize, divisionRange, gameDays, telHref, venueAddress, venueLocation } from '../config/derived'
 import { league } from '../config/league'
 import { logo } from '../content/images'
-import { navLinks, privacyPath } from '../content/navigation'
+import { navLinks } from '../content/navigation'
+import { useLocale } from '../i18n/useLocale'
+import { localized, pagePath } from '../i18n/locale'
 import './Footer.css'
 
 const COPYRIGHT_YEAR = new Date().getFullYear()
 
-/** `home` prefixes the section links, so pages other than the homepage pass "/". */
+const COPY = localized({
+  en: {
+    tagline: 'Youth indoor soccer',
+    nav: 'Footer',
+    explore: 'Explore',
+    registration: 'Registration',
+    contact: 'Contact',
+    newTab: ' (opens in a new tab)',
+    comingSoon: 'coming soon',
+    privacy: 'Privacy policy',
+    photos: 'Photos on this site are illustrative and do not show actual league players, awards or facilities.',
+    top: 'Back to top',
+  },
+  es: {
+    tagline: 'Fútbol juvenil bajo techo',
+    nav: 'Pie de página',
+    explore: 'Explorar',
+    registration: 'Inscripción',
+    contact: 'Contacto',
+    newTab: ' (se abre en una pestaña nueva)',
+    comingSoon: 'próximamente',
+    privacy: 'Política de privacidad',
+    photos: 'Las fotos de este sitio son ilustrativas y no muestran jugadores, premios ni instalaciones reales de la liga.',
+    top: 'Volver arriba',
+  },
+})
+
+/** `home` prefixes the section links, so pages other than the homepage pass the homepage path. */
 export function Footer({ home = '' }: { home?: string }) {
+  const locale = useLocale()
+  const t = COPY[locale]
   const { email, phones } = league.contact
   const hasContact = Boolean(email || phones.length || league.social.length)
 
@@ -30,7 +61,7 @@ export function Footer({ home = '' }: { home?: string }) {
             <div>
               <p className="site-footer__name">{league.name}</p>
               <p className="site-footer__tagline">
-                Youth indoor soccer · {divisionRange} · {gameDays}
+                {t.tagline} · {divisionRange} · {capitalize(gameDays[locale])}
                 <br />
                 {league.venue.name}, {venueAddress ?? venueLocation}
               </p>
@@ -38,7 +69,7 @@ export function Footer({ home = '' }: { home?: string }) {
                 <a className="site-footer__partner" href={`${home}#venue`}>
                   <PartnerLogo className="site-footer__partner-logo" sizes="39px" lazy />
                   <span>
-                    <span className="site-footer__partner-label">{league.venue.partnerLabel}</span>{' '}
+                    <span className="site-footer__partner-label">{league.venue.partnerLabel[locale]}</span>{' '}
                     <span className="site-footer__partner-name">{league.venue.name}</span>
                   </span>
                 </a>
@@ -46,16 +77,16 @@ export function Footer({ home = '' }: { home?: string }) {
             </div>
           </div>
 
-          <nav className="site-footer__nav" aria-label="Footer">
-            <p className="site-footer__heading">Explore</p>
+          <nav className="site-footer__nav" aria-label={t.nav}>
+            <p className="site-footer__heading">{t.explore}</p>
             <ul>
               {navLinks.map((link) => (
                 <li key={link.href}>
-                  <a href={home + link.href}>{link.label}</a>
+                  <a href={home + link.href}>{link.label[locale]}</a>
                 </li>
               ))}
               <li>
-                <a href={`${home}#register`}>Registration</a>
+                <a href={`${home}#register`}>{t.registration}</a>
               </li>
             </ul>
           </nav>
@@ -63,7 +94,7 @@ export function Footer({ home = '' }: { home?: string }) {
           {/* Only rendered once contact details or social links are set in src/config/league.ts */}
           {hasContact && (
             <div className="site-footer__contact">
-              <p className="site-footer__heading">Contact</p>
+              <p className="site-footer__heading">{t.contact}</p>
               <ul>
                 {email && (
                   <li>
@@ -80,11 +111,11 @@ export function Footer({ home = '' }: { home?: string }) {
                     {s.url ? (
                       <a href={s.url} target="_blank" rel="noopener noreferrer">
                         {s.handle ? `${s.label} ${s.handle}` : s.label}
-                        <span className="visually-hidden"> (opens in a new tab)</span>
+                        <span className="visually-hidden">{t.newTab}</span>
                       </a>
                     ) : (
                       <span className="site-footer__pending">
-                        {s.label} <small>coming soon</small>
+                        {s.label} <small>{t.comingSoon}</small>
                       </span>
                     )}
                   </li>
@@ -98,13 +129,13 @@ export function Footer({ home = '' }: { home?: string }) {
           <p>
             © {COPYRIGHT_YEAR} {league.name}
             <span aria-hidden="true"> · </span>
-            <a href={privacyPath} className="site-footer__legal">
-              Privacy policy
+            <a href={pagePath('privacy', locale)} className="site-footer__legal">
+              {t.privacy}
             </a>
           </p>
-          <p>Photos on this site are illustrative and do not show actual league players, awards or facilities.</p>
+          <p>{t.photos}</p>
           <a href="#top" className="site-footer__top-link">
-            Back to top
+            {t.top}
           </a>
         </div>
       </div>
