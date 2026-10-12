@@ -84,3 +84,39 @@ export async function saveContact(apiKey: string, contact: NewContact, segmentId
   }
   throw new Error(`Resend contact create responded ${created.status}: ${detail}`)
 }
+
+/**
+ * Sends up to 100 emails in one Resend request (the team-info emails from the dashboard).
+ * Same `idempotencyKey` → Resend sends the batch at most once.
+ */
+export async function sendBatch(
+  apiKey: string,
+  from: string,
+  emails: Array<Omit<OutgoingEmail, 'idempotencyKey'>>,
+  idempotencyKey: string,
+): Promise<void> {
+  for (let start = 0; start < emails.length; start += 100) {
+    const chunk = emails.slice(start, start + 100)
+    const response = await fetch('https://api.resend.com/emails/batch', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'Idempotency-Key': `${idempotencyKey}-${start}`.slice(0, 256),
+      },
+      body: JSON.stringify(
+        chunk.map((email) => ({
+          from,
+          to: email.to,
+          subject: email.subject,
+          html: email.html,
+          text: email.text,
+          ...(email.replyTo && { reply_to: email.replyTo }),
+        })),
+      ),
+    })
+    if (!response.ok) {
+      throw new Error(`Resend batch responded ${response.status}: ${(await response.text()).slice(0, 300)}`)
+    }
+  }
+}

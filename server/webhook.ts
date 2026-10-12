@@ -9,16 +9,21 @@
  *  - After both emails send, the Checkout Session is tagged `welcome_email_sent` so a
  *    late retry is skipped entirely.
  *
+ * Also saves the registration to the admin dashboard's database (server/db.ts) when
+ * DATABASE_URL is set. That happens first and can't be skipped by the "already emailed" check,
+ * so a retry also repairs a failed save.
+ *
  * Needs STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET and RESEND_API_KEY.
  */
 import type Stripe from 'stripe'
 import { league } from '../src/config/league.js'
 import { registrationFromMetadata } from './checkout.js'
+import { getDb, saveRegistration, type DbEnv } from './db.js'
 import { sendEmail } from './email.js'
 import { buildLeagueNotification, buildWelcomeEmail, type PaidRegistration } from './emails/registrationEmails.js'
 import { stripeClient } from './stripe.js'
 
-export interface WebhookEnv {
+export interface WebhookEnv extends DbEnv {
   STRIPE_SECRET_KEY?: string
   STRIPE_WEBHOOK_SECRET?: string
   RESEND_API_KEY?: string
@@ -51,10 +56,35 @@ export async function handleStripeWebhook(request: Request, env: WebhookEnv): Pr
   // Not one of our registrations, not paid yet (async methods confirm later), or already emailed.
   if (!registration) return json({ received: true, ignored: 'not-a-registration' })
   if (session.payment_status !== 'paid') return json({ received: true, ignored: 'unpaid' })
-  if (session.metadata?.welcome_email_sent) return json({ received: true, ignored: 'already-emailed' })
 
   const email = session.customer_details?.email ?? session.customer_email
   if (!email) return json({ received: true, ignored: 'no-email' })
+  const paymentIntentId =
+    typeof session.payment_intent === 'string' ? session.payment_intent : (session.payment_intent?.id ?? null)
+
+  const db = getDb(env)
+  if (db) {
+    try {
+      await saveRegistration(db, {
+        id: session.id,
+        kind: registration.kind,
+        locale: registration.locale,
+        email,
+        fields: registration.fields,
+        amountCents: session.amount_total,
+        currency: session.currency ?? league.pricing.currency.toLowerCase(),
+        paidAt: new Date(event.created * 1000),
+        paymentIntentId,
+        livemode: event.livemode,
+      })
+    } catch (error) {
+      // 500 makes Stripe retry; the save is idempotent and emails are guarded below.
+      console.error('Saving registration to the database failed for', session.id, error)
+      return json({ error: 'database-failed' }, 500)
+    }
+  }
+
+  if (session.metadata?.welcome_email_sent) return json({ received: true, ignored: 'already-emailed' })
 
   if (!env.RESEND_API_KEY) {
     // 500 makes Stripe retry, so these emails still go out once email is configured.
@@ -69,7 +99,7 @@ export async function handleStripeWebhook(request: Request, env: WebhookEnv): Pr
     currency: session.currency ?? league.pricing.currency,
     paidAt: new Date(event.created * 1000),
     sessionId: session.id,
-    paymentIntentId: typeof session.payment_intent === 'string' ? session.payment_intent : (session.payment_intent?.id ?? null),
+    paymentIntentId,
     livemode: event.livemode,
   }
 

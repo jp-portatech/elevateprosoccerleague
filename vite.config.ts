@@ -14,6 +14,7 @@ function vercelApiDev(): Plugin {
     '/registration-status': '/api/registration-status.ts',
     '/stripe-webhook': '/api/stripe-webhook.ts',
     '/contact': '/api/contact.ts',
+    '/admin': '/api/admin.ts',
   }
   const readBody = async (req: IncomingMessage) => {
     const chunks: Buffer[] = []
@@ -60,11 +61,12 @@ function vercelApiDev(): Plugin {
 // so Vite fingerprints them and only the files the site uses end up in dist/.
 export default defineConfig(({ mode }) => {
   // Server-only secrets for the dev API (never exposed to the browser bundle).
-  Object.assign(process.env, loadEnv(mode, process.cwd(), ['STRIPE_', 'RESEND_']))
+  Object.assign(process.env, loadEnv(mode, process.cwd(), ['STRIPE_', 'RESEND_', 'DATABASE_', 'POSTGRES_', 'ADMIN_']))
   return {
     plugins: [react(), vercelApiDev()],
     build: {
-      // The homepage and privacy policy in English (/, /privacy) and Spanish (/es, /es/privacy).
+      // The homepage and privacy policy in English (/, /privacy) and Spanish (/es, /es/privacy),
+      // plus the admin dashboard (/admin).
       // Served without .html via cleanUrls in vercel.json.
       rolldownOptions: {
         input: {
@@ -72,6 +74,7 @@ export default defineConfig(({ mode }) => {
           privacy: 'privacy.html',
           es: 'es.html',
           esPrivacy: 'es/privacy.html',
+          admin: 'admin.html',
         },
       },
     },

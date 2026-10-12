@@ -27,6 +27,7 @@ npm run preview   # serve the production build locally (no api/ routes)
 | Post-payment emails: webhook handling, sending (Resend), wording | `server/webhook.ts`, `server/email.ts`, `server/emails/registrationEmails.ts` |
 | Contact form ("Not ready to register?"): section, fields and validation, server, emails | `src/sections/Contact.tsx`, `src/contact/leadForm.ts`, `server/lead.ts`, `server/emails/leadEmails.ts` |
 | Look shared by every email (header, footer, boxes, season details) | `server/emails/layout.ts` |
+| Admin dashboard at `/admin`: screens, team suggestions, server actions, database | `src/admin/`, `server/admin.ts`, `server/db.ts`, `server/emails/teamEmails.ts` |
 | Email sender, reply-to and league-copy addresses | `email` in `src/config/league.ts` |
 | Browser side of registration (submit, redirect, draft restore) | `src/registration/submitRegistration.ts` |
 | Registration form fields and validation (shared with the server) | `src/registration/forms.ts` |
@@ -182,6 +183,41 @@ records consent for when you add one.
 
 Each contact form message sends 2 emails, which count toward Resend's daily limit along with
 registration emails.
+
+## Admin dashboard (`/admin`)
+
+A private dashboard for the people running the league, at **https://www.elevateprosoccer.com/admin**.
+It isn't linked from the site and is hidden from search engines.
+
+- **Overview:** teams, individual players, placed vs. waiting per age group, money collected, new leads.
+  **Import from Stripe** adds paid registrations that aren't in the dashboard yet (safe to repeat).
+- **Players:** every individually registered player with parent contacts, experience, teammate request,
+  team and payment. Search, filter, add private notes, mark withdrawn (refunds happen in Stripe),
+  download a CSV.
+- **Teams:** registered teams (signed up and paid as a team) and league teams (formed from individual
+  players). Edit names and coach details, download rosters as CSV, and **Send team info**: each placed
+  player's family gets a "Meet your team" email in their language with the coach's contact, and the
+  coach gets the roster with parent contacts. Families never see other children's details.
+- **Team builder:** per age group, the players waiting for a team. **Suggest teams** splits them into
+  the number of teams you choose, balancing experience and age and keeping teammate requests together.
+  Nothing is saved until you create the teams. Move any player with the Team menu, including onto a
+  registered team that needs more players.
+- **Leads:** contact-form requests with a status (new, contacted, registered, not interested) and notes.
+
+New paid registrations and leads appear automatically. Test-mode (sandbox) payments are labeled TEST
+and hidden by default once live payments start.
+
+**Setup (one time):**
+
+1. **Database:** Vercel → the project → **Storage → Create Database → Neon** (Free plan) → connect it to
+   this project (Production and Preview). Vercel adds `DATABASE_URL`. The tables are created
+   automatically on first use.
+2. **Password:** Vercel → **Settings → Environment Variables** → `ADMIN_PASSWORD`, at least 12
+   characters and not used anywhere else (Production and Preview). Share it only with league organizers.
+   Changing it signs everyone out. After 8 wrong tries from one place, sign-in pauses for 15 minutes.
+3. **Redeploy**, open `/admin`, sign in, and press **Import from Stripe** on the Overview.
+
+Without these two settings, `/admin` shows what's missing and the rest of the site works as before.
 
 ## Before launch
 

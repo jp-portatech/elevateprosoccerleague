@@ -72,7 +72,8 @@ const COPY = localized<{
               </li>
               <li>
                 <strong>Player registrations:</strong> the division, the player’s name and date of birth, a parent or
-                guardian’s name and email address, a phone number and, if you choose, the player’s experience level.
+                guardian’s name and email address, a phone number and, if you choose, the player’s experience level and a
+                teammate request.
               </li>
               <li>
                 <strong>Payments:</strong> you pay on Stripe’s secure checkout page, and your card details go directly
@@ -133,6 +134,10 @@ const COPY = localized<{
               </li>
               <li>
                 <strong>Vercel</strong> hosts this website and the registration form.
+              </li>
+              <li>
+                <strong>Neon</strong> stores registrations and contact requests in a secure database for the
+                league’s organizers.
               </li>
               <li>
                 <strong>Google</strong> provides the league’s Gmail inbox, which receives a copy of each registration.
@@ -211,8 +216,8 @@ const COPY = localized<{
         body: (
           <p>
             This website uses an encrypted (HTTPS) connection, and card payments are handled entirely by Stripe, a
-            PCI-certified payment provider. Registration records are kept in the league’s Stripe account and email
-            inbox, which only league organizers can access. No system is perfectly secure, but we take reasonable care
+            PCI-certified payment provider. Registration records are kept in the league’s Stripe account, database and
+            email inbox, which only league organizers can access. No system is perfectly secure, but we take reasonable care
             to protect your information.
           </p>
         ),
@@ -257,7 +262,7 @@ const COPY = localized<{
               <li>
                 <strong>Inscripciones de jugador:</strong> la división, el nombre y la fecha de nacimiento del jugador,
                 el nombre y correo electrónico del padre, madre o tutor, un número de teléfono y, si quieres, el nivel
-                de experiencia del jugador.
+                de experiencia del jugador y una solicitud de compañero.
               </li>
               <li>
                 <strong>Pagos:</strong> pagas en la página de pago seguro de Stripe, y los datos de tu tarjeta van
@@ -323,6 +328,10 @@ const COPY = localized<{
               </li>
               <li>
                 <strong>Vercel</strong> aloja este sitio web y el formulario de inscripción.
+              </li>
+              <li>
+                <strong>Neon</strong> guarda las inscripciones y las solicitudes de contacto en una base de datos
+                segura para los organizadores de la liga.
               </li>
               <li>
                 <strong>Google</strong> ofrece el correo de Gmail de la liga, que recibe una copia de cada inscripción.
@@ -406,8 +415,8 @@ const COPY = localized<{
         body: (
           <p>
             Este sitio usa una conexión cifrada (HTTPS), y los pagos con tarjeta los maneja por completo Stripe, un
-            proveedor de pagos con certificación PCI. Los registros de inscripción se guardan en la cuenta de Stripe y en
-            el correo de la liga, a los que solo tienen acceso los organizadores de la liga. Ningún sistema es totalmente
+            proveedor de pagos con certificación PCI. Los registros de inscripción se guardan en la cuenta de Stripe, la base de
+            datos y el correo de la liga, a los que solo tienen acceso los organizadores de la liga. Ningún sistema es totalmente
             seguro, pero cuidamos tu información de forma razonable.
           </p>
         ),

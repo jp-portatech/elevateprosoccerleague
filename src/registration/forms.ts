@@ -196,6 +196,17 @@ export const formFields: Record<RegistrationKind, FieldDef[]> = {
       ],
       placeholderOption: { en: 'Choose an option', es: 'Elige una opción' },
     },
+    {
+      name: 'teammateRequest',
+      label: { en: 'Teammate request', es: 'Solicitud de compañero' },
+      type: 'text',
+      required: false,
+      hint: {
+        en: 'Name of a friend or sibling your player would like to play with. We’ll try, but can’t guarantee it.',
+        es: 'Nombre de un amigo o hermano con quien le gustaría jugar. Haremos lo posible, pero no podemos garantizarlo.',
+      },
+      maxLength: 120,
+    },
   ],
 }
 

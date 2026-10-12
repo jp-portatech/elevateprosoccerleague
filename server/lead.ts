@@ -10,16 +10,19 @@
  * Spam: a hidden "leave_this_empty" field that only bots fill in, and a minimum time between
  * the first keystroke and Send.
  *
+ * The lead is also saved to the admin dashboard's database when DATABASE_URL is set.
+ *
  * Needs RESEND_API_KEY. Saving contacts needs that key to have Full access in Resend.
  */
 import { league } from '../src/config/league.js'
 import { leadFields, validateLead } from '../src/contact/leadForm.js'
 import { isLocale, type Locale } from '../src/i18n/locale.js'
 import type { FormValues } from '../src/registration/forms.js'
+import { getDb, saveLead, type DbEnv } from './db.js'
 import { saveContact, sendEmail } from './email.js'
 import { buildLeadAcknowledgement, buildLeadNotification, type Lead } from './emails/leadEmails.js'
 
-export interface LeadEnv {
+export interface LeadEnv extends DbEnv {
   RESEND_API_KEY?: string
   /** Resend segment that new leads are added to, e.g. "Website leads". Optional. */
   RESEND_LEADS_SEGMENT_ID?: string
@@ -89,7 +92,8 @@ export async function handleLead(request: Request, env: LeadEnv): Promise<Respon
   }
 
   const [nameFirst, ...nameRest] = lead.name.split(/\s+/)
-  const [ack, contact] = await Promise.allSettled([
+  const db = getDb(env)
+  const [ack, contact, saved] = await Promise.allSettled([
     sendEmail(env.RESEND_API_KEY, league.email.from, {
       ...buildLeadAcknowledgement(lead),
       to: lead.email,
@@ -101,11 +105,25 @@ export async function handleLead(request: Request, env: LeadEnv): Promise<Respon
       { email: lead.email, firstName: nameFirst, lastName: nameRest.join(' '), unsubscribed: !lead.consent },
       env.RESEND_LEADS_SEGMENT_ID,
     ),
+    db
+      ? saveLead(db, {
+          submissionId: id,
+          name: lead.name,
+          email: lead.email,
+          phone: lead.phone,
+          interest: lead.interest,
+          ageGroup: lead.ageGroup,
+          message: lead.message,
+          consent: lead.consent,
+          locale,
+        })
+      : null,
   ])
   if (ack.status === 'rejected') console.error('Contact form thank-you email failed:', ack.reason)
   if (contact.status === 'rejected') {
     console.error('Saving the lead to Resend contacts failed (the API key needs Full access):', contact.reason)
   }
+  if (saved.status === 'rejected') console.error('Saving the lead to the database failed:', saved.reason)
 
   return json({ ok: true })
 }
