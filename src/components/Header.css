@@ -62,15 +62,21 @@
 
 /* ---------- Venue partner (beside the brand, after a divider) ---------- */
 
+/*
+ * Logos only: when the partner shield is shown, the header drops the ElevatePro wordmark
+ * and shows the two shields side by side. Both names stay available to screen readers
+ * (the ElevatePro logo's alt text, and the partner link's visually hidden text).
+ */
+.site-header__brands:has(.partner) .brand__text {
+  display: none;
+}
+
 .partner {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  margin-left: 0.65rem;
-  padding: 0.2rem 0 0.2rem 0.65rem;
+  margin-left: 0.75rem;
+  padding: 0.2rem 0 0.2rem 0.75rem;
   border-left: 1px solid var(--line);
-  color: var(--navy);
-  text-decoration: none;
 }
 
 /* About 80% of the ElevatePro logo's height, so the league's own brand leads */
@@ -79,62 +85,12 @@
   height: 38px;
 }
 
-.partner__text {
-  display: flex;
-  flex-direction: column;
-  font-family: var(--font-condensed);
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.partner__label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  color: var(--steel);
-}
-
-.partner__name {
-  margin-top: 0.3rem;
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
-.partner:hover .partner__name {
-  text-decoration: underline;
-  text-decoration-color: var(--ice);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 0.2em;
-}
-
-/*
- * Phones: just the two shields and the divider, no words. The ElevatePro logo's alt text
- * and the partner text below stay available to screen readers.
- */
-@media (max-width: 719px) {
-  .site-header__brands:has(.partner) .brand__text {
-    display: none;
-  }
-
-  .partner__text {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-}
-
-@media (min-width: 720px) {
+@media (min-width: 1024px) {
   .partner {
     margin-left: 1rem;
     padding-left: 1rem;
   }
-}
 
-@media (min-width: 1024px) {
   .partner__logo {
     height: 46px;
   }

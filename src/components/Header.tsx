@@ -61,10 +61,8 @@ export function Header() {
           {venue.partnerLabel && (
             <a className="partner" href="#venue">
               <PartnerLogo className="partner__logo" sizes="(min-width: 1024px) 37px, 31px" />
-              {/* Visually hidden on phones, where only the shield fits */}
-              <span className="partner__text">
-                <span className="partner__label">{venue.partnerLabel}</span>{' '}
-                <span className="partner__name">{venue.name}</span>
+              <span className="visually-hidden">
+                {venue.partnerLabel}: {venue.name}
               </span>
             </a>
           )}
