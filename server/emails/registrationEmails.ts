@@ -50,6 +50,8 @@ export interface PaidRegistration {
   sessionId: string
   paymentIntentId: string | null
   livemode: boolean
+  /** The admin dashboard's $1 payment test (not a real registration). */
+  paymentTest?: boolean
 }
 
 // ---------- registration helpers ----------
@@ -267,13 +269,14 @@ export function buildLeagueNotification(reg: PaidRegistration): RenderedEmail {
   ]
   const spanish = reg.locale === 'es'
 
-  const subject = `${reg.livemode ? '' : '[TEST] '}New ${kindLabel} registration: ${name} (${reg.fields.division}), ${amount} paid${spanish ? ' · Spanish' : ''}`
+  const subject = `${reg.paymentTest ? '[PAYMENT TEST] ' : ''}${reg.livemode ? '' : '[TEST] '}New ${kindLabel} registration: ${name} (${reg.fields.division}), ${amount} paid${spanish ? ' · Spanish' : ''}`
 
   const html = layout(
     'en',
     subject,
     `${name} · ${reg.fields.division} · ${amount}`,
     `<h1 style="margin:0 0 18px;font-family:'Arial Black', ${FONT};font-size:24px;line-height:1.15;text-transform:uppercase;color:${NAVY};">New ${esc(kindLabel)} registration</h1>
+    ${reg.paymentTest ? p(`<strong style="color:${NAVY};">This is the $1 payment test from the admin dashboard, not a real registration.</strong> It’s filed as withdrawn. Refund it in Stripe.`) : ''}
     ${p(`<strong>${esc(name)}</strong> registered for <strong>${esc(reg.fields.division)}</strong> and paid <strong>${esc(amount)}</strong>.${spanish ? ' They registered on the Spanish site and received their welcome email in Spanish.' : ''} Reply to this email to contact them directly.`)}
     ${detailsBox('Form answers', answers)}
     ${detailsBox('Payment', payment, ICE)}

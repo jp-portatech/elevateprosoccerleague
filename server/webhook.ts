@@ -17,7 +17,7 @@
  */
 import type Stripe from 'stripe'
 import { league } from '../src/config/league.js'
-import { registrationFromMetadata } from './checkout.js'
+import { isPaymentTest, PAYMENT_TEST_FILING, registrationFromMetadata } from './checkout.js'
 import { getDb, saveRegistration, type DbEnv } from './db.js'
 import { sendEmail } from './email.js'
 import { buildLeagueNotification, buildWelcomeEmail, type PaidRegistration } from './emails/registrationEmails.js'
@@ -62,6 +62,9 @@ export async function handleStripeWebhook(request: Request, env: WebhookEnv): Pr
   const paymentIntentId =
     typeof session.payment_intent === 'string' ? session.payment_intent : (session.payment_intent?.id ?? null)
 
+  // The admin dashboard's $1 payment test: processed like a real registration, filed as withdrawn.
+  const paymentTest = isPaymentTest(session.metadata)
+
   const db = getDb(env)
   if (db) {
     try {
@@ -76,6 +79,7 @@ export async function handleStripeWebhook(request: Request, env: WebhookEnv): Pr
         paidAt: new Date(event.created * 1000),
         paymentIntentId,
         livemode: event.livemode,
+        ...(paymentTest && PAYMENT_TEST_FILING),
       })
     } catch (error) {
       // 500 makes Stripe retry; the save is idempotent and emails are guarded below.
@@ -101,6 +105,7 @@ export async function handleStripeWebhook(request: Request, env: WebhookEnv): Pr
     sessionId: session.id,
     paymentIntentId,
     livemode: event.livemode,
+    paymentTest,
   }
 
   const welcome = buildWelcomeEmail(paid)

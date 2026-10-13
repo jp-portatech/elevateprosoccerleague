@@ -142,6 +142,60 @@ export function buildCheckoutParams(
   }
 }
 
+/** What the admin "$1 payment test" charges, in cents (Stripe's minimum is 50¢). */
+export const PAYMENT_TEST_CENTS = 100
+
+/**
+ * Admin-only $1 live test of the whole payment path: real checkout, Stripe's webhook, the
+ * welcome and league emails, and the dashboard. It's a normal player registration for "Payment
+ * Test" except for the price and a `payment_test` tag, which marks the league email and files it
+ * as withdrawn. Returns to the dashboard afterwards.
+ */
+export function buildPaymentTestParams(email: string, origin: string): Stripe.Checkout.SessionCreateParams {
+  const division = league.divisions[0]
+  const fields: FormValues = {
+    division: division.id,
+    playerFirstName: 'Payment',
+    playerLastName: 'Test',
+    dateOfBirth: division.bornOnOrAfter ?? `${new Date().getFullYear() - 6}-01-01`,
+    guardianName: `${league.shortName} Admin`,
+    guardianEmail: email,
+    phone: league.contact.phones[0] ?? '',
+    experience: '',
+    teammateRequest: '',
+  }
+  const base = buildCheckoutParams('player', fields, origin, 'en')
+  const metadata = { ...(base.metadata as Record<string, string>), payment_test: 'true' }
+  return {
+    ...base,
+    line_items: [
+      {
+        quantity: 1,
+        price_data: {
+          currency: league.pricing.currency.toLowerCase(),
+          unit_amount: PAYMENT_TEST_CENTS,
+          product_data: {
+            name: 'Payment test — not a registration',
+            description: `${league.name} admin test of checkout, emails and the dashboard. Refund it afterwards.`,
+          },
+        },
+      },
+    ],
+    metadata,
+    payment_intent_data: { metadata, description: `${league.name} $1 payment test` },
+    success_url: `${origin}/admin?payment-test=paid#overview`,
+    cancel_url: `${origin}/admin?payment-test=cancelled#overview`,
+  }
+}
+
+export const isPaymentTest = (metadata: Stripe.Metadata | null | undefined) => metadata?.payment_test === 'true'
+
+/** How a payment test is saved to the dashboard, by the webhook and "Import from Stripe" alike. */
+export const PAYMENT_TEST_FILING = {
+  status: 'withdrawn',
+  notes: '$1 payment test from the admin dashboard. Refund it in Stripe.',
+} as const
+
 /** POST /api/register — validates a registration and returns a Stripe Checkout URL. */
 export async function createCheckout(request: Request, env: ServerEnv): Promise<Response> {
   if (request.method !== 'POST') return fail('invalid-request', 405)

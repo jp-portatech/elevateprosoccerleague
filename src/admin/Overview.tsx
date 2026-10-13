@@ -1,9 +1,17 @@
 import { league } from '../config/league'
+import { useState, type SubmitEvent } from 'react'
 import type { Act } from './AdminApp'
 import { money } from './format'
 import type { AdminData } from './model'
 
 export function Overview({ data, act, busy }: { data: AdminData; act: Act; busy: boolean }) {
+  const [testEmail, setTestEmail] = useState('')
+
+  const startPaymentTest = async (event: SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const reply = await act('paymentTest', { email: testEmail.trim() }, 'Opening the $1 test checkout…')
+    if (reply && typeof reply.url === 'string') window.location.assign(reply.url)
+  }
   const active = data.registrations.filter((r) => r.status === 'active')
   const collected = active.reduce((sum, r) => sum + (r.amountCents ?? 0), 0)
   const newLeads = data.leads.filter((l) => l.status === 'new').length
@@ -70,6 +78,26 @@ export function Overview({ data, act, busy }: { data: AdminData; act: Act; busy:
         >
           Import from Stripe
         </button>
+      </section>
+
+      <section className="admin-card" aria-labelledby="payment-test-title">
+        <h2 className="admin-h2" id="payment-test-title">
+          $1 payment test
+        </h2>
+        <p className="admin-muted">
+          Charges $1 to your card through the real checkout, so you can confirm payments, the welcome email, the league
+          copy and this dashboard all work, without a $50 test. It shows up as “[PAYMENT TEST]” and is filed under
+          Players → Withdrawn. Refund it in Stripe afterwards; Stripe keeps about 33¢ in fees.
+        </p>
+        <form className="admin-filters" onSubmit={startPaymentTest}>
+          <label className="admin-field admin-field--grow">
+            <span>Send the test emails and receipt to</span>
+            <input type="email" required autoComplete="email" value={testEmail} onChange={(e) => setTestEmail(e.target.value)} />
+          </label>
+          <button type="submit" className="admin-btn" disabled={busy || !testEmail.trim()}>
+            Start $1 test payment
+          </button>
+        </form>
       </section>
     </div>
   )
