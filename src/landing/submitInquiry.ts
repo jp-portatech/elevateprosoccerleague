@@ -8,6 +8,7 @@
  * contact details in a URL.
  */
 import { landing } from '../config/landing'
+import type { Locale } from '../i18n/locale'
 import type { FormErrors, FormValues } from '../registration/forms'
 import type { InquiryType } from './inquiryForms'
 
@@ -19,7 +20,7 @@ export type InquiryResult =
 export async function submitInquiry(
   inquiry: InquiryType,
   values: FormValues,
-  meta: { page: string; utm: Record<string, string>; submissionId: string; elapsedMs: number; trap: string },
+  meta: { locale: Locale; page: string; utm: Record<string, string>; submissionId: string; elapsedMs: number; trap: string },
 ): Promise<InquiryResult> {
   let response: Response
   try {
@@ -28,7 +29,7 @@ export async function submitInquiry(
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({
         inquiry,
-        locale: 'en',
+        locale: meta.locale,
         page: meta.page,
         utm: meta.utm,
         fields: values,

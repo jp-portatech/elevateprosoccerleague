@@ -2,7 +2,8 @@
  * POST /api/contact — every "talk to us" form:
  *   - the "Not ready to register?" form on the homepage (default)
  *   - the information requests on the landing pages: { inquiry: 'individual_player' | 'team' }
- *     from /join-as-a-player and /register-a-team, with any UTM campaign tags from the page URL.
+ *     from /join-as-a-player and /register-a-team (and their Spanish versions under /es), with
+ *     any UTM campaign tags from the page URL.
  *     These ask no marketing consent, so the person is saved as unsubscribed from promotions.
  *
  *  1. Validates the form with the same rules the browser uses.
@@ -21,7 +22,7 @@
 import { league } from '../src/config/league.js'
 import { leadFields, validateLead } from '../src/contact/leadForm.js'
 import { isLocale, type Locale } from '../src/i18n/locale.js'
-import { cleanUtm, INQUIRY_PAGE, inquiryFields, isInquiryType, validateInquiry } from '../src/landing/inquiryForms.js'
+import { cleanUtm, inquiryFields, inquirySource, isInquiryType, validateInquiry } from '../src/landing/inquiryForms.js'
 import type { FieldDef } from '../src/registration/forms.js'
 import type { FormValues } from '../src/registration/forms.js'
 import { getDb, saveLead, type DbEnv } from './db.js'
@@ -86,7 +87,7 @@ export async function handleLead(request: Request, env: LeadEnv): Promise<Respon
         consent: false,
         locale,
         receivedAt: new Date(),
-        source: INQUIRY_PAGE[inquiry],
+        source: inquirySource(inquiry, body.page),
         inquiry,
         utm: cleanUtm(body.utm),
       }

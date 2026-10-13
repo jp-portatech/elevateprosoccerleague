@@ -225,10 +225,18 @@ Without these two settings, `/admin` shows what's missing and the rest of the si
 
 Two focused pages for ads, each with one action and no site menu or footer links:
 
-- **https://www.elevateprosoccer.com/join-as-a-player** for parents of children without a team.
-- **https://www.elevateprosoccer.com/register-a-team** for coaches and organizers bringing a team.
+| Audience | English (English ads) | Spanish (Spanish ads) |
+| --- | --- | --- |
+| Parents of children without a team | **https://www.elevateprosoccer.com/join-as-a-player** | **https://www.elevateprosoccer.com/es/join-as-a-player** |
+| Coaches and organizers bringing a team | **https://www.elevateprosoccer.com/register-a-team** | **https://www.elevateprosoccer.com/es/register-a-team** |
 
-Every button on a page ("Secure Your Child's Spot" / "Hold a Spot for My Team") opens the
+Each language version is the same page code (`src/landing/`) with its text in a `COPY` object of
+English and Spanish; the HTML file (`es/join-as-a-player.html`, …) sets the language. The versions
+don't link to each other, so each ad's audience stays on one page. Spanish requests get Spanish
+error messages, success message and confirmation email; the league copy is marked "Spanish".
+
+Every button on a page ("Secure Your Child's Spot" / "Hold a Spot for My Team"; in Spanish
+"Asegura el lugar de tu hijo" / "Aparta un lugar para mi equipo") opens the
 same short **information request** dialog. It collects contact details only, never a child's name,
 birth date or payment, and it says clearly that it doesn't reserve a spot or complete registration.
 Success appears only after the server confirms receipt.

@@ -62,9 +62,13 @@ export interface AdminLead {
 
 /** Short label for where a lead came from. */
 export const leadSourceLabel = (source: string) =>
-  ({ 'contact-form': 'Contact form', '/join-as-a-player': 'Join as a player page', '/register-a-team': 'Register a team page' })[
-    source
-  ] ?? source
+  ({
+    'contact-form': 'Contact form',
+    '/join-as-a-player': 'Join as a player page',
+    '/register-a-team': 'Register a team page',
+    '/es/join-as-a-player': 'Join as a player page (Spanish)',
+    '/es/register-a-team': 'Register a team page (Spanish)',
+  })[source] ?? source
 
 export interface AdminData {
   registrations: AdminRegistration[]

@@ -1179,3 +1179,13 @@ html:has(.inquiry[open]) {
     padding: 0 1.1rem 1.25rem;
   }
 }
+
+/* Spanish capitals carry accents (Á, É, Í, Ó, Ú): a little more room between heading lines */
+.lp-h2:lang(es),
+.lp-band__title:lang(es) {
+  line-height: 1.1;
+}
+
+.lp-hero__title:lang(es) {
+  line-height: 1.08;
+}

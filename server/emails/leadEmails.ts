@@ -77,6 +77,8 @@ const PAGE_NAMES: Record<string, string> = {
   'contact-form': 'Homepage contact form',
   '/join-as-a-player': 'Join as a player page (/join-as-a-player)',
   '/register-a-team': 'Register a team page (/register-a-team)',
+  '/es/join-as-a-player': 'Spanish Join as a player page (/es/join-as-a-player)',
+  '/es/register-a-team': 'Spanish Register a team page (/es/register-a-team)',
 }
 
 // ---------- to the league inbox ----------

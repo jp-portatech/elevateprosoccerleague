@@ -3,6 +3,7 @@ import { Icon } from '../components/Icon'
 import { league } from '../config/league'
 import { logo } from '../content/images'
 import { StaticLocaleProvider } from '../i18n/LocaleProvider'
+import { localized, type Locale } from '../i18n/locale'
 import { InquiryContext, useInquiry, type InquiryApi } from './inquiryContext'
 import { InquiryDialog } from './InquiryDialog'
 import type { InquiryType } from './inquiryForms'
@@ -12,18 +13,32 @@ import './landing.css'
 
 const YEAR = new Date().getFullYear()
 
+const COPY = localized({
+  en: {
+    skip: 'Skip to main content',
+    legal: 'Photos are illustrative and don’t show actual league players or facilities. Privacy policy: elevateprosoccer.com/privacy',
+  },
+  es: {
+    skip: 'Saltar al contenido principal',
+    legal:
+      'Las fotos son ilustrativas y no muestran jugadores ni instalaciones reales de la liga. Política de privacidad: elevateprosoccer.com/es/privacy',
+  },
+})
+
 /**
  * Layout for the advertising landing pages: an unlinked logo, the page, and a minimal footer.
  * No site navigation and no links to other pages, so each page keeps to one action. Every CTA
  * on the page opens the same information-request dialog.
  */
 export function LandingShell({
+  locale,
   type,
   ctaLabel,
   audience,
   theme,
   children,
 }: {
+  locale: Locale
   type: InquiryType
   ctaLabel: string
   /** Small label beside the logo, e.g. "Individual players". */
@@ -43,11 +58,11 @@ export function LandingShell({
   const api = useMemo<InquiryApi>(() => ({ label: ctaLabel, open: openDialog }), [ctaLabel, openDialog])
 
   return (
-    <StaticLocaleProvider locale="en">
+    <StaticLocaleProvider locale={locale}>
       <InquiryContext.Provider value={api}>
         <div className={`lp lp--${theme}`}>
           <a className="skip-link" href="#main">
-            Skip to main content
+            {COPY[locale].skip}
           </a>
           <header className="lp-header">
             <div className="container lp-header__inner">
@@ -74,10 +89,7 @@ export function LandingShell({
               <p>
                 © {YEAR} {league.name} · {league.venue.city}, {league.venue.region}
               </p>
-              <p className="lp-footer__legal">
-                Photos are illustrative and don’t show actual league players or facilities. Privacy policy:
-                elevateprosoccer.com/privacy
-              </p>
+              <p className="lp-footer__legal">{COPY[locale].legal}</p>
             </div>
           </footer>
         </div>

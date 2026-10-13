@@ -1,59 +1,140 @@
 import { Icon, type IconName } from '../components/Icon'
 import { Picture } from '../components/Picture'
-import { formatPrice } from '../config/derived'
+import { capitalize, formatPrice } from '../config/derived'
 import { landing } from '../config/landing'
 import { league } from '../config/league'
 import { images } from '../content/images'
+import { localized, type Locale } from '../i18n/locale'
 import { InquiryButton, LandingShell } from './LandingShell'
-import { divisionsLine, numberWord, startWithWeekday } from './shared'
+import { divisionsLine, divisionsSentence, numberWord, startWithWeekday } from './shared'
 
 const { season, venue, pricing } = league
 const games = season.regularSeasonGames
-const gameDay = season.gameDay.en
+const ICONS = { facts: ['team', 'trophy', 'calendar', 'check'], benefits: ['growth', 'team', 'calendar'] } satisfies Record<
+  string,
+  IconName[]
+>
 
-const FACTS: Array<{ icon: IconName; value: string; label: string }> = [
-  { icon: 'team', value: landing.format, label: 'Play' },
-  { icon: 'trophy', value: String(games), label: 'Guaranteed games' },
-  { icon: 'calendar', value: gameDay, label: 'Games' },
-  { icon: 'check', value: 'Age-verified', label: 'Players' },
-]
+const price = (locale: Locale) => (pricing.player ? `${formatPrice(pricing.player, locale)} ${pricing.player.unit[locale]}` : null)
 
-const BENEFITS: Array<{ icon: IconName; title: string; text: string }> = [
-  { icon: 'growth', title: 'Learn the fundamentals', text: 'More opportunities to play and practice.' },
-  { icon: 'team', title: 'Meet new teammates', text: 'Make friends through a shared game.' },
-  { icon: 'calendar', title: 'We handle the details', text: `Team formation and a consistent ${gameDay} schedule.` },
-]
+const COPY = localized({
+  en: {
+    cta: "Secure Your Child's Spot",
+    audience: 'Individual players',
+    eyebrow: 'No team? No problem.',
+    title: 'Get Your Child Active, Making Friends, and Playing Indoor Soccer This Season—Even If They Don’t Have a Team.',
+    lede: `A ${season.gameDay.en} soccer season built around play, new teammates and less work for parents.`,
+    starts: `Starts ${startWithWeekday('en')}`,
+    factsLabel: 'Season at a glance',
+    facts: [
+      [landing.format, 'Play'],
+      [String(games), 'Guaranteed games'],
+      [capitalize(season.gameDay.en), 'Games'],
+      ['Age-verified', 'Players'],
+    ],
+    benefitsTitle: 'One child. A whole new team.',
+    benefits: [
+      ['Learn the fundamentals', 'More opportunities to play and practice.'],
+      ['Meet new teammates', 'Make friends through a shared game.'],
+      ['We handle the details', `Team formation and a consistent ${season.gameDay.en} schedule.`],
+    ],
+    packageEyebrow: 'Individual player registration',
+    packageTitle: 'Your player’s season, made simple.',
+    packageItems: [
+      'Individual players welcome',
+      'Team assignment within their age division',
+      `${capitalize(season.gameDay.en)} indoor soccer`,
+      `${numberWord(games, 'en')} guaranteed games`,
+    ],
+    priceLabel: 'Individual player registration:',
+    priceFallback: 'Request individual player pricing.',
+    stepsTitle: 'How it works',
+    step: (n: number) => `Step ${n}: `,
+    steps: ['Sign up your player', 'Meet their team', `Play on ${season.gameDays.en}`],
+    beforeEyebrow: 'Before you register',
+    guaranteeEyebrow: 'Our guarantee',
+    askTitle: 'Hear the details before you decide.',
+    askText: 'Ask about individual pricing, team placement and the season before registering.',
+    faqTitle: 'Common questions',
+    faq: [
+      ['Does my child need a team?', 'No. Individual players are welcome and can be assigned to a team.'],
+      ['Which divisions are available?', `${divisionsSentence('en')}.`],
+      ['Where do games happen?', `${venue.name}, ${venue.city}, ${venue.region}.`],
+    ],
+    finalTitle: 'Their next team starts here.',
+  },
+  es: {
+    cta: 'Asegura el lugar de tu hijo',
+    audience: 'Jugadores individuales',
+    eyebrow: '¿No tienes equipo? No hay problema.',
+    title: 'Tu hijo o hija puede estar activo, hacer amigos y jugar fútbol indoor esta temporada, aunque no tenga equipo.',
+    lede: `Una temporada de fútbol los ${season.gameDays.es} pensada para jugar, conocer nuevos compañeros y darles menos trabajo a los papás.`,
+    starts: `Inicia el ${startWithWeekday('es')}`,
+    factsLabel: 'La temporada de un vistazo',
+    facts: [
+      [landing.format, 'Juego'],
+      [String(games), 'Partidos garantizados'],
+      [capitalize(season.gameDays.es), 'Día de juego'],
+      ['Edad verificada', 'Jugadores'],
+    ],
+    benefitsTitle: 'Un jugador. Todo un equipo nuevo.',
+    benefits: [
+      ['Aprende los fundamentos', 'Más oportunidades para jugar y practicar.'],
+      ['Conoce nuevos compañeros', 'Haz amigos a través del juego.'],
+      ['Nosotros nos encargamos', `Formamos los equipos y mantenemos un horario fijo los ${season.gameDays.es}.`],
+    ],
+    packageEyebrow: 'Inscripción individual',
+    packageTitle: 'La temporada de tu jugador, sin complicaciones.',
+    packageItems: [
+      'Jugadores individuales bienvenidos',
+      'Asignación a un equipo de su división de edad',
+      `Fútbol indoor los ${season.gameDays.es}`,
+      `${numberWord(games, 'es')} partidos garantizados`,
+    ],
+    priceLabel: 'Inscripción individual:',
+    priceFallback: 'Pregunta por el precio de la inscripción individual.',
+    stepsTitle: 'Cómo funciona',
+    step: (n: number) => `Paso ${n}: `,
+    steps: ['Inscribe a tu jugador', 'Conoce a su equipo', `A jugar los ${season.gameDays.es}`],
+    beforeEyebrow: 'Antes de inscribirte',
+    guaranteeEyebrow: 'Nuestra garantía',
+    askTitle: 'Conoce los detalles antes de decidir.',
+    askText: 'Pregunta por el precio individual, la asignación de equipo y la temporada antes de inscribirte.',
+    faqTitle: 'Preguntas frecuentes',
+    faq: [
+      ['¿Mi hijo necesita un equipo?', 'No. Los jugadores individuales son bienvenidos y se les puede asignar un equipo.'],
+      ['¿Qué divisiones hay?', `${divisionsSentence('es')}.`],
+      ['¿Dónde se juegan los partidos?', `${venue.name}, ${venue.city}, ${venue.region}.`],
+    ],
+    finalTitle: 'Su próximo equipo empieza aquí.',
+  },
+})
 
-// Confirmed baseline, plus any proposed extras the league has switched on in config/landing.ts.
-const PACKAGE = [
-  'Individual players welcome',
-  'Team assignment within their age division',
-  `${gameDay} indoor soccer`,
-  `${numberWord(games)} guaranteed games`,
-  ...landing.player.proposed.filter((term) => term.confirmed).map((term) => term.text),
-]
+export function PlayerLanding({ locale }: { locale: Locale }) {
+  const t = COPY[locale]
+  const guarantee = landing.player.guarantee.confirmed && landing.player.guarantee.text[locale] ? landing.player.guarantee : null
+  // Confirmed baseline, plus any proposed extras the league has switched on in config/landing.ts.
+  const packageItems = [
+    ...t.packageItems,
+    ...landing.player.proposed.filter((term) => term.confirmed).map((term) => term.text[locale]),
+  ]
+  const playerPrice = price(locale)
 
-const STEPS = ['Sign up your player', 'Meet their team', `Play on ${gameDay}s`]
-
-const guarantee = landing.player.guarantee.confirmed && landing.player.guarantee.text ? landing.player.guarantee : null
-
-export function PlayerLanding() {
   return (
-    <LandingShell type="individual_player" ctaLabel="Secure Your Child's Spot" audience="Individual players" theme="light">
+    <LandingShell locale={locale} type="individual_player" ctaLabel={t.cta} audience={t.audience} theme="light">
       {/* 1. Hero */}
       <section className="lp-hero lp-hero--light" aria-labelledby="hero-title">
         <div className="container lp-hero__inner">
           <div className="lp-hero__copy">
-            <p className="lp-eyebrow">No team? No problem.</p>
+            <p className="lp-eyebrow">{t.eyebrow}</p>
             <h1 className="lp-hero__title" id="hero-title">
-              Get Your Child Active, Making Friends, and Playing Indoor Soccer This Season—Even If They Don’t Have a
-              Team.
+              {t.title}
             </h1>
-            <p className="lp-hero__lede">A {gameDay} soccer season built around play, new teammates and less work for parents.</p>
+            <p className="lp-hero__lede">{t.lede}</p>
             <InquiryButton className="lp-hero__cta" />
             <p className="lp-hero__details">
               <span>{divisionsLine}</span>
-              <span>Starts {startWithWeekday}</span>
+              <span>{t.starts}</span>
             </p>
           </div>
         </div>
@@ -63,14 +144,14 @@ export function PlayerLanding() {
       </section>
 
       {/* 2. Facts */}
-      <section className="lp-facts" aria-label="Season at a glance">
+      <section className="lp-facts" aria-label={t.factsLabel}>
         <ul className="container lp-facts__list">
-          {FACTS.map((fact) => (
-            <li className="lp-fact" key={fact.label}>
-              <Icon name={fact.icon} className="lp-fact__icon" />
+          {t.facts.map(([value, label], i) => (
+            <li className="lp-fact" key={label}>
+              <Icon name={ICONS.facts[i]} className="lp-fact__icon" />
               <span>
-                <span className="lp-fact__value">{fact.value}</span>
-                <span className="lp-fact__label">{fact.label}</span>
+                <span className="lp-fact__value">{value}</span>
+                <span className="lp-fact__label">{label}</span>
               </span>
             </li>
           ))}
@@ -81,17 +162,17 @@ export function PlayerLanding() {
       <section className="lp-section lp-section--pale" aria-labelledby="benefits-title">
         <div className="container">
           <h2 className="lp-h2 lp-h2--center" id="benefits-title">
-            One child. A whole new team.
+            {t.benefitsTitle}
           </h2>
           <ul className="lp-benefits">
-            {BENEFITS.map((b) => (
-              <li className="lp-benefit" key={b.title}>
+            {t.benefits.map(([title, text], i) => (
+              <li className="lp-benefit" key={title}>
                 <span className="lp-benefit__icon lp-benefit__icon--circle">
-                  <Icon name={b.icon} />
+                  <Icon name={ICONS.benefits[i]} />
                 </span>
                 <div>
-                  <h3 className="lp-benefit__title">{b.title}</h3>
-                  <p>{b.text}</p>
+                  <h3 className="lp-benefit__title">{title}</h3>
+                  <p>{text}</p>
                 </div>
               </li>
             ))}
@@ -105,12 +186,12 @@ export function PlayerLanding() {
           <Picture image={images.galleryCoaching} className="lp-package__img" sizes="(min-width: 960px) 52vw, 100vw" />
         </div>
         <div className="lp-package__panel">
-          <p className="lp-eyebrow lp-eyebrow--ice">Individual player registration</p>
+          <p className="lp-eyebrow lp-eyebrow--ice">{t.packageEyebrow}</p>
           <h2 className="lp-h2 lp-h2--light" id="package-title">
-            Your player’s season, made simple.
+            {t.packageTitle}
           </h2>
           <ul className="lp-checks lp-checks--light">
-            {PACKAGE.map((item) => (
+            {packageItems.map((item) => (
               <li key={item}>
                 <span className="lp-checks__mark" aria-hidden="true">
                   <Icon name="check" />
@@ -120,12 +201,12 @@ export function PlayerLanding() {
             ))}
           </ul>
           <p className="lp-package__price">
-            {pricing.player ? (
+            {playerPrice ? (
               <>
-                Individual player registration: <strong>{formatPrice(pricing.player)} {pricing.player.unit.en}</strong>
+                {t.priceLabel} <strong>{playerPrice}</strong>
               </>
             ) : (
-              'Request individual player pricing.'
+              t.priceFallback
             )}
           </p>
         </div>
@@ -135,16 +216,16 @@ export function PlayerLanding() {
       <section className="lp-steps-band" aria-labelledby="steps-title">
         <div className="container lp-steps-band__inner">
           <h2 className="visually-hidden" id="steps-title">
-            How it works
+            {t.stepsTitle}
           </h2>
           <ol className="lp-steps">
-            {STEPS.map((step, i) => (
+            {t.steps.map((step, i) => (
               <li className="lp-step" key={step}>
                 <span className="lp-step__num" aria-hidden="true">
                   {i + 1}
                 </span>
                 <span className="lp-step__text">
-                  <span className="visually-hidden">Step {i + 1}: </span>
+                  <span className="visually-hidden">{t.step(i + 1)}</span>
                   {step}
                 </span>
               </li>
@@ -164,15 +245,13 @@ export function PlayerLanding() {
               <Icon name="check" />
             </span>
             <div>
-              <p className="lp-eyebrow lp-eyebrow--ice">{guarantee ? 'Our guarantee' : 'Before you register'}</p>
+              <p className="lp-eyebrow lp-eyebrow--ice">{guarantee ? t.guaranteeEyebrow : t.beforeEyebrow}</p>
               <h2 className="lp-band__title" id="band-title">
-                {guarantee ? guarantee.title : 'Hear the details before you decide.'}
+                {guarantee ? guarantee.title[locale] : t.askTitle}
               </h2>
             </div>
           </div>
-          <p className="lp-band__text">
-            {guarantee ? guarantee.text : 'Ask about individual pricing, team placement and the season before registering.'}
-          </p>
+          <p className="lp-band__text">{guarantee ? guarantee.text[locale] : t.askText}</p>
         </div>
       </section>
 
@@ -180,23 +259,15 @@ export function PlayerLanding() {
       <section className="lp-faq" aria-labelledby="faq-title">
         <div className="container">
           <h2 className="visually-hidden" id="faq-title">
-            Common questions
+            {t.faqTitle}
           </h2>
           <dl className="lp-faq__list">
-            <div className="lp-faq__item">
-              <dt>Does my child need a team?</dt>
-              <dd>No. Individual players are welcome and can be assigned to a team.</dd>
-            </div>
-            <div className="lp-faq__item">
-              <dt>Which divisions are available?</dt>
-              <dd>{league.divisions.map((d) => d.id).join(', ').replace(/, ([^,]*)$/, ' and $1')}.</dd>
-            </div>
-            <div className="lp-faq__item">
-              <dt>Where do games happen?</dt>
-              <dd>
-                {venue.name}, {venue.city}, {venue.region}.
-              </dd>
-            </div>
+            {t.faq.map(([question, answer]) => (
+              <div className="lp-faq__item" key={question}>
+                <dt>{question}</dt>
+                <dd>{answer}</dd>
+              </div>
+            ))}
           </dl>
         </div>
       </section>
@@ -205,7 +276,7 @@ export function PlayerLanding() {
       <section className="lp-final lp-final--light" aria-labelledby="final-title">
         <div className="container lp-final__inner">
           <h2 className="lp-h2" id="final-title">
-            Their next team starts here.
+            {t.finalTitle}
           </h2>
           <InquiryButton />
         </div>

@@ -2,17 +2,23 @@
 // (which re-validates every submission), so imports use `.js` extensions and nothing here may
 // touch React or the DOM.
 import { landing } from '../config/landing.js'
-import type { Locale } from '../i18n/locale.js'
+import type { Locale, Localized } from '../i18n/locale.js'
 import { divisionOptions, phoneField, validateField, type FieldDef, type FormErrors, type FormValues } from '../registration/forms.js'
 
 export type InquiryType = 'individual_player' | 'team'
 
 export const isInquiryType = (value: unknown): value is InquiryType => value === 'individual_player' || value === 'team'
 
-/** The landing page each inquiry type comes from. */
-export const INQUIRY_PAGE: Record<InquiryType, string> = {
+/** The landing pages each inquiry type comes from, in English and Spanish. */
+export const INQUIRY_PAGES: Record<InquiryType, Localized> = {
   individual_player: landing.player.path,
   team: landing.team.path,
+}
+
+/** The page a request came from: the reported path if it's that type's page, else its English page. */
+export function inquirySource(type: InquiryType, reportedPath: unknown): string {
+  const pages = Object.values(INQUIRY_PAGES[type])
+  return typeof reportedPath === 'string' && pages.includes(reportedPath) ? reportedPath : INQUIRY_PAGES[type].en
 }
 
 const emailField: FieldDef = {

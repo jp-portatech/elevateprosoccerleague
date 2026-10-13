@@ -10,8 +10,11 @@ import '@fontsource/barlow-condensed/700.css'
 import '../styles/base.css'
 import { TeamLanding } from './TeamLanding'
 
+// The same page serves English and Spanish; the HTML file sets the language (<html lang="es">).
+const locale = document.documentElement.lang === 'es' ? 'es' : 'en'
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <TeamLanding />
+    <TeamLanding locale={locale} />
   </StrictMode>,
 )
