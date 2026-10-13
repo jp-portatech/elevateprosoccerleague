@@ -66,3 +66,12 @@ export function LocaleProvider({ page, children }: { page: Page; children: React
 
   return <LocaleContext.Provider value={api}>{children}</LocaleContext.Provider>
 }
+
+/**
+ * A fixed language for pages that don't switch languages (the landing pages). Unlike
+ * LocaleProvider it never changes the URL, title or saved preference.
+ */
+export function StaticLocaleProvider({ locale, children }: { locale: Locale; children: ReactNode }) {
+  const api = useMemo<LocaleApi>(() => ({ locale, page: 'home', setLocale: () => {} }), [locale])
+  return <LocaleContext.Provider value={api}>{children}</LocaleContext.Provider>
+}

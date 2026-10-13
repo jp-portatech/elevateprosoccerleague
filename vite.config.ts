@@ -66,7 +66,8 @@ export default defineConfig(({ mode }) => {
     plugins: [react(), vercelApiDev()],
     build: {
       // The homepage and privacy policy in English (/, /privacy) and Spanish (/es, /es/privacy),
-      // plus the admin dashboard (/admin).
+      // the admin dashboard (/admin), and the advertising landing pages (/join-as-a-player,
+      // /register-a-team).
       // Served without .html via cleanUrls in vercel.json.
       rolldownOptions: {
         input: {
@@ -75,6 +76,8 @@ export default defineConfig(({ mode }) => {
           es: 'es.html',
           esPrivacy: 'es/privacy.html',
           admin: 'admin.html',
+          joinAsAPlayer: 'join-as-a-player.html',
+          registerATeam: 'register-a-team.html',
         },
       },
     },

@@ -28,6 +28,8 @@ npm run preview   # serve the production build locally (no api/ routes)
 | Contact form ("Not ready to register?"): section, fields and validation, server, emails | `src/sections/Contact.tsx`, `src/contact/leadForm.ts`, `server/lead.ts`, `server/emails/leadEmails.ts` |
 | Look shared by every email (header, footer, boxes, season details) | `server/emails/layout.ts` |
 | Admin dashboard at `/admin`: screens, team suggestions, server actions, database | `src/admin/`, `server/admin.ts`, `server/db.ts`, `server/emails/teamEmails.ts` |
+| Ad landing pages `/join-as-a-player` and `/register-a-team`: offer terms and confirmation switches | `src/config/landing.ts` |
+| Landing pages: sections, information-request dialog, submission adapter | `src/landing/`, `join-as-a-player.html`, `register-a-team.html` |
 | Email sender, reply-to and league-copy addresses | `email` in `src/config/league.ts` |
 | Browser side of registration (submit, redirect, draft restore) | `src/registration/submitRegistration.ts` |
 | Registration form fields and validation (shared with the server) | `src/registration/forms.ts` |
@@ -218,6 +220,42 @@ and hidden by default once live payments start.
 3. **Redeploy**, open `/admin`, sign in, and press **Import from Stripe** on the Overview.
 
 Without these two settings, `/admin` shows what's missing and the rest of the site works as before.
+
+## Advertising landing pages
+
+Two focused pages for ads, each with one action and no site menu or footer links:
+
+- **https://www.elevateprosoccer.com/join-as-a-player** for parents of children without a team.
+- **https://www.elevateprosoccer.com/register-a-team** for coaches and organizers bringing a team.
+
+Every button on a page ("Secure Your Child's Spot Now" / "Register Your Roster Today") opens the
+same short **information request** dialog. It collects contact details only, never a child's name,
+birth date or payment, and it says clearly that it doesn't reserve a spot or complete registration.
+Success appears only after the server confirms receipt.
+
+**Where requests go:** `src/landing/submitInquiry.ts` (the one adapter) posts to `/api/contact`
+(`server/lead.ts`), the same pipeline as the homepage contact form. The league inbox gets a
+"New player inquiry" or "New team inquiry" email, the person gets a confirmation, and the request
+appears in the admin dashboard's **Leads** tab with the page it came from and its campaign tags.
+These forms don't ask for marketing consent, so people are saved to Resend as unsubscribed from
+promotions. Needs `RESEND_API_KEY`; without it the dialog says requests aren't connected yet.
+
+**Campaign tags:** add UTM tags to your ad links and they're recorded with each request, e.g.
+`https://www.elevateprosoccer.com/register-a-team?utm_source=facebook&utm_medium=paid_social&utm_campaign=fall-teams`.
+Only `utm_source`, `utm_medium`, `utm_campaign`, `utm_term` and `utm_content` are kept.
+
+**Offer terms (`src/config/landing.ts`):** prices, dates, venue, divisions and games come from
+`league.ts`. Terms the mockups proposed are switched **off** until the league confirms them, and the
+pages show neutral "ask us" copy instead:
+
+| Term | Setting | Now |
+| --- | --- | --- |
+| First Game Guarantee (player refund) | `player.guarantee.confirmed` | off |
+| Team refund policy | `team.guarantee` (needs its own text) | none approved |
+| 100% placement guarantee, balanced team with dedicated coach, jersey included | `player.proposed` | off |
+| Certified referees, skill-matched divisions, online roster management | `team.proposed` | off |
+| Two-team discount | `twoTeamDiscount` | "Ask about the discount", no amount |
+| 5v5 format, live scores and standings | `format`, `liveStandings` | on (from the landing-page brief) |
 
 ## Before launch
 

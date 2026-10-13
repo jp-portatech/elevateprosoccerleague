@@ -52,7 +52,19 @@ export interface AdminLead {
   status: LeadStatus
   notes: string
   createdAt: string
+  /** Team inquiries from /register-a-team. */
+  teamName: string
+  /** "contact-form", or the landing page path, e.g. "/register-a-team". */
+  source: string
+  /** UTM campaign tags from the landing page URL. */
+  utm: Record<string, string>
 }
+
+/** Short label for where a lead came from. */
+export const leadSourceLabel = (source: string) =>
+  ({ 'contact-form': 'Contact form', '/join-as-a-player': 'Join as a player page', '/register-a-team': 'Register a team page' })[
+    source
+  ] ?? source
 
 export interface AdminData {
   registrations: AdminRegistration[]

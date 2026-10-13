@@ -2,10 +2,11 @@ import { useState } from 'react'
 import { leadOptionLabel } from '../contact/leadForm'
 import type { Act } from './AdminApp'
 import { downloadCsv, shortDate } from './format'
-import { LEAD_STATUSES, type AdminData, type AdminLead, type LeadStatus } from './model'
+import { LEAD_STATUSES, leadSourceLabel, type AdminData, type AdminLead, type LeadStatus } from './model'
 
 const interestLabel = (lead: AdminLead) => leadOptionLabel('interest', lead.interest, 'en')
 const ageGroupLabel = (lead: AdminLead) => (lead.ageGroup ? leadOptionLabel('ageGroup', lead.ageGroup, 'en').split(' — ')[0] : '—')
+const campaignLabel = (lead: AdminLead) => [lead.utm.utm_source, lead.utm.utm_medium, lead.utm.utm_campaign].filter(Boolean).join(' / ')
 
 export function LeadsView({ data, act, busy }: { data: AdminData; act: Act; busy: boolean }) {
   const [status, setStatus] = useState<LeadStatus | 'all'>('all')
@@ -14,16 +15,21 @@ export function LeadsView({ data, act, busy }: { data: AdminData; act: Act; busy
 
   const exportCsv = () =>
     downloadCsv('elevatepro-leads.csv', [
-      ['Received', 'Name', 'Email', 'Phone', 'Interested in', 'Age group', 'Message', 'News and offers', 'Language', 'Status', 'Notes'],
+      ['Received', 'Name', 'Team name', 'Email', 'Phone', 'Interested in', 'Age group', 'Message', 'News and offers', 'Came from', 'Campaign', 'Term', 'Content', 'Language', 'Status', 'Notes'],
       ...leads.map((l) => [
         shortDate(l.createdAt),
         l.name,
+        l.teamName,
         l.email,
         l.phone,
         interestLabel(l),
         ageGroupLabel(l),
         l.message,
         l.consent ? 'yes' : 'no',
+        leadSourceLabel(l.source),
+        campaignLabel(l),
+        l.utm.utm_term,
+        l.utm.utm_content,
         l.locale === 'es' ? 'Spanish' : 'English',
         LEAD_STATUSES.find((s) => s.value === l.status)?.label,
         l.notes,
@@ -39,8 +45,9 @@ export function LeadsView({ data, act, busy }: { data: AdminData; act: Act; busy
         </button>
       </div>
       <p className="admin-muted">
-        From the “Not ready to register?” form. Only people with <strong>News and offers: Yes</strong> agreed to promotional
-        emails and texts; reply to everyone else one-to-one.
+        From the homepage “Not ready to register?” form and the information requests on the Join as a player and
+        Register a team pages. Only people with <strong>News and offers: Yes</strong> agreed to promotional emails and
+        texts; reply to everyone else one-to-one.
       </p>
       <div className="admin-filters">
         <label className="admin-field admin-field--inline">
@@ -67,6 +74,7 @@ export function LeadsView({ data, act, busy }: { data: AdminData; act: Act; busy
                 <th scope="col">Contact</th>
                 <th scope="col">Interested in</th>
                 <th scope="col">Age group</th>
+                <th scope="col">Came from</th>
                 <th scope="col">News and offers</th>
                 <th scope="col">Received</th>
                 <th scope="col">Status</th>
@@ -95,6 +103,7 @@ function LeadRow({ lead, open, onToggle, act, busy }: { lead: AdminLead; open: b
         <th scope="row">
           {lead.name}
           {lead.locale === 'es' && <span className="admin-badge">ES</span>}
+          {lead.teamName && <span className="admin-muted"> · {lead.teamName}</span>}
         </th>
         <td>
           <a href={`mailto:${lead.email}`}>{lead.email}</a>
@@ -103,6 +112,15 @@ function LeadRow({ lead, open, onToggle, act, busy }: { lead: AdminLead; open: b
         </td>
         <td>{interestLabel(lead)}</td>
         <td>{ageGroupLabel(lead)}</td>
+        <td>
+          {leadSourceLabel(lead.source)}
+          {campaignLabel(lead) && (
+            <>
+              <br />
+              <span className="admin-muted">{campaignLabel(lead)}</span>
+            </>
+          )}
+        </td>
         <td>{lead.consent ? <strong>Yes</strong> : 'No'}</td>
         <td>{shortDate(lead.createdAt)}</td>
         <td>
@@ -128,7 +146,7 @@ function LeadRow({ lead, open, onToggle, act, busy }: { lead: AdminLead; open: b
       </tr>
       {open && (
         <tr className="admin-row-details">
-          <td colSpan={8}>
+          <td colSpan={9}>
             <div className="admin-details">
               <p>
                 <strong>Message:</strong> {lead.message || <span className="admin-muted">None</span>}

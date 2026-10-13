@@ -99,6 +99,10 @@ const SCHEMA = [
     ip text NOT NULL,
     at timestamptz NOT NULL DEFAULT now()
   )`,
+  // Added for the landing pages' information requests.
+  `ALTER TABLE leads ADD COLUMN IF NOT EXISTS team_name text NOT NULL DEFAULT ''`,
+  `ALTER TABLE leads ADD COLUMN IF NOT EXISTS source text NOT NULL DEFAULT 'contact-form'`,
+  `ALTER TABLE leads ADD COLUMN IF NOT EXISTS utm jsonb`,
   `CREATE INDEX IF NOT EXISTS registrations_division ON registrations (division, kind)`,
   `CREATE INDEX IF NOT EXISTS admin_login_failures_ip ON admin_login_failures (ip, at)`,
 ]
@@ -173,6 +177,11 @@ export async function saveRegistration(db: Db, reg: RegistrationRecord): Promise
 
 export interface LeadRecord {
   submissionId: string
+  /** "contact-form", or the landing page path, e.g. "/register-a-team". */
+  source: string
+  teamName: string
+  /** UTM campaign tags from the landing page URL. */
+  utm: Record<string, string>
   name: string
   email: string
   phone: string
@@ -186,9 +195,22 @@ export interface LeadRecord {
 export async function saveLead(db: Db, lead: LeadRecord): Promise<void> {
   await ensureSchema(db)
   await db.query(
-    `INSERT INTO leads (submission_id, name, email, phone, interest, age_group, message, consent, locale)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    `INSERT INTO leads (submission_id, name, email, phone, interest, age_group, message, consent, locale, team_name, source, utm)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
      ON CONFLICT (submission_id) DO NOTHING`,
-    [lead.submissionId, lead.name, lead.email, lead.phone, lead.interest, lead.ageGroup, lead.message, lead.consent, lead.locale],
+    [
+      lead.submissionId,
+      lead.name,
+      lead.email,
+      lead.phone,
+      lead.interest,
+      lead.ageGroup,
+      lead.message,
+      lead.consent,
+      lead.locale,
+      lead.teamName,
+      lead.source,
+      Object.keys(lead.utm).length ? JSON.stringify(lead.utm) : null,
+    ],
   )
 }

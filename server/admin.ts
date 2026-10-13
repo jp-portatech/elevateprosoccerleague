@@ -135,6 +135,9 @@ async function loadData(db: Db): Promise<AdminData> {
         status: LEAD_STATUSES.some((s) => s.value === l.status) ? (l.status as AdminLead['status']) : 'new',
         notes: text(l.notes),
         createdAt: iso(l.created_at) ?? '',
+        teamName: text(l.team_name),
+        source: text(l.source) || 'contact-form',
+        utm: (typeof l.utm === 'string' ? JSON.parse(l.utm) : (l.utm ?? {})) as Record<string, string>,
       }),
     ),
   }

@@ -1,5 +1,9 @@
 /**
- * POST /api/contact — the "Not ready to register?" form.
+ * POST /api/contact — every "talk to us" form:
+ *   - the "Not ready to register?" form on the homepage (default)
+ *   - the information requests on the landing pages: { inquiry: 'individual_player' | 'team' }
+ *     from /join-as-a-player and /register-a-team, with any UTM campaign tags from the page URL.
+ *     These ask no marketing consent, so the person is saved as unsubscribed from promotions.
  *
  *  1. Validates the form with the same rules the browser uses.
  *  2. Emails the details to the league inbox (league.email.notify). This is the step that
@@ -17,6 +21,8 @@
 import { league } from '../src/config/league.js'
 import { leadFields, validateLead } from '../src/contact/leadForm.js'
 import { isLocale, type Locale } from '../src/i18n/locale.js'
+import { cleanUtm, INQUIRY_PAGE, inquiryFields, isInquiryType, validateInquiry } from '../src/landing/inquiryForms.js'
+import type { FieldDef } from '../src/registration/forms.js'
 import type { FormValues } from '../src/registration/forms.js'
 import { getDb, saveLead, type DbEnv } from './db.js'
 import { saveContact, sendEmail } from './email.js'
@@ -38,10 +44,10 @@ const json = (body: unknown, status = 200) =>
 const MIN_FILL_MS = 1500
 const SUBMISSION_ID = /^[A-Za-z0-9-]{8,64}$/
 
-const pickFields = (raw: unknown): FormValues => {
+const pickFields = (fields: FieldDef[], raw: unknown): FormValues => {
   const source = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {}
   return Object.fromEntries(
-    leadFields.map((f) => [f.name, typeof source[f.name] === 'string' ? (source[f.name] as string).trim() : '']),
+    fields.map((f) => [f.name, typeof source[f.name] === 'string' ? (source[f.name] as string).trim() : '']),
   )
 }
 
@@ -60,24 +66,45 @@ export async function handleLead(request: Request, env: LeadEnv): Promise<Respon
   if (typeof body.leave_this_empty === 'string' && body.leave_this_empty.trim()) return json({ ok: true })
   if (typeof body.elapsedMs !== 'number' || body.elapsedMs < MIN_FILL_MS) return json({ error: 'too-fast' }, 400)
 
-  const values = pickFields(body.fields)
-  const errors = validateLead(values, locale)
+  const inquiry = isInquiryType(body.inquiry) ? body.inquiry : null
+  const values = pickFields(inquiry ? inquiryFields[inquiry] : leadFields, body.fields)
+  const errors = inquiry ? validateInquiry(inquiry, values, locale) : validateLead(values, locale)
   if (Object.keys(errors).length > 0) return json({ error: 'invalid-fields', fields: errors }, 400)
 
   if (!env.RESEND_API_KEY || league.email.notify.length === 0) return json({ error: 'not-configured' }, 503)
 
   const id = typeof body.submissionId === 'string' && SUBMISSION_ID.test(body.submissionId) ? body.submissionId : crypto.randomUUID()
-  const lead: Lead = {
-    name: values.name,
-    email: values.email,
-    phone: values.phone,
-    interest: values.interest,
-    ageGroup: values.ageGroup,
-    message: values.message,
-    consent: values.updates === 'yes',
-    locale,
-    receivedAt: new Date(),
-  }
+  const lead: Lead = inquiry
+    ? {
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        interest: inquiry === 'team' ? 'team' : 'player',
+        ageGroup: values.division,
+        message: '',
+        teamName: values.teamName ?? '',
+        consent: false,
+        locale,
+        receivedAt: new Date(),
+        source: INQUIRY_PAGE[inquiry],
+        inquiry,
+        utm: cleanUtm(body.utm),
+      }
+    : {
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        interest: values.interest,
+        ageGroup: values.ageGroup,
+        message: values.message,
+        teamName: '',
+        consent: values.updates === 'yes',
+        locale,
+        receivedAt: new Date(),
+        source: 'contact-form',
+        inquiry: null,
+        utm: cleanUtm(body.utm),
+      }
 
   try {
     await sendEmail(env.RESEND_API_KEY, league.email.from, {
@@ -116,6 +143,9 @@ export async function handleLead(request: Request, env: LeadEnv): Promise<Respon
           message: lead.message,
           consent: lead.consent,
           locale,
+          teamName: lead.teamName,
+          source: lead.source,
+          utm: lead.utm,
         })
       : null,
   ])

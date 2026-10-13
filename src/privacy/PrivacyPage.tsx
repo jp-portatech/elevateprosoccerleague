@@ -81,9 +81,11 @@ const COPY = localized<{
                 limited card details such as the card type and last four digits — never the full card number.
               </li>
               <li>
-                <strong>Contact requests:</strong> if you use the “Not ready to register?” form, your name, email
-                address, phone number and what you’re interested in and, if you add them, your player’s age group and a
-                message.
+                <strong>Contact and information requests:</strong> if you use the “Not ready to register?” form or ask
+                for information on one of our sign-up pages, your name, email address and phone number, what you’re
+                interested in, the age division and team name where they apply, and any message you add. If you arrived
+                from an ad or campaign link, we also record that link’s campaign tags (such as the campaign’s name) and
+                nothing else about your browsing.
               </li>
               <li>
                 <strong>When you contact us:</strong> anything you choose to share by email or phone.
@@ -271,9 +273,12 @@ const COPY = localized<{
                 el número completo.
               </li>
               <li>
-                <strong>Solicitudes de contacto:</strong> si usas el formulario “¿Todavía no estás listo para
-                inscribirte?”, tu nombre, correo electrónico, teléfono y lo que te interesa y, si los agregas, la
-                división de edad de tu jugador y un mensaje.
+                <strong>Solicitudes de contacto e información:</strong> si usas el formulario “¿Todavía no estás listo
+                para inscribirte?” o pides información en una de nuestras páginas de inscripción, tu nombre, correo
+                electrónico y teléfono, lo que te interesa, la división de edad y el nombre del equipo cuando
+                corresponda, y cualquier mensaje que agregues. Si llegaste desde un anuncio o un enlace de campaña,
+                también registramos las etiquetas de campaña de ese enlace (como el nombre de la campaña) y nada más
+                sobre tu navegación.
               </li>
               <li>
                 <strong>Cuando te comunicas con nosotros:</strong> lo que decidas compartir por correo o por teléfono.
