@@ -254,6 +254,17 @@ a.admin-stat:hover {
   word-break: break-word;
 }
 
+/* Phone numbers and email addresses stay whole on one line (the table scrolls if needed) */
+.admin-table .admin-phone,
+.admin-table .admin-email {
+  white-space: nowrap;
+  word-break: normal;
+}
+
+.admin-table .admin-phone {
+  font-weight: 700;
+}
+
 .admin-row--muted {
   opacity: 0.6;
 }

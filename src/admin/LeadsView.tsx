@@ -71,7 +71,8 @@ export function LeadsView({ data, act, busy }: { data: AdminData; act: Act; busy
             <thead>
               <tr>
                 <th scope="col">Name</th>
-                <th scope="col">Contact</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Email</th>
                 <th scope="col">Interested in</th>
                 <th scope="col">Age group</th>
                 <th scope="col">Came from</th>
@@ -106,9 +107,14 @@ function LeadRow({ lead, open, onToggle, act, busy }: { lead: AdminLead; open: b
           {lead.teamName && <span className="admin-muted"> · {lead.teamName}</span>}
         </th>
         <td>
-          <a href={`mailto:${lead.email}`}>{lead.email}</a>
-          <br />
-          <a href={`tel:${lead.phone.replace(/[^\d+]/g, '')}`}>{lead.phone}</a>
+          <a className="admin-phone" href={`tel:${lead.phone.replace(/[^\d+]/g, '')}`}>
+            {lead.phone}
+          </a>
+        </td>
+        <td>
+          <a className="admin-email" href={`mailto:${lead.email}`}>
+            {lead.email}
+          </a>
         </td>
         <td>{interestLabel(lead)}</td>
         <td>{ageGroupLabel(lead)}</td>
@@ -146,7 +152,7 @@ function LeadRow({ lead, open, onToggle, act, busy }: { lead: AdminLead; open: b
       </tr>
       {open && (
         <tr className="admin-row-details">
-          <td colSpan={9}>
+          <td colSpan={10}>
             <div className="admin-details">
               <p>
                 <strong>Message:</strong> {lead.message || <span className="admin-muted">None</span>}
