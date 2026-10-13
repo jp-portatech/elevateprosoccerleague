@@ -271,8 +271,8 @@ pages show neutral "ask us" copy instead:
 - Replace the illustrative venue image with a real Axe House Sports photo, and remove its
   "not Axe House Sports" caption in `src/sections/Venue.tsx`.
 - Check the transparent logo's lettering against `brand/elevatepro-logo-original.png`. The
-  background-removed version was AI-derived.
-- Replace the AI-generated illustrative photos with real league photography when available.
+  background was removed automatically.
+- Replace the illustrative photos with real league photography when available.
 - Decide on refund and roster policies before taking payments. The site doesn't state any.
 - Add `https://www.elevateprosoccer.com/privacy` as the privacy policy URL in Stripe
   (Settings → Business → Public details).

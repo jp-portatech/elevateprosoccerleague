@@ -3,8 +3,8 @@
  *
  * Every photo ships as matching WebP + JPG files at several widths. Dimensions and alt
  * text come from elevatepro-website-assets/docs/manifest.json. All photography in the pack
- * is AI-generated and illustrative — it does not show real ElevatePro players, awards or
- * the Axe House Sports facility.
+ * is illustrative — it does not show real ElevatePro players, awards or the Axe House Sports
+ * facility.
  */
 
 import type { Localized } from '../i18n/locale'
