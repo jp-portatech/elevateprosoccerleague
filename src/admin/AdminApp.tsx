@@ -40,17 +40,7 @@ export function AdminApp() {
   const [phase, setPhase] = useState<Phase>({ name: 'checking' })
   const [data, setData] = useState<AdminData | null>(null)
   const [tab, setTab] = useState<TabId>(tabFromHash)
-  // Coming back from the $1 payment test checkout (?payment-test=paid|cancelled).
-  const [status, setStatus] = useState<{ kind: 'ok' | 'error'; text: string } | null>(() => {
-    const result = new URLSearchParams(window.location.search).get('payment-test')
-    if (result === 'paid')
-      return {
-        kind: 'ok',
-        text: 'Test payment done. Within a minute: your welcome email, the “[PAYMENT TEST]” league copy, and an entry under Players → Withdrawn. Then refund it in Stripe.',
-      }
-    if (result === 'cancelled') return { kind: 'error', text: 'Test payment cancelled. You weren’t charged.' }
-    return null
-  })
+  const [status, setStatus] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null)
   const [busy, setBusy] = useState(false)
   const [showTest, setShowTest] = useState<boolean | null>(null)
 
@@ -75,13 +65,6 @@ export function AdminApp() {
       .then((session) => (session.authenticated ? load() : setPhase({ name: 'login' })))
       .catch(handleError)
   }, [load, handleError])
-
-  // Drop ?payment-test=… once read, so a refresh doesn't repeat the message.
-  useEffect(() => {
-    if (new URLSearchParams(window.location.search).has('payment-test')) {
-      history.replaceState(null, '', window.location.pathname + window.location.hash)
-    }
-  }, [])
 
   useEffect(() => {
     const onHash = () => setTab(tabFromHash())

@@ -133,9 +133,6 @@ export interface RegistrationRecord {
   paidAt: Date
   paymentIntentId: string | null
   livemode: boolean
-  /** Defaults to active. The admin $1 payment test is saved as withdrawn so it never counts. */
-  status?: 'active' | 'withdrawn'
-  notes?: string
 }
 
 /**
@@ -148,8 +145,8 @@ export async function saveRegistration(db: Db, reg: RegistrationRecord): Promise
   const statements: Array<[string, unknown[]]> = [
     [
       `INSERT INTO registrations
-         (id, kind, division, locale, email, phone, fields, amount_cents, currency, paid_at, payment_intent_id, livemode, status, notes)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+         (id, kind, division, locale, email, phone, fields, amount_cents, currency, paid_at, payment_intent_id, livemode)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
        ON CONFLICT (id) DO NOTHING`,
       [
         reg.id,
@@ -164,8 +161,6 @@ export async function saveRegistration(db: Db, reg: RegistrationRecord): Promise
         reg.paidAt.toISOString(),
         reg.paymentIntentId,
         reg.livemode,
-        reg.status ?? 'active',
-        reg.notes ?? '',
       ],
     ],
   ]

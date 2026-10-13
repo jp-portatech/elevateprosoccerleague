@@ -110,7 +110,7 @@ gets an email for each paid registration.
    `api/` functions automatically. Under Project → Settings → Environment Variables, add
    `STRIPE_SECRET_KEY`: the test key for Preview, the live key (`sk_live_…`) for Production.
 4. Set `registration.onlinePayments: true` in `league.ts` and deploy.
-5. Make one real low-risk check on production: the admin dashboard's **$1 payment test**, refunded afterwards.
+5. Make one real low-risk check on production, such as a live payment you refund afterwards.
 
 Keep secret keys out of the code and out of git. `.env.local` is already ignored.
 
@@ -193,9 +193,6 @@ It isn't linked from the site and is hidden from search engines.
 
 - **Overview:** teams, individual players, placed vs. waiting per age group, money collected, new leads.
   **Import from Stripe** adds paid registrations that aren't in the dashboard yet (safe to repeat).
-  **$1 payment test** runs a real $1 checkout for a made-up player, "Payment Test", to check
-  payments, both emails and the dashboard without paying the full fee. The league copy is marked
-  "[PAYMENT TEST]" and the player is filed as withdrawn. Refund it in Stripe afterwards.
 - **Players:** every individually registered player with parent contacts, experience, teammate request,
   team and payment. Search, filter, add private notes, mark withdrawn (refunds happen in Stripe),
   download a CSV.

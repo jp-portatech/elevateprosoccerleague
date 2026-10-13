@@ -13,7 +13,7 @@ import { createHash, createHmac, randomUUID, timingSafeEqual } from 'node:crypto
 import { league } from '../src/config/league.js'
 import { isLocale } from '../src/i18n/locale.js'
 import { LEAD_STATUSES, type AdminData, type AdminLead, type AdminRegistration, type AdminTeam } from '../src/admin/model.js'
-import { buildPaymentTestParams, isPaymentTest, PAYMENT_TEST_FILING, registrationFromMetadata } from './checkout.js'
+import { registrationFromMetadata } from './checkout.js'
 import { ensureSchema, getDb, saveRegistration, type Db, type DbEnv, type Row } from './db.js'
 import { sendBatch } from './email.js'
 import { buildTeamCoachEmail, buildTeamFamilyEmail } from './emails/teamEmails.js'
@@ -196,7 +196,6 @@ async function importFromStripe(db: Db, env: AdminEnv) {
       paidAt: new Date(session.created * 1000),
       paymentIntentId: typeof session.payment_intent === 'string' ? session.payment_intent : (session.payment_intent?.id ?? null),
       livemode: session.livemode,
-      ...(isPaymentTest(session.metadata) && PAYMENT_TEST_FILING),
     })
     imported++
   }
@@ -375,17 +374,6 @@ export async function handleAdmin(request: Request, env: AdminEnv): Promise<Resp
 
       case 'notifyTeam':
         return json(await notifyTeam(db, env, str(body.teamId, 40)))
-
-      case 'paymentTest': {
-        check(env.STRIPE_SECRET_KEY, 'Stripe is not connected.')
-        const email = str(body.email, 254)
-        check(EMAIL.test(email), 'Enter the email address the test receipts should go to.')
-        const session = await stripeClient(env.STRIPE_SECRET_KEY!).checkout.sessions.create(
-          buildPaymentTestParams(email, new URL(request.url).origin),
-        )
-        check(session.url, 'Stripe didn’t return a checkout page.')
-        return json({ url: session.url, live: session.livemode })
-      }
 
       default:
         return json({ error: 'bad-request' }, 400)
