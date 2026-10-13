@@ -4,6 +4,7 @@ import { SectionHeading } from '../components/SectionHeading'
 import { images } from '../content/images'
 import { useLocale } from '../i18n/useLocale'
 import { localized } from '../i18n/locale'
+import { reveal } from '../motion/reveal'
 import './WaysToPlay.css'
 
 const COPY = localized({
@@ -33,11 +34,11 @@ export function WaysToPlay() {
   return (
     <section className="section ways" aria-labelledby="ways-title">
       <div className="container">
-        <SectionHeading id="ways-title" eyebrow={t.eyebrow}>
+        <SectionHeading id="ways-title" eyebrow={t.eyebrow} reveal>
           {t.title}
         </SectionHeading>
 
-        <div className="ways__grid">
+        <div className="ways__grid" {...reveal('stagger')}>
           <article className="way way--team on-dark" aria-labelledby="way-team-title">
             <div className="way__media">
               <Picture

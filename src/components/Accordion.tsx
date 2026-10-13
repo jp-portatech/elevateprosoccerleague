@@ -41,8 +41,17 @@ export function Accordion({ items, headingLevel = 3 }: { items: AccordionItem[];
                 <span className="accordion__icon" aria-hidden="true" />
               </button>
             </Heading>
-            <section className="accordion__panel" id={panelId} aria-labelledby={buttonId} hidden={!expanded}>
-              {item.answer}
+            {/* Closed answers are visibility: hidden (Faq.css), so they're out of the tab order and
+                hidden from screen readers like `hidden`, but can animate open and closed. */}
+            <section
+              className="accordion__panel"
+              id={panelId}
+              aria-labelledby={buttonId}
+              data-state={expanded ? 'open' : 'closed'}
+            >
+              <div className="accordion__clip">
+                <div className="accordion__content">{item.answer}</div>
+              </div>
             </section>
           </div>
         )

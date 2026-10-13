@@ -131,15 +131,18 @@
   color: var(--navy);
   cursor: pointer;
   transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease;
+    background-color var(--motion-fast) var(--ease-interaction),
+    border-color var(--motion-fast) var(--ease-interaction),
+    color var(--motion-fast) var(--ease-interaction),
+    transform var(--motion-fast) var(--ease-interaction);
 }
 
-.lp-btn:hover {
-  border-color: var(--navy);
-  background: var(--navy);
-  color: var(--white);
+@media (hover: hover) {
+  .lp-btn:hover {
+    border-color: var(--navy);
+    background: var(--navy);
+    color: var(--white);
+  }
 }
 
 .lp-btn:focus-visible {
@@ -150,14 +153,34 @@
 .lp-btn__arrow {
   width: 1.1em;
   height: 1.1em;
+  transition: transform var(--motion-fast) var(--ease-interaction);
+}
+
+/* Same feedback as the main site: arrow nudge on hover or keyboard focus, slight press */
+@media (prefers-reduced-motion: no-preference) {
+  .lp-btn:focus-visible .lp-btn__arrow {
+    transform: translateX(4px);
+  }
+
+  .lp-btn:active:not([aria-disabled='true']) {
+    transform: scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  .lp-btn:hover .lp-btn__arrow {
+    transform: translateX(4px);
+  }
 }
 
 /* On navy, hover inverts to white and the focus ring turns ice */
-.lp-hero--navy .lp-btn:hover,
-.lp-final--navy .lp-btn:hover {
-  border-color: var(--white);
-  background: var(--white);
-  color: var(--navy);
+@media (hover: hover) {
+  .lp-hero--navy .lp-btn:hover,
+  .lp-final--navy .lp-btn:hover {
+    border-color: var(--white);
+    background: var(--white);
+    color: var(--navy);
+  }
 }
 
 .lp-hero--navy .lp-btn:focus-visible,

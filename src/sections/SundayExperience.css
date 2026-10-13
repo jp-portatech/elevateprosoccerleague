@@ -23,11 +23,14 @@
   height: 100%;
   aspect-ratio: 3 / 2;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transition: transform var(--motion-standard) var(--ease-interaction);
 }
 
-.gallery__item:hover .gallery__img {
-  transform: scale(1.03);
+/* Slight zoom inside the photo's frame, with a mouse or trackpad only */
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  .gallery__item:hover .gallery__img {
+    transform: scale(1.025);
+  }
 }
 
 .gallery__caption {

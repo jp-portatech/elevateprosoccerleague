@@ -13,7 +13,30 @@
 
 /* Mobile: stacked cards joined by downward arrows */
 .stages {
+  position: relative;
   display: grid;
+}
+
+/* Connector from the first step to the champion. Stacked: a vertical line behind the cards,
+   showing through the arrows between them. From 760px: a horizontal line just below the row, with
+   a dot under each step. Pseudo-elements, so purely decorative and invisible to screen readers;
+   positioned absolutely in the section's padding, so nothing else moves. */
+.stages::before {
+  content: '';
+  position: absolute;
+  top: 2rem;
+  bottom: 2rem;
+  left: 50%;
+  width: 2px;
+  translate: -50% 0;
+  background: var(--ice);
+  transform-origin: top;
+}
+
+.stage__card,
+.stage__arrow {
+  position: relative;
+  z-index: 1;
 }
 
 .stage {
@@ -111,6 +134,117 @@
     right: -1.125rem;
     margin: 0;
     transform: translate(50%, -50%);
+  }
+
+  /* From the middle of the first column to the middle of the last (4 columns, 3 gaps of 2.25rem) */
+  .stages::before {
+    top: auto;
+    bottom: -1.25rem;
+    left: calc((100% - 3 * 2.25rem) / 8);
+    right: calc((100% - 3 * 2.25rem) / 8);
+    width: auto;
+    height: 2px;
+    translate: none;
+    transform-origin: left;
+  }
+
+  .stage::after {
+    content: '';
+    position: absolute;
+    bottom: calc(-1.25rem - 3px);
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    translate: -50% 0;
+    background: var(--ice);
+  }
+
+  .stage:last-child::after {
+    background: var(--navy);
+  }
+}
+
+/* Signature sequence, once, when the steps scroll into view (src/motion/reveal.ts, mode "steps"):
+   the connector draws from the first step toward the champion while each icon appears 80ms after
+   the one before, all within about 700ms. Values and labels never hide. With reduced motion, or
+   before the script runs, the connector and icons are simply shown. */
+@keyframes connector-down {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes connector-across {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes step-icon-in {
+  from {
+    opacity: 0;
+    scale: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html[data-motion] .stages[data-reveal='steps']:not([data-revealed])::before {
+    transform: scaleY(0);
+  }
+
+  html[data-motion] .stages[data-reveal='steps']:not([data-revealed]) .stage__icon {
+    opacity: 0;
+  }
+
+  .stages[data-revealed='animate']::before {
+    animation: connector-down 700ms var(--ease-entrance) backwards;
+  }
+
+  .stages[data-revealed='animate'] .stage__icon {
+    animation: step-icon-in 320ms var(--ease-entrance) backwards;
+  }
+
+  .stages[data-revealed='animate'] .stage:nth-child(2) .stage__icon {
+    animation-delay: var(--motion-step);
+  }
+
+  .stages[data-revealed='animate'] .stage:nth-child(3) .stage__icon {
+    animation-delay: calc(var(--motion-step) * 2);
+  }
+
+  .stages[data-revealed='animate'] .stage:nth-child(4) .stage__icon {
+    animation-delay: calc(var(--motion-step) * 3);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (min-width: 760px) {
+  html[data-motion] .stages[data-reveal='steps']:not([data-revealed])::before {
+    transform: scaleX(0);
+  }
+
+  .stages[data-revealed='animate']::before {
+    animation-name: connector-across;
+  }
+
+  html[data-motion] .stages[data-reveal='steps']:not([data-revealed]) .stage::after {
+    opacity: 0;
+  }
+
+  .stages[data-revealed='animate'] .stage::after {
+    animation: step-icon-in 320ms var(--ease-entrance) backwards;
+  }
+
+  .stages[data-revealed='animate'] .stage:nth-child(2)::after {
+    animation-delay: var(--motion-step);
+  }
+
+  .stages[data-revealed='animate'] .stage:nth-child(3)::after {
+    animation-delay: calc(var(--motion-step) * 2);
+  }
+
+  .stages[data-revealed='animate'] .stage:nth-child(4)::after {
+    animation-delay: calc(var(--motion-step) * 3);
   }
 }
 

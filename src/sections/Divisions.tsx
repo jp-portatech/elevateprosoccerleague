@@ -5,6 +5,7 @@ import { league } from '../config/league'
 import { useLocale } from '../i18n/useLocale'
 import { localized } from '../i18n/locale'
 import { useRegistration } from '../registration/context'
+import { reveal } from '../motion/reveal'
 import './Divisions.css'
 
 const COPY = localized({
@@ -34,7 +35,7 @@ export function Divisions() {
   return (
     <section className="section divisions" id="divisions" aria-labelledby="divisions-title">
       <div className="container divisions__grid">
-        <div>
+        <div {...reveal()}>
           <SectionHeading id="divisions-title" eyebrow={t.eyebrow}>
             {t.title}
           </SectionHeading>
@@ -43,7 +44,7 @@ export function Divisions() {
           </p>
         </div>
 
-        <ul className="division-list">
+        <ul className="division-list" {...reveal('stagger')}>
           {league.divisions.map((division) => (
             <li className="division" key={division.id}>
               <h3 className="division__name">{division.id}</h3>

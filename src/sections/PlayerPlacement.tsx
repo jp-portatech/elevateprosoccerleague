@@ -6,6 +6,7 @@ import { league } from '../config/league'
 import { images } from '../content/images'
 import { useLocale } from '../i18n/useLocale'
 import { localized } from '../i18n/locale'
+import { reveal } from '../motion/reveal'
 import './PlayerPlacement.css'
 
 const COPY = localized({
@@ -52,7 +53,7 @@ export function PlayerPlacement() {
           />
         </div>
 
-        <div className="placement__content">
+        <div className="placement__content" {...reveal('stagger')}>
           <SectionHeading id="placement-title" eyebrow={t.eyebrow}>
             {t.title}
           </SectionHeading>

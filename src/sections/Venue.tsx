@@ -7,6 +7,7 @@ import { league } from '../config/league'
 import { images } from '../content/images'
 import { useLocale } from '../i18n/useLocale'
 import { localized } from '../i18n/locale'
+import { reveal } from '../motion/reveal'
 import './Venue.css'
 
 const { venue } = league
@@ -34,7 +35,7 @@ export function Venue() {
   return (
     <section className="section venue section--rule" id="venue" aria-labelledby="venue-title">
       <div className="container venue__grid">
-        <div className="venue__intro">
+        <div className="venue__intro" {...reveal()}>
           <SectionHeading id="venue-title" eyebrow={t.eyebrow}>
             {t.title}
           </SectionHeading>
@@ -70,12 +71,12 @@ export function Venue() {
         </div>
 
         {/* Generic indoor field, not Axe House Sports: swap in a real facility photo in content/images.ts */}
-        <figure className="venue__figure">
+        <figure className="venue__figure" {...reveal()}>
           <Picture image={images.venue} className="venue__img" sizes="(min-width: 1024px) 700px, 100vw" />
         </figure>
 
         {venue.amenities.length > 0 && (
-          <div className="venue__amenities">
+          <div className="venue__amenities" {...reveal()}>
             <h3 className="venue__amenities-title">{t.amenities}</h3>
             <ul className="checklist venue__amenity-list">
               {venue.amenities.map((item) => (

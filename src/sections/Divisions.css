@@ -55,6 +55,33 @@
   height: 3px;
   margin: 0.9rem 0 0.8rem;
   background: var(--ice);
+  transition:
+    transform var(--motion-standard) var(--ease-interaction),
+    background-color var(--motion-standard) var(--ease-interaction);
+}
+
+/* Hovering a division, or focusing one of its links, extends and darkens its accent rule.
+   The cards aren't selectable, so nothing here looks like a selected state. */
+@media (hover: hover) and (pointer: fine) {
+  .division:hover .division__rule {
+    background-color: var(--steel);
+  }
+}
+
+.division:has(:focus-visible) .division__rule {
+  background-color: var(--steel);
+}
+
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  .division:hover .division__rule {
+    transform: scaleX(1.6);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .division:has(:focus-visible) .division__rule {
+    transform: scaleX(1.6);
+  }
 }
 
 .division__links {

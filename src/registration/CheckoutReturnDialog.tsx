@@ -119,7 +119,7 @@ export function CheckoutReturnDialog({ sessionId, onClose, onRetry }: CheckoutRe
   return (
     <dialog
       ref={dialogRef}
-      className="dialog dialog--compact"
+      className="dialog dialog--compact motion-dialog"
       aria-labelledby="checkout-return-title"
       aria-busy={status === null || undefined}
       onClose={onClose}

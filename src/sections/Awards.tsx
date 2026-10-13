@@ -5,6 +5,7 @@ import { league } from '../config/league'
 import { images } from '../content/images'
 import { useLocale } from '../i18n/useLocale'
 import { localized } from '../i18n/locale'
+import { reveal } from '../motion/reveal'
 import './Awards.css'
 
 const AWARD_ICONS: Record<(typeof league.awards)[number]['id'], IconName> = {
@@ -28,11 +29,11 @@ export function Awards() {
       </div>
 
       <div className="container awards__inner">
-        <SectionHeading id="awards-title" eyebrow={t.eyebrow}>
+        <SectionHeading id="awards-title" eyebrow={t.eyebrow} reveal>
           {t.title}
         </SectionHeading>
 
-        <ul className="award-list">
+        <ul className="award-list" {...reveal('stagger')}>
           {league.awards.map((award) => (
             <li className="award" key={award.id}>
               <Icon name={AWARD_ICONS[award.id]} className="award__icon" />

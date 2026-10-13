@@ -236,3 +236,15 @@
   height: 6px;
   background: linear-gradient(100deg, var(--navy) 0 38%, var(--ice) 38% 100%);
 }
+
+/* Arrival: the headline rises 16px into place, the supporting line follows. Plays once, from
+   CSS alone (no JavaScript needed). The photo, dates, divisions and buttons don't move. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero__title {
+    animation: rise-in var(--motion-hero) var(--ease-entrance) backwards;
+  }
+
+  .hero__lede {
+    animation: rise-in var(--motion-hero) var(--ease-entrance) var(--motion-stagger) backwards;
+  }
+}

@@ -28,6 +28,18 @@
   --header-h: 68px;
   --section-y: clamp(3.5rem, 2rem + 5vw, 6.5rem);
   --radius: 2px;
+
+  /* Motion: one set of timings for the whole site (see "Motion" below) */
+  --motion-fast: 180ms; /* hover, press, focus */
+  --motion-standard: 220ms; /* panels, cards, FAQ answers */
+  --motion-reveal: 400ms; /* content fading in on scroll */
+  --motion-hero: 450ms; /* homepage headline on arrival */
+  --motion-stagger: 70ms; /* between related items */
+  --motion-step: 80ms; /* between season-format steps */
+  --motion-dialog-in: 200ms;
+  --motion-dialog-out: 140ms;
+  --ease-entrance: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-interaction: ease-out;
 }
 
 @media (min-width: 640px) {
@@ -294,19 +306,33 @@ a[href^='tel:'] {
   text-align: center;
   cursor: pointer;
   transition:
-    background-color 0.18s ease,
-    border-color 0.18s ease,
-    color 0.18s ease;
+    background-color var(--motion-fast) var(--ease-interaction),
+    border-color var(--motion-fast) var(--ease-interaction),
+    color var(--motion-fast) var(--ease-interaction),
+    transform var(--motion-fast) var(--ease-interaction);
 }
 
 .btn .icon {
   width: 1.15em;
   height: 1.15em;
-  transition: transform 0.18s ease;
+  transition: transform var(--motion-fast) var(--ease-interaction);
 }
 
-.btn:hover .btn__arrow {
-  transform: translateX(3px);
+/* Arrow nudge on hover or keyboard focus, and a slight press. The button's own size never changes. */
+@media (prefers-reduced-motion: no-preference) {
+  .btn:focus-visible .btn__arrow {
+    transform: translateX(4px);
+  }
+
+  .btn:active:not([disabled]) {
+    transform: scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  .btn:hover .btn__arrow {
+    transform: translateX(4px);
+  }
 }
 
 .btn--sm {
@@ -321,9 +347,25 @@ a[href^='tel:'] {
   color: var(--white);
 }
 
-.btn--primary:hover {
-  background: var(--navy-hover);
-  border-color: var(--navy-hover);
+@media (hover: hover) {
+  .btn--primary:hover {
+    background: var(--navy-hover);
+    border-color: var(--navy-hover);
+  }
+
+  .btn--secondary:hover {
+    background: var(--pale);
+  }
+
+  .btn--light:hover {
+    background: var(--pale);
+    border-color: var(--pale);
+  }
+
+  .btn--ice:hover {
+    background: var(--ice-hover);
+    border-color: var(--ice-hover);
+  }
 }
 
 .btn--secondary {
@@ -332,30 +374,16 @@ a[href^='tel:'] {
   color: var(--navy);
 }
 
-.btn--secondary:hover {
-  background: var(--pale);
-}
-
 .btn--light {
   background: var(--white);
   border-color: var(--white);
   color: var(--navy);
 }
 
-.btn--light:hover {
-  background: var(--pale);
-  border-color: var(--pale);
-}
-
 .btn--ice {
   background: var(--ice);
   border-color: var(--ice);
   color: var(--navy);
-}
-
-.btn--ice:hover {
-  background: var(--ice-hover);
-  border-color: var(--ice-hover);
 }
 
 .btn[disabled] {
@@ -399,17 +427,27 @@ a[href^='tel:'] {
 .text-link .icon {
   width: 1em;
   height: 1em;
-  transition: transform 0.18s ease;
+  transition: transform var(--motion-fast) var(--ease-interaction);
 }
 
-.text-link:hover {
-  color: var(--navy);
-  text-decoration: underline;
-  text-underline-offset: 0.25em;
+@media (hover: hover) {
+  .text-link:hover {
+    color: var(--navy);
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
 }
 
-.text-link:hover .icon {
-  transform: translateX(2px);
+@media (prefers-reduced-motion: no-preference) {
+  .text-link:focus-visible .icon {
+    transform: translateX(3px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  .text-link:hover .icon {
+    transform: translateX(3px);
+  }
 }
 
 /* ---------- Checklist ---------- */
@@ -467,11 +505,105 @@ a[href^='tel:'] {
   outline-color: var(--ice);
 }
 
-/* ---------- Motion ---------- */
+/* ---------- Motion ----------
+   Timings are the --motion-* tokens in :root. Movement uses only opacity, `translate` and
+   `transform`: entrance animations move with `translate` and hover effects with `transform`, so
+   the two never compete for one property. Everything that moves sits inside
+   prefers-reduced-motion: no-preference; with reduced motion, content simply appears. */
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+}
 
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
+  }
+
+  /* Scroll reveals (src/motion/reveal.ts). Hidden only after the script has started
+     (html[data-motion]) and only until the element has been revealed. */
+  html[data-motion] [data-reveal='up']:not([data-revealed]),
+  html[data-motion] [data-reveal='stagger']:not([data-revealed]) > * {
+    opacity: 0;
+  }
+
+  [data-reveal='up'][data-revealed='animate'],
+  [data-reveal='stagger'][data-revealed='animate'] > * {
+    animation: rise-in var(--motion-reveal) var(--ease-entrance) backwards;
+  }
+
+  [data-reveal='stagger'][data-revealed='animate'] > :nth-child(2) {
+    animation-delay: var(--motion-stagger);
+  }
+
+  [data-reveal='stagger'][data-revealed='animate'] > :nth-child(3) {
+    animation-delay: calc(var(--motion-stagger) * 2);
+  }
+
+  /* Capped, so longer lists don't trail */
+  [data-reveal='stagger'][data-revealed='animate'] > :nth-child(n + 4) {
+    animation-delay: calc(var(--motion-stagger) * 3);
+  }
+}
+
+@media print {
+  [data-reveal],
+  [data-reveal] > * {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+}
+
+/* Dialogs (registration, checkout result, landing-page requests): the backdrop fades and the
+   panel rises 12px into place. Focus, Escape, inertness and scroll locking are the native
+   <dialog>'s and don't wait for the animation. Closing animates only where the browser can keep
+   a closing dialog on top (overlay); elsewhere it closes instantly. */
+@media (prefers-reduced-motion: no-preference) {
+  .motion-dialog,
+  .motion-dialog::backdrop {
+    transition:
+      opacity var(--motion-dialog-out) var(--ease-interaction),
+      translate var(--motion-dialog-out) var(--ease-interaction);
+  }
+
+  .motion-dialog[open],
+  .motion-dialog[open]::backdrop {
+    transition-duration: var(--motion-dialog-in);
+    transition-timing-function: var(--ease-entrance);
+  }
+
+  .motion-dialog:not([open]) {
+    opacity: 0;
+    translate: 0 12px;
+    pointer-events: none;
+  }
+
+  .motion-dialog:not([open])::backdrop {
+    opacity: 0;
+  }
+
+  @starting-style {
+    .motion-dialog[open] {
+      opacity: 0;
+      translate: 0 12px;
+    }
+
+    .motion-dialog[open]::backdrop {
+      opacity: 0;
+    }
+  }
+}
+
+@supports (overlay: auto) {
+  @media (prefers-reduced-motion: no-preference) {
+    .motion-dialog,
+    .motion-dialog::backdrop {
+      transition-property: opacity, translate, overlay, display;
+      transition-behavior: allow-discrete;
+    }
   }
 }
 

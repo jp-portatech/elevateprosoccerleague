@@ -3,6 +3,7 @@ import { SectionHeading } from '../components/SectionHeading'
 import { images } from '../content/images'
 import { useLocale } from '../i18n/useLocale'
 import { localized } from '../i18n/locale'
+import { reveal } from '../motion/reveal'
 import './SundayExperience.css'
 
 const shots = [
@@ -29,13 +30,13 @@ export function SundayExperience() {
   return (
     <section className="section section--pale experience" id="experience" aria-labelledby="experience-title">
       <div className="container">
-        <div className="experience__head">
+        <div className="experience__head" {...reveal()}>
           <SectionHeading id="experience-title" eyebrow={t.eyebrow}>
             {t.title}
           </SectionHeading>
         </div>
 
-        <ul className="gallery">
+        <ul className="gallery" {...reveal('stagger')}>
           {shots.map((shot) => (
             <li className="gallery__item" key={shot.id}>
               <figure>

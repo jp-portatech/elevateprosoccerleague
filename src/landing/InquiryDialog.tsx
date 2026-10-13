@@ -255,7 +255,7 @@ export function InquiryDialog({ type, open, opener, onClose, utm }: InquiryDialo
   return (
     <dialog
       ref={dialogRef}
-      className="inquiry"
+      className="inquiry motion-dialog"
       aria-labelledby={titleId}
       aria-describedby={introId}
       onClose={handleClose}

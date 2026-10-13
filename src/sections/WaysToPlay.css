@@ -5,8 +5,16 @@
 }
 
 .way {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  overflow: hidden;
+  transition:
+    transform var(--motion-standard) var(--ease-interaction),
+    box-shadow var(--motion-standard) var(--ease-interaction);
+}
+
+.way__media {
   overflow: hidden;
 }
 
@@ -25,6 +33,7 @@
   height: 100%;
   aspect-ratio: 16 / 10;
   object-fit: cover;
+  transition: transform var(--motion-standard) var(--ease-interaction);
 }
 
 .way--player .way__img {
@@ -105,5 +114,39 @@
 @media (max-width: 559px) {
   .way__body .btn {
     width: 100%;
+  }
+}
+
+/* Hover (mouse and trackpad only) or keyboard focus on the panel's button: the panel lifts 4px
+   with a shadow and its photo zooms slightly inside its frame. Text and button sizes don't change. */
+@media (hover: hover) and (pointer: fine) {
+  .way:hover {
+    z-index: 1;
+    box-shadow: 0 18px 40px rgb(0 30 72 / 0.2);
+  }
+}
+
+.way:has(:focus-visible) {
+  z-index: 1;
+  box-shadow: 0 18px 40px rgb(0 30 72 / 0.2);
+}
+
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  .way:hover {
+    transform: translateY(-4px);
+  }
+
+  .way:hover .way__img {
+    transform: scale(1.025);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .way:has(:focus-visible) {
+    transform: translateY(-4px);
+  }
+
+  .way:has(:focus-visible) .way__img {
+    transform: scale(1.025);
   }
 }

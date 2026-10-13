@@ -5,6 +5,7 @@ import { landing } from '../config/landing'
 import { league } from '../config/league'
 import { images } from '../content/images'
 import { localized, type Locale } from '../i18n/locale'
+import { reveal } from '../motion/reveal'
 import { InquiryButton, LandingShell } from './LandingShell'
 import { divisionsLine, numberWord, startMonthDay } from './shared'
 
@@ -172,7 +173,7 @@ export function TeamLanding({ locale }: { locale: Locale }) {
           <h2 className="lp-h2 lp-h2--center" id="benefits-title">
             {t.benefitsTitle}
           </h2>
-          <ul className="lp-benefits">
+          <ul className="lp-benefits" {...reveal('stagger')}>
             {benefits.map((b) => (
               <li className="lp-benefit" key={b.title}>
                 <span className="lp-benefit__icon">

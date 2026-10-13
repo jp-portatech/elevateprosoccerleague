@@ -2,6 +2,7 @@ import { Icon, type IconName } from '../components/Icon'
 import { SectionHeading } from '../components/SectionHeading'
 import { useLocale } from '../i18n/useLocale'
 import { localized } from '../i18n/locale'
+import { reveal } from '../motion/reveal'
 import './WhyElevatePro.css'
 
 const ICONS: IconName[] = ['trophy', 'growth', 'calendar']
@@ -38,11 +39,11 @@ export function WhyElevatePro() {
   return (
     <section className="section section--pale why" id="league" aria-labelledby="why-title">
       <div className="container why__grid">
-        <SectionHeading id="why-title" eyebrow={t.eyebrow}>
+        <SectionHeading id="why-title" eyebrow={t.eyebrow} reveal>
           {t.title}
         </SectionHeading>
 
-        <ul className="benefits">
+        <ul className="benefits" {...reveal('stagger')}>
           {t.benefits.map((b, i) => (
             <li className="benefit" key={ICONS[i]}>
               <Icon name={ICONS[i]} className="benefit__icon" />

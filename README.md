@@ -40,7 +40,8 @@ npm run preview   # serve the production build locally (no api/ routes)
 | Privacy policy page at `/privacy` and `/es/privacy` (wording and "Last updated" date) | `src/privacy/PrivacyPage.tsx`, `privacy.html`, `es/privacy.html` |
 | Languages: URLs, the EN/ES switch, remembering the choice, titles shown after switching | `src/i18n/`, `src/components/LanguageToggle.tsx` |
 | Link-preview image, robots.txt, sitemap.xml (served as-is from the site root) | `public/` |
-| Design tokens (colors, fonts, spacing) | `src/styles/base.css` |
+| Design tokens (colors, fonts, spacing, motion timings) | `src/styles/base.css` |
+| Scroll reveals (sections fading in once) | `src/motion/reveal.ts` |
 
 The privacy policy describes what the site actually collects and who handles it (Stripe, Resend,
 Vercel, the Gmail inbox). If you add a form field, a service, analytics or cookies, update
@@ -243,6 +244,30 @@ and hidden by default once live payments start.
 3. **Redeploy**, open `/admin`, sign in, and press **Import from Stripe** on the Overview.
 
 Without these two settings, `/admin` shows what's missing and the rest of the site works as before.
+
+## Motion
+
+Short, controlled movement that helps people find their way and the registration buttons:
+
+- **Homepage arrival:** the headline rises into place and the line under it follows (about half a
+  second). The photo, dates, divisions and Register buttons don't move and work immediately.
+- **Sections** fade up once as they scroll into view, related items one after another. Add it to an
+  element with `{...reveal()}` (one block), `{...reveal('stagger')}` (its children in turn), or
+  `reveal` on a `SectionHeading`.
+- **Season format:** the step icons appear in sequence while a thin line draws from the first step
+  to Champion (below the cards on wider screens, between them on phones).
+- **Hover and focus:** the two "ways to play" panels lift with a slight photo zoom, division
+  accent rules extend, gallery photos zoom slightly, button arrows nudge right, and buttons press
+  in slightly. Hover effects only apply with a mouse or trackpad, so nothing sticks after a tap.
+- **FAQ answers** slide open and closed; **dialogs** fade and rise in, and fade out.
+- **Ad landing pages** keep it minimal: button feedback, dialog transitions and the benefits list.
+
+Timings are the `--motion-*` tokens in `src/styles/base.css`. Content is always visible by default:
+a section is hidden for its reveal only once the script is running, only while it's still below
+the screen, and never for visitors who've turned on **reduced motion** in their device settings.
+For them nothing moves, everything shows immediately, and color changes and focus outlines remain.
+Entrance animations move with `translate` and hover effects with `transform`, so they can't
+interfere with each other. Movement never changes layout, so no button shifts position.
 
 ## Advertising landing pages
 

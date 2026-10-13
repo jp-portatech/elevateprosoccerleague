@@ -6,6 +6,7 @@ import { league, type Price } from '../config/league'
 import { useLocale } from '../i18n/useLocale'
 import { localized, type Locale } from '../i18n/locale'
 import type { RegistrationKind } from '../registration/context'
+import { reveal } from '../motion/reveal'
 import './Registration.css'
 
 const { season, venue, pricing } = league
@@ -89,14 +90,14 @@ export function Registration() {
   return (
     <section className="section section--white pricing section--rule" id="register" aria-labelledby="register-title">
       <div className="container">
-        <div className="pricing__head">
+        <div className="pricing__head" {...reveal()}>
           <SectionHeading id="register-title" eyebrow={t.eyebrow}>
             {t.title}
           </SectionHeading>
           <p className="section-intro">{t.intro}</p>
         </div>
 
-        <div className="plans">
+        <div className="plans" {...reveal('stagger')}>
           {PLANS.map((plan) => {
             const copy = t.plans[plan.kind]
             return (

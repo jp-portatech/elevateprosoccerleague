@@ -3,6 +3,7 @@ import { RegisterButton } from '../components/RegisterButton'
 import { images } from '../content/images'
 import { useLocale } from '../i18n/useLocale'
 import { localized } from '../i18n/locale'
+import { reveal } from '../motion/reveal'
 import './FinalCta.css'
 
 const COPY = localized({
@@ -18,7 +19,7 @@ export function FinalCta() {
         <Picture image={images.cta} className="final-cta__img" sizes="100vw" alt="" />
       </div>
       <div className="container final-cta__inner">
-        <div className="final-cta__copy">
+        <div className="final-cta__copy" {...reveal()}>
           <h2 className="h2 final-cta__title" id="final-cta-title">
             {t.title}
           </h2>

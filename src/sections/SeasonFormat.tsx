@@ -3,6 +3,7 @@ import { SectionHeading } from '../components/SectionHeading'
 import { league } from '../config/league'
 import { useLocale } from '../i18n/useLocale'
 import { localized } from '../i18n/locale'
+import { reveal } from '../motion/reveal'
 import './SeasonFormat.css'
 
 const { regularSeasonGames, playoffTeams } = league.season
@@ -42,14 +43,14 @@ export function SeasonFormat() {
   return (
     <section className="section section--white format" id="format" aria-labelledby="format-title">
       <div className="container format__grid">
-        <div>
+        <div {...reveal()}>
           <SectionHeading id="format-title" eyebrow={t.eyebrow}>
             {t.title}
           </SectionHeading>
           <p className="section-intro">{t.intro}</p>
         </div>
 
-        <ol className="stages" aria-label={t.stagesLabel}>
+        <ol className="stages" aria-label={t.stagesLabel} {...reveal('steps')}>
           {t.stages.map((stage, i) => (
             <li className="stage" key={ICONS[i]}>
               <div className="stage__card">

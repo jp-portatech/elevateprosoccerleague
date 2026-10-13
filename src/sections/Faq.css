@@ -57,7 +57,7 @@
   height: 2px;
   background: currentColor;
   transform: translate(-50%, -50%);
-  transition: transform 0.2s ease;
+  transition: transform var(--motion-standard) var(--ease-interaction);
 }
 
 .accordion__icon::after {
@@ -68,9 +68,42 @@
   transform: translate(-50%, -50%) rotate(0deg);
 }
 
+/* Answers open and close by animating the grid row from 0fr to 1fr, so any length fits without
+   a max-height. Closed answers are visibility: hidden (out of the tab order and hidden from screen
+   readers); when closing, that waits until the row has collapsed. */
 .accordion__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+}
+
+.accordion__panel[data-state='open'] {
+  grid-template-rows: 1fr;
+  visibility: visible;
+}
+
+.accordion__clip {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.accordion__content {
   max-width: 62ch;
   padding: 0 0.25rem 1.35rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .accordion__panel {
+    transition:
+      grid-template-rows var(--motion-standard) var(--ease-interaction),
+      visibility 0s linear var(--motion-standard);
+  }
+
+  .accordion__panel[data-state='open'] {
+    transition:
+      grid-template-rows var(--motion-standard) var(--ease-interaction),
+      visibility 0s;
+  }
 }
 
 @media (min-width: 1000px) {

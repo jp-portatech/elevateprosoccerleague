@@ -76,7 +76,7 @@ export function RegistrationDialog({ request, open, onClose, onSwitch }: Registr
   return (
     <dialog
       ref={dialogRef}
-      className="dialog"
+      className="dialog motion-dialog"
       aria-labelledby="registration-title"
       aria-describedby="registration-intro"
       onClose={handleClose}
