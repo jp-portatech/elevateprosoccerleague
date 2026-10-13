@@ -53,7 +53,8 @@ partnership everywhere. The logo was supplied by Axe House and is used with thei
 versions are trimmed copies of `brand/axe_house_sports_logo.png` (see `venueLogo` in `src/content/images.ts`).
 
 Anything set to `null` in `league.ts` is unconfirmed, so the site hides it or shows "coming soon".
-Social links are placeholders: add each profile URL to `social` and it becomes a link.
+Instagram and Facebook links in the footer and the search-engine data come from `social`; a profile
+set to `null` shows as "coming soon".
 
 ## English and Spanish
 
@@ -290,7 +291,6 @@ pages show neutral "ask us" copy instead:
 
 ## Before launch
 
-- Add Instagram/Facebook profile URLs to `social` (currently shown as "coming soon").
 - Replace the venue image (a generic indoor field, not Axe House Sports) with a real Axe House
   Sports photo in `src/content/images.ts`.
 - Check the transparent logo's lettering against `brand/elevatepro-logo-original.png`. The

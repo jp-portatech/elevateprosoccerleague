@@ -203,8 +203,8 @@ export const league: LeagueConfig = {
 
   // Placeholders: add each profile URL when the accounts are ready.
   social: [
-    { label: 'Instagram', url: null },
-    { label: 'Facebook', url: null },
+    { label: 'Instagram', url: 'https://www.instagram.com/elevateprosoccerleague/', handle: '@elevateprosoccerleague' },
+    { label: 'Facebook', url: 'https://www.facebook.com/profile.php?id=61595521222277' },
   ],
 
   email: {
