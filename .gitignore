@@ -27,3 +27,6 @@ dist-ssr
 .env
 .env*.local
 .vercel
+
+# Locally installed Claude Code skill (third-party, MIT); not part of the site
+.claude/skills/seo-review/
