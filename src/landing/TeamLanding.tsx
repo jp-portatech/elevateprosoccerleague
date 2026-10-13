@@ -50,7 +50,7 @@ const guarantee = landing.team.guarantee.confirmed && landing.team.guarantee.tex
 
 export function TeamLanding() {
   return (
-    <LandingShell type="team" ctaLabel="Register Your Roster Today" audience="Team registration" theme="navy">
+    <LandingShell type="team" ctaLabel="Hold a Spot for My Team" audience="Team registration" theme="navy">
       {/* 1. Hero */}
       <section className="lp-hero lp-hero--navy" aria-labelledby="hero-title">
         <div className="container lp-hero__inner">

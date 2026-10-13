@@ -39,7 +39,7 @@ const guarantee = landing.player.guarantee.confirmed && landing.player.guarantee
 
 export function PlayerLanding() {
   return (
-    <LandingShell type="individual_player" ctaLabel="Secure Your Child's Spot Now" audience="Individual players" theme="light">
+    <LandingShell type="individual_player" ctaLabel="Secure Your Child's Spot" audience="Individual players" theme="light">
       {/* 1. Hero */}
       <section className="lp-hero lp-hero--light" aria-labelledby="hero-title">
         <div className="container lp-hero__inner">

@@ -228,7 +228,7 @@ Two focused pages for ads, each with one action and no site menu or footer links
 - **https://www.elevateprosoccer.com/join-as-a-player** for parents of children without a team.
 - **https://www.elevateprosoccer.com/register-a-team** for coaches and organizers bringing a team.
 
-Every button on a page ("Secure Your Child's Spot Now" / "Register Your Roster Today") opens the
+Every button on a page ("Secure Your Child's Spot" / "Hold a Spot for My Team") opens the
 same short **information request** dialog. It collects contact details only, never a child's name,
 birth date or payment, and it says clearly that it doesn't reserve a spot or complete registration.
 Success appears only after the server confirms receipt.
