@@ -1,4 +1,4 @@
-import type { ChangeEvent } from 'react'
+import { useSyncExternalStore, type ChangeEvent } from 'react'
 import { useLocale } from '../i18n/useLocale'
 import { fieldId, todayIso, type FieldDef } from './forms'
 
@@ -11,8 +11,13 @@ interface FormFieldProps {
   onBlur: (name: string) => void
 }
 
+const subscribeNever = () => () => {}
+
 export function FormField({ field, idPrefix, value, error, onChange, onBlur }: FormFieldProps) {
   const locale = useLocale()
+  // Pages are pre-rendered at build time, so today's date (the latest birth date) is filled in
+  // from the visitor's clock once the page runs in the browser.
+  const today = useSyncExternalStore(subscribeNever, todayIso, () => undefined)
   const es = locale === 'es'
   const id = fieldId(idPrefix, field.name)
   const hintId = field.hint ? `${id}-hint` : undefined
@@ -89,7 +94,7 @@ export function FormField({ field, idPrefix, value, error, onChange, onBlur }: F
         {...shared}
         type={field.type}
         maxLength={field.maxLength}
-        max={field.type === 'date' ? todayIso() : undefined}
+        max={field.type === 'date' ? today : undefined}
         spellCheck={field.type === 'email' ? false : undefined}
       />
     )

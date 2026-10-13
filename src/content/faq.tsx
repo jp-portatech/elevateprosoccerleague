@@ -5,6 +5,7 @@ import {
   eligibilityText,
   formatPrice,
   gameDays,
+  nearbyCitiesList,
   onlinePayments,
   startDateLabel,
   venueAddress,
@@ -109,7 +110,12 @@ export const faqItems: Localized<AccordionItem[]> = {
     {
       id: 'location',
       question: 'Where are games played?',
-      answer: <p>Games are played at {venueAddress ? where : `${venue.name} in ${venueLocation}`}.</p>,
+      answer: (
+        <p>
+          Games are played at {venueAddress ? where : `${venue.name} in ${venueLocation}`}
+          {nearbyCitiesList ? `, a short drive from ${nearbyCitiesList.en}.` : '.'}
+        </p>
+      ),
     },
     ...(hasContact
       ? [{ id: 'contact', question: 'How can I contact ElevatePro?', answer: <ContactLine lead="Reach ElevatePro" /> }]
@@ -184,7 +190,12 @@ export const faqItems: Localized<AccordionItem[]> = {
     {
       id: 'location',
       question: '¿Dónde se juegan los partidos?',
-      answer: <p>Los partidos se juegan en {venueAddress ? where : `${venue.name}, en ${venueLocation}`}.</p>,
+      answer: (
+        <p>
+          Los partidos se juegan en {venueAddress ? where : `${venue.name}, en ${venueLocation}`}
+          {nearbyCitiesList ? `, a poca distancia de ${nearbyCitiesList.es}.` : '.'}
+        </p>
+      ),
     },
     ...(hasContact
       ? [

@@ -48,7 +48,7 @@ export function LandingShell({
   const [open, setOpen] = useState(false)
   const [opener, setOpener] = useState<HTMLElement | null>(null)
   // Campaign tags from the arrival URL, sent with the request (never stored in the browser).
-  const [utm] = useState(() => readUtm(window.location.search))
+  const [utm] = useState(() => (typeof window === 'undefined' ? {} : readUtm(window.location.search)))
 
   const openDialog = useCallback((from: HTMLElement) => {
     setOpener(from)

@@ -12,6 +12,14 @@ export const divisionRange = `${divisionIds[0]}⁠–⁠${divisionIds[divisionId
 
 const listOf = (items: string[], and: string) => `${items.slice(0, -1).join(', ')} ${and} ${items[items.length - 1]}`
 
+/** "West Jordan, Riverton, Herriman, Draper and Sandy" / "… y Sandy", or null when none are set. */
+export const nearbyCitiesList: Localized | null =
+  venue.nearbyCities.length > 1
+    ? { en: listOf(venue.nearbyCities, 'and'), es: listOf(venue.nearbyCities, 'y') }
+    : venue.nearbyCities.length === 1
+      ? { en: venue.nearbyCities[0], es: venue.nearbyCities[0] }
+      : null
+
 /** "U8, U10, U12 and U14" / "U8, U10, U12 y U14" */
 export const divisionSentence: Localized = { en: listOf(divisionIds, 'and'), es: listOf(divisionIds, 'y') }
 

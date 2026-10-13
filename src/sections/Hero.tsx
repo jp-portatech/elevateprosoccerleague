@@ -16,7 +16,7 @@ const COPY = localized({
         Youth indoor <span className="hero__accent">soccer league</span>
       </>
     ),
-    lede: `Competitive ${league.season.gameDay.en} soccer for ${divisionRange} players and teams in ${league.venue.city}.`,
+    lede: `Competitive ${league.season.gameDay.en} soccer for ${divisionRange} kids and teams in ${venueLocation}.`,
     when: capitalize(gameDays.en),
     starts: `Starts ${startDateLabel.en}`,
     noteLead: 'No team? No problem.',
@@ -28,7 +28,7 @@ const COPY = localized({
         Liga juvenil de <span className="hero__accent">fútbol indoor</span>
       </>
     ),
-    lede: `Fútbol competitivo los ${gameDays.es} para jugadores y equipos ${divisionRange} en ${league.venue.city}.`,
+    lede: `Fútbol competitivo los ${gameDays.es} para niños y equipos ${divisionRange} en ${venueLocation}.`,
     when: capitalize(gameDays.es),
     starts: `Inicia el ${startDateLabel.es}`,
     noteLead: '¿No tienes equipo? No hay problema.',

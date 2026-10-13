@@ -76,6 +76,11 @@ export interface LeagueConfig {
     postalCode: string | null
     /** Maps link. Null hides the "Get directions" button. */
     directionsUrl: string | null
+    /**
+     * Nearby cities families may come from. Named in the venue FAQ answer ("a short drive from …")
+     * and in the search-engine data, so the site shows up for searches in those cities.
+     */
+    nearbyCities: string[]
     /** Confirmed facility amenities. Empty hides the list. */
     amenities: Localized[]
     /**
@@ -156,6 +161,7 @@ export const league: LeagueConfig = {
     postalCode: '84009',
     directionsUrl:
       'https://www.google.com/maps/search/?api=1&query=Axe%20House%20Sports%2C%206345%20Crimson%20View%20Drive%2C%20South%20Jordan%2C%20UT%2084009',
+    nearbyCities: ['West Jordan', 'Riverton', 'Herriman', 'Draper', 'Sandy'],
     amenities: [
       { en: '6,000 sq. ft. lower-level warehouse', es: 'Bodega de 6,000 pies cuadrados en el nivel inferior' },
       {

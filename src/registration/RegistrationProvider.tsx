@@ -9,6 +9,8 @@ const isKind = (value: string | null): value is RegistrationKind => value === 't
 
 /** Reads a Stripe return (?registration=…) from the current URL. */
 function readCheckoutReturn() {
+  // None while pre-rendering at build time; src/main.tsx draws the page fresh after a Stripe return.
+  if (typeof window === 'undefined') return { sessionId: null, cancelledKind: null }
   const params = new URLSearchParams(window.location.search)
   const outcome = params.get('registration')
   const type = params.get('type')

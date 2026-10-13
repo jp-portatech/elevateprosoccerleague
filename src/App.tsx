@@ -1,4 +1,5 @@
 import { Header } from './components/Header'
+import type { Locale } from './i18n/locale'
 import { LocaleProvider } from './i18n/LocaleProvider'
 import { useLocale } from './i18n/useLocale'
 import { RegistrationProvider } from './registration/RegistrationProvider'
@@ -18,9 +19,9 @@ import { Venue } from './sections/Venue'
 import { WaysToPlay } from './sections/WaysToPlay'
 import { WhyElevatePro } from './sections/WhyElevatePro'
 
-export default function App() {
+export default function App({ locale }: { locale: Locale }) {
   return (
-    <LocaleProvider page="home">
+    <LocaleProvider page="home" initial={locale}>
       <RegistrationProvider>
         <Home />
       </RegistrationProvider>

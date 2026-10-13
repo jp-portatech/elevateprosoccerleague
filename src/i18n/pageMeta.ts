@@ -8,14 +8,14 @@ import type { Localized, Page } from './locale'
 export const PAGE_META: Record<Page, Localized<{ title: string; description: string }>> = {
   home: {
     en: {
-      title: 'ElevatePro Soccer League | Youth Indoor Soccer in South Jordan, Utah',
+      title: 'Kids Indoor Soccer League in South Jordan, Utah | ElevatePro',
       description:
-        'Competitive Sunday indoor soccer for U8–U14 players and teams at Axe House Sports in South Jordan, Utah. Season starts October 25, 2026. Register a team, or register a player individually and ElevatePro will place them on a team.',
+        'Youth indoor soccer on Sundays for U8–U14 kids and teams in South Jordan, Utah. Register a team, or a single player and we’ll place them. Starts Oct. 25.',
     },
     es: {
-      title: 'ElevatePro Soccer League | Fútbol juvenil indoor en South Jordan, Utah',
+      title: 'Fútbol indoor para niños en South Jordan, Utah | ElevatePro',
       description:
-        'Fútbol indoor competitivo los domingos para jugadores y equipos U8–U14 en Axe House Sports, South Jordan, Utah. La temporada inicia el 25 de octubre de 2026. Inscribe a tu equipo, o inscribe a un jugador de forma individual y ElevatePro le asignará un equipo.',
+        'Liga juvenil de fútbol indoor los domingos para niños y equipos U8–U14 en South Jordan, Utah. Inscribe a tu equipo o a un jugador. Inicia el 25 de octubre.',
     },
   },
   privacy: {

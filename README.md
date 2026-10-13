@@ -13,7 +13,7 @@ Checkout, and a welcome email goes out after each payment, using small Vercel fu
 npm install
 npm run dev       # local dev server (also serves api/ for testing Stripe locally)
 npm run check     # type-check (site + server functions) + lint (oxlint with jsx-a11y rules)
-npm run build     # production build to dist/
+npm run build     # production build to dist/, with every public page pre-rendered
 npm run preview   # serve the production build locally (no api/ routes)
 ```
 
@@ -36,6 +36,7 @@ npm run preview   # serve the production build locally (no api/ routes)
 | FAQ answers (built from the config) | `src/content/faq.tsx` |
 | Image registry (paths, sizes, alt text) | `src/content/images.ts` |
 | Page title, description, canonical URL and link-preview tags | `index.html` (English), `es.html` (Spanish) |
+| Search engines: pre-rendering, structured data, nearby cities | `src/prerender.tsx`, `scripts/prerender.mjs`, `src/seo/structuredData.ts`, `venue.nearbyCities` in `league.ts` |
 | Privacy policy page at `/privacy` and `/es/privacy` (wording and "Last updated" date) | `src/privacy/PrivacyPage.tsx`, `privacy.html`, `es/privacy.html` |
 | Languages: URLs, the EN/ES switch, remembering the choice, titles shown after switching | `src/i18n/`, `src/components/LanguageToggle.tsx` |
 | Link-preview image, robots.txt, sitemap.xml (served as-is from the site root) | `public/` |
@@ -77,6 +78,27 @@ browser remembers the choice, so a family who picked Spanish sees Spanish on the
 The Spanish translation uses friendly "tú" and Latin American terms ("fútbol indoor",
 "cancha", "inscripción"). Have a native speaker from the league read it before promoting the
 Spanish site.
+
+## Search engines
+
+- **Pre-rendered pages:** `npm run build` (which Vercel runs) builds the site, then renders every
+  public page's full HTML ahead of time (`src/prerender.tsx` → `scripts/prerender.mjs`). Search
+  engines, link previews and slow phones get the text and images without running JavaScript, and
+  React then takes over the page in the browser (`src/mount.tsx`). The page draws fresh instead
+  when the visit will look different: a visitor who chose the other language before, or a return
+  from Stripe. `npm run dev` doesn't pre-render. Code that reads the browser (`window`,
+  `localStorage`, today's date) has to run in effects or event handlers, not while a component
+  first draws, or the build fails or the page flickers.
+- **Structured data:** the homepages carry schema.org data built from `league.ts`
+  (`src/seo/structuredData.ts`): the league as a sports organization, the site name, and the season
+  as an event with its start date, venue and prices. Google can use it in event listings and richer
+  results. Check it with Google's Rich Results Test after changing the season.
+- **Wording:** titles and descriptions (`index.html`, `es.html`, `src/i18n/pageMeta.ts`) are kept
+  under about 155 characters so Google doesn't cut them off. The venue FAQ names the nearby cities in
+  `venue.nearbyCities`, so the site can come up for searches there too.
+- **Ad landing pages** are marked `noindex`, so they stay out of search results and searches lead to
+  the full homepage. Ads aren't affected. `public/sitemap.xml` lists the homepage and privacy
+  policy in both languages.
 
 ## How registration and payment work
 
@@ -223,7 +245,8 @@ Without these two settings, `/admin` shows what's missing and the rest of the si
 
 ## Advertising landing pages
 
-Two focused pages for ads, each with one action and no site menu or footer links:
+Two focused pages for ads, each with one action and no site menu or footer links. They're hidden
+from search results (`noindex`), so they only get visitors from your ads and links:
 
 | Audience | English (English ads) | Spanish (Spanish ads) |
 | --- | --- | --- |

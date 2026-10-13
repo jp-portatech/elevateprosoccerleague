@@ -59,7 +59,7 @@ function vercelApiDev(): Plugin {
 // https://vite.dev/config/
 // Images are imported straight from ./elevatepro-website-assets (see src/content/images.ts),
 // so Vite fingerprints them and only the files the site uses end up in dist/.
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, isSsrBuild }) => {
   // Server-only secrets for the dev API (never exposed to the browser bundle).
   Object.assign(process.env, loadEnv(mode, process.cwd(), ['STRIPE_', 'RESEND_', 'DATABASE_', 'POSTGRES_', 'ADMIN_']))
   return {
@@ -68,20 +68,23 @@ export default defineConfig(({ mode }) => {
       // The homepage and privacy policy in English (/, /privacy) and Spanish (/es, /es/privacy),
       // the admin dashboard (/admin), and the advertising landing pages in both languages
       // (/join-as-a-player, /register-a-team, /es/join-as-a-player, /es/register-a-team).
-      // Served without .html via cleanUrls in vercel.json.
-      rolldownOptions: {
-        input: {
-          main: 'index.html',
-          privacy: 'privacy.html',
-          es: 'es.html',
-          esPrivacy: 'es/privacy.html',
-          admin: 'admin.html',
-          joinAsAPlayer: 'join-as-a-player.html',
-          registerATeam: 'register-a-team.html',
-          esJoinAsAPlayer: 'es/join-as-a-player.html',
-          esRegisterATeam: 'es/register-a-team.html',
-        },
-      },
+      // Served without .html via cleanUrls in vercel.json. The second, server-side build
+      // (`vite build --ssr src/prerender.tsx`) uses its own entry instead; see package.json.
+      rolldownOptions: isSsrBuild
+        ? {}
+        : {
+            input: {
+              main: 'index.html',
+              privacy: 'privacy.html',
+              es: 'es.html',
+              esPrivacy: 'es/privacy.html',
+              admin: 'admin.html',
+              joinAsAPlayer: 'join-as-a-player.html',
+              registerATeam: 'register-a-team.html',
+              esJoinAsAPlayer: 'es/join-as-a-player.html',
+              esRegisterATeam: 'es/register-a-team.html',
+            },
+          },
     },
   }
 })

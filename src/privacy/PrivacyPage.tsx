@@ -7,7 +7,7 @@ import { league } from '../config/league'
 import { logo } from '../content/images'
 import { LocaleProvider } from '../i18n/LocaleProvider'
 import { useLocale } from '../i18n/useLocale'
-import { localized, pagePath } from '../i18n/locale'
+import { localized, pagePath, type Locale } from '../i18n/locale'
 import { ContactLine } from '../registration/ContactLine'
 import { Footer } from '../sections/Footer'
 import './PrivacyPage.css'
@@ -439,9 +439,9 @@ const COPY = localized<{
   },
 })
 
-export function PrivacyPage() {
+export function PrivacyPage({ locale }: { locale: Locale }) {
   return (
-    <LocaleProvider page="privacy">
+    <LocaleProvider page="privacy" initial={locale}>
       <Policy />
     </LocaleProvider>
   )
