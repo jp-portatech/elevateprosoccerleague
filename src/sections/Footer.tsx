@@ -19,7 +19,6 @@ const COPY = localized({
     newTab: ' (opens in a new tab)',
     comingSoon: 'coming soon',
     privacy: 'Privacy policy',
-    photos: 'Photos on this site are illustrative and do not show actual league players, awards or facilities.',
     top: 'Back to top',
   },
   es: {
@@ -31,7 +30,6 @@ const COPY = localized({
     newTab: ' (se abre en una pestaña nueva)',
     comingSoon: 'próximamente',
     privacy: 'Política de privacidad',
-    photos: 'Las fotos de este sitio son ilustrativas y no muestran jugadores, premios ni instalaciones reales de la liga.',
     top: 'Volver arriba',
   },
 })
@@ -133,7 +131,6 @@ export function Footer({ home = '' }: { home?: string }) {
               {t.privacy}
             </a>
           </p>
-          <p>{t.photos}</p>
           <a href="#top" className="site-footer__top-link">
             {t.top}
           </a>

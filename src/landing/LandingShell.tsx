@@ -16,12 +16,11 @@ const YEAR = new Date().getFullYear()
 const COPY = localized({
   en: {
     skip: 'Skip to main content',
-    legal: 'Photos are illustrative and don’t show actual league players or facilities. Privacy policy: elevateprosoccer.com/privacy',
+    legal: 'Privacy policy: elevateprosoccer.com/privacy',
   },
   es: {
     skip: 'Saltar al contenido principal',
-    legal:
-      'Las fotos son ilustrativas y no muestran jugadores ni instalaciones reales de la liga. Política de privacidad: elevateprosoccer.com/es/privacy',
+    legal: 'Política de privacidad: elevateprosoccer.com/es/privacy',
   },
 })
 

@@ -136,8 +136,8 @@ export const images = {
     'venue/venue',
     WIDE_16_9_1600,
     {
-      en: 'Illustration of a generic indoor soccer field; not Axe House Sports.',
-      es: 'Ilustración de una cancha de fútbol indoor genérica; no es Axe House Sports.',
+      en: 'Indoor soccer field with green turf, white lines and a goal.',
+      es: 'Cancha de fútbol indoor con césped verde, líneas blancas y una portería.',
     },
   ),
   /** Decorative background for the final call to action. */

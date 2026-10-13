@@ -177,12 +177,8 @@
   }
 
   .site-footer__bottom {
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     gap: 2rem;
-  }
-
-  .site-footer__bottom p:nth-child(2) {
-    text-align: center;
   }
 }

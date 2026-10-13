@@ -17,7 +17,6 @@ const COPY = localized({
     title: 'Your Sunday soccer home.',
     directions: 'Get directions',
     newTab: ' (opens in a new tab)',
-    caption: 'Illustrative indoor facility image — not Axe House Sports',
     amenities: 'At the facility',
   },
   es: {
@@ -25,7 +24,6 @@ const COPY = localized({
     title: 'Tu cancha de cada domingo.',
     directions: 'Cómo llegar',
     newTab: ' (se abre en una pestaña nueva)',
-    caption: 'Imagen ilustrativa de una instalación indoor — no es Axe House Sports',
     amenities: 'En las instalaciones',
   },
 })
@@ -71,10 +69,9 @@ export function Venue() {
           )}
         </div>
 
-        {/* Illustrative image only — swap in an authentic Axe House Sports photo in content/images.ts */}
+        {/* Generic indoor field, not Axe House Sports: swap in a real facility photo in content/images.ts */}
         <figure className="venue__figure">
           <Picture image={images.venue} className="venue__img" sizes="(min-width: 1024px) 700px, 100vw" />
-          <figcaption className="venue__caption">{t.caption}</figcaption>
         </figure>
 
         {venue.amenities.length > 0 && (

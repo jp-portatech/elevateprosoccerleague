@@ -268,8 +268,8 @@ pages show neutral "ask us" copy instead:
 ## Before launch
 
 - Add Instagram/Facebook profile URLs to `social` (currently shown as "coming soon").
-- Replace the illustrative venue image with a real Axe House Sports photo, and remove its
-  "not Axe House Sports" caption in `src/sections/Venue.tsx`.
+- Replace the venue image (a generic indoor field, not Axe House Sports) with a real Axe House
+  Sports photo in `src/content/images.ts`.
 - Check the transparent logo's lettering against `brand/elevatepro-logo-original.png`. The
   background was removed automatically.
 - Replace the illustrative photos with real league photography when available.

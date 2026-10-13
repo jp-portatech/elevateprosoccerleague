@@ -15,13 +15,11 @@ const COPY = localized({
   en: {
     eyebrow: 'Sunday experience',
     title: 'This is what Sundays look like.',
-    disclaimer: 'Illustrative images. They do not depict actual ElevatePro players, teams or events.',
     captions: { compete: 'Compete', learn: 'Learn', celebrate: 'Celebrate' },
   },
   es: {
     eyebrow: 'La experiencia del domingo',
     title: 'Así se viven los domingos.',
-    disclaimer: 'Imágenes ilustrativas. No muestran jugadores, equipos ni eventos reales de ElevatePro.',
     captions: { compete: 'Compite', learn: 'Aprende', celebrate: 'Celebra' },
   },
 })
@@ -35,7 +33,6 @@ export function SundayExperience() {
           <SectionHeading id="experience-title" eyebrow={t.eyebrow}>
             {t.title}
           </SectionHeading>
-          <p className="experience__disclaimer fine-print">{t.disclaimer}</p>
         </div>
 
         <ul className="gallery">

@@ -1,12 +1,5 @@
 .experience__head {
-  display: grid;
-  gap: 1rem;
   margin-bottom: 2rem;
-}
-
-.experience__disclaimer {
-  max-width: 24rem;
-  color: var(--text);
 }
 
 .gallery {
@@ -52,15 +45,6 @@
 }
 
 @media (min-width: 900px) {
-  .experience__head {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: end;
-  }
-
-  .experience__disclaimer {
-    text-align: right;
-  }
-
   .gallery {
     grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
     grid-template-rows: repeat(2, minmax(0, 1fr));
