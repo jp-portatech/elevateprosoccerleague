@@ -42,6 +42,7 @@ npm run preview   # serve the production build locally (no api/ routes)
 | Link-preview image, robots.txt, sitemap.xml (served as-is from the site root) | `public/` |
 | Design tokens (colors, fonts, spacing, motion timings) | `src/styles/base.css` |
 | Scroll reveals (sections fading in once) | `src/motion/reveal.ts` |
+| Winter training survey at `/winter-survey` (unlisted): questions, page, server, emails | `src/winter-survey/`, `server/winterSurvey.ts`, `server/emails/winterSurveyEmails.ts` |
 
 The privacy policy describes what the site actually collects and who handles it (Stripe, Resend,
 Vercel, the Gmail inbox). If you add a form field, a service, analytics or cookies, update
@@ -244,6 +245,26 @@ and hidden by default once live payments start.
 3. **Redeploy**, open `/admin`, sign in, and press **Import from Stripe** on the Overview.
 
 Without these two settings, `/admin` shows what's missing and the rest of the site works as before.
+
+## Winter training survey (`/winter-survey`)
+
+An **unlisted** survey for parents of private training clients (Elevate Pro Winter Training):
+**https://www.elevateprosoccer.com/winter-survey**. Families only reach it through a link you send.
+It's marked `noindex, nofollow`, isn't linked anywhere on the site, and isn't in the sitemap or
+`robots.txt`. It's English only, uses the landing pages' frame (logo, no menu, minimal footer), and
+isn't pre-rendered. One submission per player; after sending, **Submit for another player** starts
+a fresh survey with the parent's contact details kept.
+
+- **Questions and options:** `src/winter-survey/surveyForm.ts`. The page and the server both
+  validate with it, so a change there applies to both. Typed answers use `FormField`;
+  single and multiple choice use `ChoiceField` in the same style.
+- **Where answers go** (`POST /api/winter-survey`, `server/winterSurvey.ts`): saved to the
+  `winter_survey_responses` table (created automatically; every answer is in `answers`, with
+  multiple-choice answers as lists), emailed to the league inbox ("Winter survey: *player name*",
+  reply goes to the parent), and a short confirmation goes to the parent. Respondents are **not**
+  added to the Resend contact list. Same spam protection as the contact form.
+- **Admin:** the **Winter survey** tab lists responses (newest first) with age, team level, nights and
+  sessions per week; **Details** shows every answer, and **Download CSV** exports them all.
 
 ## Motion
 

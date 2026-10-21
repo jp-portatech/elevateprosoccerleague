@@ -2,6 +2,7 @@
 // server/admin.ts, so imports use `.js` extensions and nothing here may touch React or the DOM.
 import type { Locale } from '../i18n/locale.js'
 import { formFields } from '../registration/forms.js'
+import type { SurveyValues } from '../winter-survey/surveyForm.js'
 
 export interface AdminRegistration {
   /** Stripe Checkout Session id */
@@ -70,10 +71,26 @@ export const leadSourceLabel = (source: string) =>
     '/es/register-a-team': 'Register a team page (Spanish)',
   })[source] ?? source
 
+/** A winter training survey response (/winter-survey). */
+export interface AdminSurveyResponse {
+  id: string
+  createdAt: string
+  playerName: string
+  parentName: string
+  parentEmail: string
+  parentPhone: string
+  /** YYYY-MM-DD */
+  dateOfBirth: string
+  /** Every answer by question name (src/winter-survey/surveyForm.ts); multiple choice as arrays. */
+  answers: SurveyValues
+}
+
 export interface AdminData {
   registrations: AdminRegistration[]
   teams: AdminTeam[]
   leads: AdminLead[]
+  /** Winter training survey responses, newest first. */
+  surveys: AdminSurveyResponse[]
 }
 
 export const LEAD_STATUSES: Array<{ value: LeadStatus; label: string }> = [

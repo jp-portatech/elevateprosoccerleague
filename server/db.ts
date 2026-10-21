@@ -1,6 +1,6 @@
 /**
  * Postgres (Neon, added through Vercel → Storage) for the admin dashboard: paid registrations,
- * teams and contact-form leads. Stripe stays the record of payments; this is the working copy
+ * teams, contact-form leads and winter training survey responses. Stripe stays the record of payments; this is the working copy
  * the league organizes teams from.
  *
  * Tables are created on first use (CREATE … IF NOT EXISTS), so there's no migration step.
@@ -103,6 +103,19 @@ const SCHEMA = [
   `ALTER TABLE leads ADD COLUMN IF NOT EXISTS team_name text NOT NULL DEFAULT ''`,
   `ALTER TABLE leads ADD COLUMN IF NOT EXISTS source text NOT NULL DEFAULT 'contact-form'`,
   `ALTER TABLE leads ADD COLUMN IF NOT EXISTS utm jsonb`,
+  // Winter training survey (/winter-survey). `answers` holds every answer by question name
+  // (src/winter-survey/surveyForm.ts); multiple-choice answers are JSON arrays.
+  `CREATE TABLE IF NOT EXISTS winter_survey_responses (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    submission_id text UNIQUE,
+    player_name text NOT NULL,
+    parent_name text NOT NULL,
+    parent_email text NOT NULL,
+    parent_phone text NOT NULL,
+    date_of_birth text NOT NULL,
+    answers jsonb NOT NULL,
+    created_at timestamptz NOT NULL DEFAULT now()
+  )`,
   `CREATE INDEX IF NOT EXISTS registrations_division ON registrations (division, kind)`,
   `CREATE INDEX IF NOT EXISTS admin_login_failures_ip ON admin_login_failures (ip, at)`,
 ]
@@ -211,6 +224,34 @@ export async function saveLead(db: Db, lead: LeadRecord): Promise<void> {
       lead.teamName,
       lead.source,
       Object.keys(lead.utm).length ? JSON.stringify(lead.utm) : null,
+    ],
+  )
+}
+
+export interface WinterSurveyRecord {
+  submissionId: string
+  /** Every answer, already cleaned and validated (src/winter-survey/surveyForm.ts). */
+  answers: Record<string, string | string[]>
+}
+
+/** Saves one survey response. A repeat of the same submission is ignored. */
+export async function saveWinterSurveyResponse(db: Db, response: WinterSurveyRecord): Promise<void> {
+  await ensureSchema(db)
+  const a = response.answers
+  const str = (name: string) => (typeof a[name] === 'string' ? (a[name] as string) : '')
+  await db.query(
+    `INSERT INTO winter_survey_responses
+       (submission_id, player_name, parent_name, parent_email, parent_phone, date_of_birth, answers)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     ON CONFLICT (submission_id) DO NOTHING`,
+    [
+      response.submissionId,
+      str('playerName'),
+      str('parentName'),
+      str('parentEmail'),
+      str('parentPhone'),
+      str('dateOfBirth'),
+      JSON.stringify(a),
     ],
   )
 }

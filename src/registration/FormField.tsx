@@ -93,8 +93,10 @@ export function FormField({ field, idPrefix, value, error, onChange, onBlur }: F
       <input
         {...shared}
         type={field.type}
-        maxLength={field.maxLength}
-        max={field.type === 'date' ? today : undefined}
+        maxLength={field.type === 'number' ? undefined : field.maxLength}
+        inputMode={field.type === 'number' ? 'numeric' : undefined}
+        min={field.type === 'number' ? field.min : undefined}
+        max={field.type === 'date' ? today : field.type === 'number' ? field.max : undefined}
         spellCheck={field.type === 'email' ? false : undefined}
       />
     )

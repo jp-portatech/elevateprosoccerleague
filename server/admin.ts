@@ -12,7 +12,15 @@
 import { createHash, createHmac, randomUUID, timingSafeEqual } from 'node:crypto'
 import { league } from '../src/config/league.js'
 import { isLocale } from '../src/i18n/locale.js'
-import { LEAD_STATUSES, type AdminData, type AdminLead, type AdminRegistration, type AdminTeam } from '../src/admin/model.js'
+import {
+  LEAD_STATUSES,
+  type AdminData,
+  type AdminLead,
+  type AdminRegistration,
+  type AdminSurveyResponse,
+  type AdminTeam,
+} from '../src/admin/model.js'
+import { cleanSurvey } from '../src/winter-survey/surveyForm.js'
 import { registrationFromMetadata } from './checkout.js'
 import { ensureSchema, getDb, saveRegistration, type Db, type DbEnv, type Row } from './db.js'
 import { sendBatch } from './email.js'
@@ -83,10 +91,11 @@ const parseFields = (value: unknown): Record<string, string> =>
   typeof value === 'string' ? JSON.parse(value) : ((value ?? {}) as Record<string, string>)
 
 async function loadData(db: Db): Promise<AdminData> {
-  const [registrations, teams, leads] = await Promise.all([
+  const [registrations, teams, leads, surveys] = await Promise.all([
     db.query(`SELECT * FROM registrations ORDER BY paid_at DESC NULLS LAST, created_at DESC`),
     db.query(`SELECT * FROM teams ORDER BY division, created_at`),
     db.query(`SELECT * FROM leads ORDER BY created_at DESC`),
+    db.query(`SELECT * FROM winter_survey_responses ORDER BY created_at DESC`),
   ])
   return {
     registrations: registrations.map(
@@ -138,6 +147,19 @@ async function loadData(db: Db): Promise<AdminData> {
         teamName: text(l.team_name),
         source: text(l.source) || 'contact-form',
         utm: (typeof l.utm === 'string' ? JSON.parse(l.utm) : (l.utm ?? {})) as Record<string, string>,
+      }),
+    ),
+    surveys: surveys.map(
+      (s: Row): AdminSurveyResponse => ({
+        id: text(s.id),
+        createdAt: iso(s.created_at) ?? '',
+        playerName: text(s.player_name),
+        parentName: text(s.parent_name),
+        parentEmail: text(s.parent_email),
+        parentPhone: text(s.parent_phone),
+        dateOfBirth: text(s.date_of_birth),
+        // Cleaned again so answers to questions since removed or renamed don't break the dashboard.
+        answers: cleanSurvey(typeof s.answers === 'string' ? JSON.parse(s.answers) : s.answers),
       }),
     ),
   }

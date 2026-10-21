@@ -5,7 +5,7 @@ import { league } from '../config/league.js'
 import { intlLocale, localized, type Locale, type Localized } from '../i18n/locale.js'
 import type { RegistrationKind } from './types.js'
 
-export type FieldType = 'text' | 'email' | 'tel' | 'date' | 'select' | 'textarea' | 'checkbox'
+export type FieldType = 'text' | 'email' | 'tel' | 'date' | 'number' | 'select' | 'textarea' | 'checkbox'
 
 export interface FieldDef {
   name: string
@@ -19,6 +19,9 @@ export interface FieldDef {
   options?: Array<{ value: string; label: Localized }>
   placeholderOption?: Localized
   maxLength?: number
+  /** Whole-number fields: the smallest and largest value allowed. */
+  min?: number
+  max?: number
   /** Share a row with the neighbouring half-width field on wider screens. */
   half?: boolean
 }
@@ -219,6 +222,7 @@ const MESSAGES = localized({
     realDate: 'Enter a real date of birth.',
     pastDate: 'Date of birth must be in the past.',
     select: (label: string) => `Select a valid ${label.toLowerCase()}.`,
+    wholeNumber: (label: string, min: number, max: number) => `${label}: enter a whole number from ${min} to ${max}.`,
     tooOldFor: (division: string, cutoff: string, choices: string) =>
       `${division} players must be born on or after ${cutoff}. Based on this date of birth, choose ${choices}.`,
     tooOldForAll: (division: string, cutoff: string) =>
@@ -232,6 +236,7 @@ const MESSAGES = localized({
     realDate: 'Escribe una fecha de nacimiento válida.',
     pastDate: 'La fecha de nacimiento debe ser una fecha pasada.',
     select: (label: string) => `Selecciona una opción válida en: ${label.toLowerCase()}.`,
+    wholeNumber: (label: string, min: number, max: number) => `${label}: escribe un número entero del ${min} al ${max}.`,
     tooOldFor: (division: string, cutoff: string, choices: string) =>
       `Los jugadores de ${division} deben haber nacido a partir del ${cutoff}. Según esta fecha de nacimiento, elige ${choices}.`,
     tooOldForAll: (division: string, cutoff: string) =>
@@ -285,6 +290,12 @@ export function validateField(field: FieldDef, raw: string, locale: Locale = 'en
       if (!isRealDate(value) || value < '1900-01-01') return t.realDate
       if (value >= todayIso()) return t.pastDate
       return null
+    case 'number': {
+      const min = field.min ?? 0
+      const max = field.max ?? Number.MAX_SAFE_INTEGER
+      const n = Number(value)
+      return /^\d+$/.test(value) && n >= min && n <= max ? null : t.wholeNumber(label, min, max)
+    }
     case 'select':
       return field.options?.some((o) => o.value === value) ? null : t.select(label)
     case 'checkbox':
