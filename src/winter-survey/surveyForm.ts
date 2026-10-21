@@ -241,7 +241,8 @@ export const SURVEY_SECTIONS: SurveySection[] = [
         requiredMessage: 'Choose the time that works best.',
         multiple: false,
         compact: true,
-        options: options(['8-9pm', '8–9 pm'], ['9-10pm', '9–10 pm'], ['either', 'Either']),
+        // "Neither" flags players the 8–10 pm slots don't work for.
+        options: options(['8-9pm', '8–9 pm'], ['9-10pm', '9–10 pm'], ['either', 'Either'], ['neither', 'Neither']),
       },
       {
         kind: 'choice',
