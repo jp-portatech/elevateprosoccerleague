@@ -1,4 +1,5 @@
 import { useRef, useState, useSyncExternalStore, type SubmitEvent } from 'react'
+import { ageOn } from '../admin/model'
 import { Icon } from '../components/Icon'
 import { SectionHeading } from '../components/SectionHeading'
 import { league } from '../config/league'
@@ -7,15 +8,31 @@ import { StaticLocaleProvider } from '../i18n/LocaleProvider'
 import { ContactLine } from '../registration/ContactLine'
 import { FormField } from '../registration/FormField'
 import { fieldId, type FieldDef, type FormErrors, type FormValues } from '../registration/forms'
+import { ChoiceField } from '../winter-survey/ChoiceField'
+import type { ChoiceQuestion } from '../winter-survey/surveyForm'
+import {
+  AGREEMENT_ERROR_ORDER,
+  AGREEMENTS,
+  CURRENT_AGREEMENT,
+  EMERGENCY_FIELDS,
+  emptyAgreement,
+  reusedSignatureRole,
+  SIGNER_NAME_FIELD,
+  signerRole,
+  validateAgreement,
+  type AgreementInput,
+  type MediaPermission,
+  type SignerRole,
+} from './agreementForm'
+import { AgreementSections } from './AgreementText'
 import { SignaturePad } from './SignaturePad'
 import { submitWaiver, type WaiverResult } from './submitWaiver'
 import {
   cleanSignature,
   CURRENT_WAIVER,
   emptyWaiver,
-  isMinor,
   validateWaiver,
-  WAIVER_ERROR_ORDER,
+  WAIVER_FIELD_NAMES,
   WAIVER_FIELDS,
   WAIVERS,
   type Signature,
@@ -23,7 +40,8 @@ import {
   type Signatures,
 } from './waiverForm'
 import { WaiverMinorsClause, WaiverTerms } from './WaiverText'
-// The page frame (header, intro band, thank-you, footer) is shared with the winter survey.
+// The page frame (header, intro band, thank-you, footer) and the choice buttons are shared with
+// the winter survey.
 import '../registration/registration.css'
 import '../winter-survey/winter-survey.css'
 import './waiver.css'
@@ -31,55 +49,91 @@ import './waiver.css'
 const ID_PREFIX = 'waiver'
 const YEAR = new Date().getFullYear()
 const WAIVER = WAIVERS[CURRENT_WAIVER]
-/** Kept when a parent signs another waiver right after (a brother or sister). */
+const AGREEMENT = AGREEMENTS[CURRENT_AGREEMENT]
+/** Kept when a parent signs for another player right after (a brother or sister). */
 const FAMILY_FIELDS = ['email', 'eveningPhone', 'address', 'city', 'state', 'zip']
-const SIGNATURE_IDS: Record<string, string> = {
+const TARGET_IDS: Record<string, string> = {
   participantSignature: `${ID_PREFIX}-signature-participant`,
   guardianSignature: `${ID_PREFIX}-signature-guardian`,
-  consent: fieldId(ID_PREFIX, 'consent'),
+  agreementSignature: `${ID_PREFIX}-signature-agreement`,
 }
+const ERROR_ORDER = [
+  ...WAIVER_FIELD_NAMES,
+  'emergencyContact',
+  'emergencyPhone',
+  'participantSignature',
+  'guardianSignature',
+  ...AGREEMENT_ERROR_ORDER.filter((k) => !k.startsWith('emergency')),
+  'consent',
+]
 
-const CONSENT_FIELD: FieldDef = {
-  name: 'consent',
-  label: {
-    en: 'I agree to sign this waiver electronically. My electronic signature counts the same as signing it on paper.',
-    es: 'I agree to sign this waiver electronically. My electronic signature counts the same as signing it on paper.',
-  },
-  type: 'checkbox',
-  required: true,
+const en = (text: string) => ({ en: text, es: text })
+const checkbox = (name: string, label: string): FieldDef => ({ name, label: en(label), type: 'checkbox', required: true })
+const CONSENT_FIELD = checkbox(
+  'consent',
+  'I agree to sign these documents electronically. My electronic signature counts the same as signing them on paper.',
+)
+const ROLE_FIELDS: Record<SignerRole, FieldDef> = {
+  guardian: checkbox('roleAcknowledged', AGREEMENT.page2.signature.roles.guardian),
+  adult: checkbox('roleAcknowledged', AGREEMENT.page2.signature.roles.adult),
+}
+const MEDIA_QUESTION: ChoiceQuestion = {
+  kind: 'choice',
+  name: 'mediaPermission',
+  label: AGREEMENT.page1.media.heading,
+  hint: AGREEMENT.page1.media.note,
+  required: false,
+  multiple: false,
+  options: [
+    { value: 'yes', label: AGREEMENT.page1.media.yes },
+    { value: 'no', label: AGREEMENT.page1.media.no },
+  ],
 }
 
 const COPY = {
-  skip: 'Skip to the waiver',
-  audience: 'Facility waiver',
+  skip: 'Skip to the form',
+  audience: 'Player waivers',
   program: 'Elevate Pro Winter Training',
-  title: 'Facility waiver',
+  title: 'Player waivers',
   intro:
-    'The facility requires this signed waiver for every player before their first session. Fill in the player’s details, read the waiver, and sign at the bottom. It takes about 3 minutes. Please complete one per player.',
-  formLabel: 'USA Internacional waiver',
+    'Two documents, one form: the facility’s waiver and ElevatePro’s player agreement. Fill in the player’s details once, read, and sign. It takes about 5 minutes. Please complete one per player, before their first session.',
+  formLabel: 'Facility waiver and ElevatePro player agreement',
   required: 'All fields are required unless marked optional.',
-  step: (n: number) => `Step ${n} of 2`,
-  detailsTitle: 'Participant details',
-  readTitle: 'Read and sign',
+  step: (n: number) => `Step ${n} of 3`,
+  detailsTitle: 'Player details',
+  emergencyTitle: 'Emergency contact',
+  emergencyNote: 'For ElevatePro’s agreement in step 3.',
+  waiverTitle: 'Facility waiver',
+  agreementTitle: 'ElevatePro agreement',
+  agreementFor: (name: string, age: number | null) =>
+    `For ${name || 'the player in step 1'}${age !== null ? `, age ${age}` : ''}. The player’s details and contact phone come from step 1.`,
+  page: (n: number) => `Page ${n}`,
+  contactPhone: (phone: string) => `${AGREEMENT.page2.signature.labels.contactPhone}: ${phone || 'from step 1'}`,
+  signWith: (line: string) => `Signed with your ${line} from step 2:`,
+  signFirst: (line: string) => `Sign the ${line} line in step 2 and it will sign this agreement too.`,
+  signSeparately: 'Sign separately instead',
+  useStep2: 'Use my signature from step 2 instead',
   date: 'Date',
   dateNote: 'Filled in automatically',
   guardianNotNeeded: 'Only needed for participants under 18.',
   problems: (n: number) => (n === 1 ? 'There is 1 problem' : `There are ${n} problems`),
-  submit: 'Sign and submit waiver',
+  submit: 'Sign and submit',
   sending: 'Sending…',
-  notSent: 'Your waiver wasn’t sent',
+  notSent: 'Your waivers weren’t sent',
   errors: {
     network: 'We couldn’t reach the server. Check your connection and try again.',
-    send: 'Something went wrong on our end, so the waiver wasn’t saved. Please try again in a moment.',
-    'too-fast': 'That was quick! Please check the form and press Sign and submit waiver again.',
+    send: 'Something went wrong on our end, so nothing was saved. Please try again in a moment.',
+    'too-fast': 'That was quick! Please check the form and press Sign and submit again.',
   } satisfies Record<Extract<WaiverResult, { status: 'error' }>['reason'], string>,
   contactUs: 'Or reach Elevate Pro',
   thanksTitle: 'Thank you!',
-  thanksText: (name: string) => `We received the signed waiver for ${name}.`,
-  confirmation: (email: string) => `A copy is on its way to ${email}.`,
-  another: 'Sign a waiver for another player',
+  thanksText: (name: string) => `We received the signed facility waiver and ElevatePro agreement for ${name}.`,
+  confirmation: (email: string) => `A copy of both is on its way to ${email}.`,
+  another: 'Sign for another player',
   legal: 'Privacy policy: elevateprosoccer.com/privacy',
 }
+
+const SIGNATURE_LINE: Record<SignerRole, string> = { guardian: 'Parent/Guardian Signature', adult: 'Signature' }
 
 const newSubmissionId = () =>
   typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`
@@ -92,11 +146,21 @@ const cleaned = (s: Signatures): Signatures => ({
   participant: cleanSignature(s.participant),
   guardian: cleanSignature(s.guardian),
 })
+const cleanedAgreement = (a: AgreementInput): AgreementInput => ({ ...a, ownSignature: cleanSignature(a.ownSignature) })
 
-/** Unlisted facility waiver (/waiver), signed online by parents. One per player. */
+function SignaturePreview({ signature }: { signature: Signature }) {
+  return signature.kind === 'drawn' ? (
+    <img className="agreement-reuse__image" src={signature.image} alt="Your signature" />
+  ) : (
+    <span className="agreement-reuse__typed">{signature.name}</span>
+  )
+}
+
+/** Unlisted waiver page (/waiver): the facility's waiver and ElevatePro's agreement, one per player. */
 export function WaiverPage() {
   const [values, setValues] = useState<FormValues>(emptyWaiver)
   const [signatures, setSignatures] = useState<Signatures>({ participant: null, guardian: null })
+  const [agreement, setAgreement] = useState<AgreementInput>(emptyAgreement)
   const [consent, setConsent] = useState(false)
   const [errors, setErrors] = useState<FormErrors>({})
   const [attempted, setAttempted] = useState(false)
@@ -112,39 +176,59 @@ export function WaiverPage() {
   const startedAt = useRef<number | null>(null)
   const submissionId = useRef<string | null>(null)
 
-  const minor = isMinor(values.dob)
-  const check = (v: FormValues, s: Signatures, c: boolean) => validateWaiver(v, cleaned(s), c)
+  const role = signerRole(values.dob)
+  const minor = role === 'guardian'
+  const reused = signatures[reusedSignatureRole(role)]
+  const age = /^\d{4}-\d{2}-\d{2}$/.test(values.dob) ? ageOn(values.dob) : null
+
+  const check = (v: FormValues, s: Signatures, a: AgreementInput, c: boolean): FormErrors => ({
+    ...validateWaiver(v, cleaned(s), c),
+    ...validateAgreement(v, cleaned(s), cleanedAgreement(a)),
+  })
 
   /** After a failed submit, errors clear as soon as they're fixed. */
-  const recheck = (v: FormValues, s: Signatures, c: boolean) => {
+  const recheck = (v: FormValues, s: Signatures, a: AgreementInput, c: boolean) => {
     startedAt.current ??= Date.now() // spam check: time from first answer to Submit
     if (Object.keys(errors).length > 0) {
-      const current = check(v, s, c)
+      const current = check(v, s, a, c)
       setErrors((prev) => Object.fromEntries(Object.entries(prev).filter(([key]) => current[key])))
     }
     if (failure) setFailure(null)
   }
 
-  const handleChange = (name: string, value: string) => {
-    if (name === 'consent') {
-      const next = value === 'yes'
-      setConsent(next)
-      return recheck(values, signatures, next)
-    }
-    const next = { ...values, [name]: value }
-    setValues(next)
-    recheck(next, signatures, consent)
+  const updateAgreement = (patch: Partial<AgreementInput>) => {
+    const next = { ...agreement, ...patch }
+    setAgreement(next)
+    recheck(values, signatures, next, consent)
   }
 
-  const handleSignature = (role: SignatureRole, value: Signature | null) => {
-    const next = { ...signatures, [role]: value }
+  const handleChange = (name: string, value: string) => {
+    if (name === 'consent') {
+      setConsent(value === 'yes')
+      return recheck(values, signatures, agreement, value === 'yes')
+    }
+    if (name === 'roleAcknowledged') return updateAgreement({ roleAcknowledged: value === 'yes' })
+    if (name === 'emergencyContact' || name === 'emergencyPhone' || name === 'signerName') return updateAgreement({ [name]: value })
+    const next = { ...values, [name]: value }
+    setValues(next)
+    // A new birth date can change who signs the agreement, and so the statement they confirm.
+    if (name === 'dob' && signerRole(value) !== role) {
+      const nextAgreement = { ...agreement, roleAcknowledged: false }
+      setAgreement(nextAgreement)
+      return recheck(next, signatures, nextAgreement, consent)
+    }
+    recheck(next, signatures, agreement, consent)
+  }
+
+  const handleSignature = (who: SignatureRole, value: Signature | null) => {
+    const next = { ...signatures, [who]: value }
     setSignatures(next)
-    recheck(values, next, consent)
+    recheck(values, next, agreement, consent)
   }
 
   const handleBlur = (name: string) => {
     if (!attempted) return
-    const message = check(values, signatures, consent)[name]
+    const message = check(values, signatures, agreement, consent)[name]
     setErrors(({ [name]: _previous, ...rest }) => (message ? { ...rest, [name]: message } : rest))
   }
 
@@ -156,7 +240,7 @@ export function WaiverPage() {
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (pending) return
-    const found = check(values, signatures, consent)
+    const found = check(values, signatures, agreement, consent)
     setAttempted(true)
     setFailure(null)
     if (Object.keys(found).length > 0) return showErrors(found)
@@ -164,7 +248,7 @@ export function WaiverPage() {
 
     setPending(true)
     submissionId.current ??= newSubmissionId() // same id on retries, so nothing is saved twice
-    const result = await submitWaiver(values, cleaned(signatures), consent, {
+    const result = await submitWaiver(values, cleaned(signatures), cleanedAgreement(agreement), consent, {
       submissionId: submissionId.current,
       elapsedMs: startedAt.current === null ? 0 : Date.now() - startedAt.current,
       trap: trapRef.current?.value ?? '',
@@ -184,12 +268,18 @@ export function WaiverPage() {
     }
   }
 
-  /** A fresh waiver for a brother or sister: contact details and address stay filled in. */
+  /** A fresh form for a brother or sister: the family's contact details, address and emergency contact stay. */
   const startAnother = () => {
     const fresh = emptyWaiver()
     for (const name of FAMILY_FIELDS) fresh[name] = values[name]
     setValues(fresh)
     setSignatures({ participant: null, guardian: null })
+    setAgreement({
+      ...emptyAgreement(),
+      emergencyContact: agreement.emergencyContact,
+      emergencyPhone: agreement.emergencyPhone,
+      signerName: agreement.signerName,
+    })
     setConsent(false)
     setErrors({})
     setAttempted(false)
@@ -203,8 +293,13 @@ export function WaiverPage() {
     })
   }
 
-  const errorKeys = WAIVER_ERROR_ORDER.filter((key) => errors[key])
-  const targetId = (key: string) => SIGNATURE_IDS[key] ?? fieldId(ID_PREFIX, key)
+  const errorKeys = ERROR_ORDER.filter((key) => errors[key])
+  const targetId = (key: string) => TARGET_IDS[key] ?? fieldId(ID_PREFIX, key)
+  const agreementValues: FormValues = {
+    emergencyContact: agreement.emergencyContact,
+    emergencyPhone: agreement.emergencyPhone,
+    signerName: agreement.signerName,
+  }
 
   const dateLine = (signed: boolean) => (
     <div className="waiver-date">
@@ -293,6 +388,7 @@ export function WaiverPage() {
 
                 <p className="reg-form__required">{COPY.required}</p>
 
+                {/* ---------- Step 1: details, asked once for both documents ---------- */}
                 <section className="survey-section" aria-labelledby="waiver-details-title">
                   <SectionHeading id="waiver-details-title" eyebrow={COPY.step(1)} className="survey-section__heading">
                     {COPY.detailsTitle}
@@ -311,11 +407,28 @@ export function WaiverPage() {
                       </div>
                     ))}
                   </div>
+                  <h3 className="waiver-subheading">{COPY.emergencyTitle}</h3>
+                  <p className="field__hint waiver-subheading__note">{COPY.emergencyNote}</p>
+                  <div className="waiver-fields">
+                    {EMERGENCY_FIELDS.map((field) => (
+                      <div className="waiver-fields__item waiver-fields__item--3" key={field.name}>
+                        <FormField
+                          field={field}
+                          idPrefix={ID_PREFIX}
+                          value={agreementValues[field.name]}
+                          error={errors[field.name]}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </section>
 
+                {/* ---------- Step 2: the facility's waiver (unchanged) ---------- */}
                 <section className="survey-section" aria-labelledby="waiver-sign-title">
                   <SectionHeading id="waiver-sign-title" eyebrow={COPY.step(2)} className="survey-section__heading">
-                    {COPY.readTitle}
+                    {COPY.waiverTitle}
                   </SectionHeading>
 
                   <div className="waiver-terms">
@@ -325,7 +438,7 @@ export function WaiverPage() {
 
                   <div className="waiver-sign">
                     <SignaturePad
-                      id={SIGNATURE_IDS.participantSignature}
+                      id={TARGET_IDS.participantSignature}
                       label="Signature"
                       required
                       value={signatures.participant}
@@ -341,7 +454,7 @@ export function WaiverPage() {
 
                   <div className="waiver-sign">
                     <SignaturePad
-                      id={SIGNATURE_IDS.guardianSignature}
+                      id={TARGET_IDS.guardianSignature}
                       label="Parent/Guardian Signature"
                       note={minor ? undefined : COPY.guardianNotNeeded}
                       required={minor}
@@ -350,6 +463,107 @@ export function WaiverPage() {
                       onChange={(v) => handleSignature('guardian', v)}
                     />
                     {dateLine(Boolean(signatures.guardian))}
+                  </div>
+                </section>
+
+                {/* ---------- Step 3: ElevatePro's agreement, only what the waiver didn't ask ---------- */}
+                <section className="survey-section" aria-labelledby="waiver-agreement-title">
+                  <SectionHeading id="waiver-agreement-title" eyebrow={COPY.step(3)} className="survey-section__heading">
+                    {COPY.agreementTitle}
+                  </SectionHeading>
+
+                  <div className="waiver-terms agreement-terms">
+                    <p className="agreement-terms__brand">{AGREEMENT.brand}</p>
+                    <h3 className="waiver-terms__title">{AGREEMENT.page1.title}</h3>
+                    <p className="agreement-terms__for">{COPY.agreementFor(values.name, age)}</p>
+                    <p className="agreement-terms__page">{COPY.page(1)}</p>
+                    <AgreementSections sections={AGREEMENT.page1.sections} role={role} />
+                  </div>
+
+                  <div className="agreement-media">
+                    <ChoiceField
+                      question={MEDIA_QUESTION}
+                      idPrefix={ID_PREFIX}
+                      value={agreement.mediaPermission}
+                      onChange={(_, v) => updateAgreement({ mediaPermission: v as MediaPermission })}
+                      onBlur={() => {}}
+                    />
+                  </div>
+
+                  <div className="waiver-terms agreement-terms">
+                    <h3 className="waiver-terms__title">{AGREEMENT.page2.title}</h3>
+                    <p className="agreement-terms__page">{COPY.page(2)}</p>
+                    <AgreementSections sections={AGREEMENT.page2.sections} role={role} />
+                  </div>
+
+                  <div className="agreement-sign">
+                    <h4 className="agreement-section__heading">{AGREEMENT.page2.signature.heading}</h4>
+                    <p>{AGREEMENT.page2.signature.agreement}</p>
+                    <FormField
+                      field={ROLE_FIELDS[role]}
+                      idPrefix={ID_PREFIX}
+                      value={agreement.roleAcknowledged ? 'yes' : ''}
+                      error={errors.roleAcknowledged}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                    />
+                    {minor && (
+                      <FormField
+                        field={SIGNER_NAME_FIELD}
+                        idPrefix={ID_PREFIX}
+                        value={agreement.signerName}
+                        error={errors.signerName}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                    )}
+                    <p className="agreement-sign__phone">{COPY.contactPhone(values.eveningPhone)}</p>
+
+                    <div className="waiver-sign">
+                      {agreement.reuseSignature ? (
+                        <div
+                          className={['agreement-reuse', errors.agreementSignature && 'agreement-reuse--error'].filter(Boolean).join(' ')}
+                          id={TARGET_IDS.agreementSignature}
+                          tabIndex={-1}
+                        >
+                          <p className="field__label">{AGREEMENT.page2.signature.labels.signature}</p>
+                          {errors.agreementSignature && (
+                            <p className="field__error">
+                              <span className="visually-hidden">Error: </span>
+                              {errors.agreementSignature}
+                            </p>
+                          )}
+                          {reused ? (
+                            <>
+                              <p className="field__hint">{COPY.signWith(SIGNATURE_LINE[role])}</p>
+                              <div className="agreement-reuse__box">
+                                <SignaturePreview signature={reused} />
+                              </div>
+                            </>
+                          ) : (
+                            <p className="agreement-reuse__box agreement-reuse__box--empty">{COPY.signFirst(SIGNATURE_LINE[role])}</p>
+                          )}
+                          <button type="button" className="signature__action" onClick={() => updateAgreement({ reuseSignature: false, ownSignature: null })}>
+                            {COPY.signSeparately}
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          <SignaturePad
+                            id={TARGET_IDS.agreementSignature}
+                            label={AGREEMENT.page2.signature.labels.signature}
+                            required
+                            value={agreement.ownSignature}
+                            error={errors.agreementSignature}
+                            onChange={(v) => updateAgreement({ ownSignature: v })}
+                          />
+                          <button type="button" className="signature__action" onClick={() => updateAgreement({ reuseSignature: true, ownSignature: null })}>
+                            {COPY.useStep2}
+                          </button>
+                        </div>
+                      )}
+                      {dateLine(Boolean(agreement.reuseSignature ? reused : agreement.ownSignature))}
+                    </div>
                   </div>
 
                   <div className="waiver-consent">

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { league } from '../config/league'
 import { WAIVERS, type Signature } from '../waiver/waiverForm'
@@ -142,10 +142,20 @@ function WaiverSheet({ doc }: { doc: AdminWaiverDoc }) {
 }
 
 /**
- * Full-screen print view of one or more signed waivers, each laid out like the facility's paper
- * form. "Print or save as PDF" opens the browser's print dialog; only the waivers print.
+ * Full-screen print view: a toolbar and the sheets. "Print or save as PDF" opens the browser's
+ * print dialog; only the sheets print (waiver-print.css).
  */
-export function WaiverPrint({ docs, onClose }: { docs: AdminWaiverDoc[]; onClose: () => void }) {
+export function PrintOverlay({
+  label,
+  summary,
+  onClose,
+  children,
+}: {
+  label: string
+  summary: string
+  onClose: () => void
+  children: ReactNode
+}) {
   const backRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
@@ -166,22 +176,33 @@ export function WaiverPrint({ docs, onClose }: { docs: AdminWaiverDoc[]; onClose
   }, [onClose])
 
   return createPortal(
-    <section className="waiver-print" aria-label={docs.length === 1 ? `Waiver for ${docs[0].name}` : `${docs.length} waivers`}>
+    <section className="waiver-print" aria-label={label}>
       <div className="waiver-print__toolbar">
         <button type="button" className="admin-btn admin-btn--ghost" onClick={onClose} ref={backRef}>
           Back to waivers
         </button>
-        <p>{docs.length === 1 ? docs[0].name : `${docs.length} waivers, one per page`}</p>
+        <p>{summary}</p>
         <button type="button" className="admin-btn" onClick={() => window.print()}>
           Print or save as PDF
         </button>
       </div>
-      <div className="waiver-print__pages">
-        {docs.map((doc) => (
-          <WaiverSheet doc={doc} key={doc.id} />
-        ))}
-      </div>
+      <div className="waiver-print__pages">{children}</div>
     </section>,
     document.body,
+  )
+}
+
+/** The facility waivers, each laid out like the facility's paper form (the format the owner gets). */
+export function WaiverPrint({ docs, onClose }: { docs: AdminWaiverDoc[]; onClose: () => void }) {
+  return (
+    <PrintOverlay
+      label={docs.length === 1 ? `Facility waiver for ${docs[0].name}` : `${docs.length} facility waivers`}
+      summary={docs.length === 1 ? `Facility waiver · ${docs[0].name}` : `${docs.length} facility waivers, one per page`}
+      onClose={onClose}
+    >
+      {docs.map((doc) => (
+        <WaiverSheet doc={doc} key={doc.id} />
+      ))}
+    </PrintOverlay>
   )
 }

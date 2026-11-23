@@ -1,6 +1,7 @@
 /**
  * Postgres (Neon, added through Vercel → Storage) for the admin dashboard: paid registrations,
- * teams, contact-form leads, winter training survey responses and signed facility waivers. Stripe stays the record of payments; this is the working copy
+ * teams, contact-form leads, winter training survey responses, signed facility waivers and
+ * ElevatePro player agreements. Stripe stays the record of payments; this is the working copy
  * the league organizes teams from.
  *
  * Tables are created on first use (CREATE … IF NOT EXISTS), so there's no migration step.
@@ -132,6 +133,30 @@ const SCHEMA = [
     guardian_signature jsonb,
     esign_consent boolean NOT NULL,
     waiver_text text NOT NULL,
+    signer_ip text NOT NULL DEFAULT '',
+    user_agent text NOT NULL DEFAULT '',
+    signed_at timestamptz NOT NULL DEFAULT now()
+  )`,
+  // ElevatePro's own player agreement, signed in the same visit as a facility waiver and kept as a
+  // separate record. `signature_source` says whether the signer reused their waiver signature
+  // ('waiver-guardian' / 'waiver-participant') or signed it separately ('separate').
+  `CREATE TABLE IF NOT EXISTS player_agreements (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    waiver_id uuid UNIQUE REFERENCES waivers (id),
+    agreement_version text NOT NULL,
+    player_name text NOT NULL,
+    date_of_birth text NOT NULL,
+    player_age integer,
+    signer_role text NOT NULL,
+    signer_name text NOT NULL,
+    contact_phone text NOT NULL,
+    emergency_contact text NOT NULL,
+    emergency_phone text NOT NULL,
+    media_permission text NOT NULL DEFAULT '',
+    role_acknowledged boolean NOT NULL,
+    signature jsonb NOT NULL,
+    signature_source text NOT NULL,
+    agreement_text text NOT NULL,
     signer_ip text NOT NULL DEFAULT '',
     user_agent text NOT NULL DEFAULT '',
     signed_at timestamptz NOT NULL DEFAULT now()
@@ -290,13 +315,32 @@ export interface WaiverRecord {
   userAgent: string
 }
 
+export interface AgreementRecord {
+  version: string
+  playerName: string
+  dateOfBirth: string
+  playerAge: number | null
+  signerRole: 'guardian' | 'adult'
+  signerName: string
+  contactPhone: string
+  emergencyContact: string
+  emergencyPhone: string
+  mediaPermission: '' | 'yes' | 'no'
+  roleAcknowledged: boolean
+  signature: unknown
+  signatureSource: 'waiver-guardian' | 'waiver-participant' | 'separate'
+  /** The exact agreement wording signed. */
+  text: string
+}
+
 /**
- * Saves a signed waiver and returns its id and signing time. A repeat of the same submission
- * returns the waiver already saved.
+ * Saves a signed facility waiver and, when given, the ElevatePro agreement signed with it, in one
+ * transaction: both are saved, or neither. Returns the waiver's id and signing time. A repeat of
+ * the same submission returns what was already saved.
  */
-export async function saveWaiver(db: Db, w: WaiverRecord): Promise<{ id: string; signedAt: Date }> {
+export async function saveWaiver(db: Db, w: WaiverRecord, agreement?: AgreementRecord): Promise<{ id: string; signedAt: Date }> {
   await ensureSchema(db)
-  const params = [
+  const waiverParams = [
     w.submissionId,
     w.version,
     w.fields.name ?? '',
@@ -311,16 +355,48 @@ export async function saveWaiver(db: Db, w: WaiverRecord): Promise<{ id: string;
     w.signerIp,
     w.userAgent,
   ]
-  const [inserted] = await db.query<{ id: string; signed_at: unknown }>(
-    `INSERT INTO waivers (submission_id, waiver_version, participant_name, date_of_birth, email, phone, fields,
-       participant_signature, guardian_signature, esign_consent, waiver_text, signer_ip, user_agent)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-     ON CONFLICT (submission_id) DO NOTHING
-     RETURNING id, signed_at`,
-    params,
-  )
-  const row =
-    inserted ??
-    (await db.query<{ id: string; signed_at: unknown }>(`SELECT id, signed_at FROM waivers WHERE submission_id = $1`, [w.submissionId]))[0]
+  const statements: Array<[string, unknown[]]> = [
+    [
+      `INSERT INTO waivers (submission_id, waiver_version, participant_name, date_of_birth, email, phone, fields,
+         participant_signature, guardian_signature, esign_consent, waiver_text, signer_ip, user_agent)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+       ON CONFLICT (submission_id) DO NOTHING`,
+      waiverParams,
+    ],
+  ]
+  if (agreement) {
+    // Linked to the waiver saved just above (or on an earlier try of the same submission).
+    statements.push([
+      `INSERT INTO player_agreements (waiver_id, agreement_version, player_name, date_of_birth, player_age, signer_role,
+         signer_name, contact_phone, emergency_contact, emergency_phone, media_permission, role_acknowledged, signature,
+         signature_source, agreement_text, signer_ip, user_agent, signed_at)
+       SELECT id, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, signed_at
+       FROM waivers WHERE submission_id = $1
+       ON CONFLICT (waiver_id) DO NOTHING`,
+      [
+        w.submissionId,
+        agreement.version,
+        agreement.playerName,
+        agreement.dateOfBirth,
+        agreement.playerAge,
+        agreement.signerRole,
+        agreement.signerName,
+        agreement.contactPhone,
+        agreement.emergencyContact,
+        agreement.emergencyPhone,
+        agreement.mediaPermission,
+        agreement.roleAcknowledged,
+        JSON.stringify(agreement.signature),
+        agreement.signatureSource,
+        agreement.text,
+        w.signerIp,
+        w.userAgent,
+      ],
+    ])
+  }
+  await db.batch(statements)
+  const [row] = await db.query<{ id: string; signed_at: unknown }>(`SELECT id, signed_at FROM waivers WHERE submission_id = $1`, [
+    w.submissionId,
+  ])
   return { id: String(row.id), signedAt: new Date(row.signed_at as string | Date) }
 }

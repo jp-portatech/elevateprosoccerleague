@@ -257,3 +257,135 @@ body.has-waiver-print {
     -webkit-print-color-adjust: exact;
   }
 }
+
+/* ---------- ElevatePro's player agreement (AgreementPrint.tsx): ElevatePro's two-page form, filled in ---------- */
+
+.adoc {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 9.5pt;
+  line-height: 1.38;
+  color: #1f2a37;
+}
+
+.adoc p {
+  margin: 0 0 6pt;
+}
+
+.adoc__page--next {
+  margin-top: 28pt;
+  padding-top: 20pt;
+  border-top: 1px dashed #c3ccd6;
+}
+
+.adoc__brand {
+  display: flex;
+  align-items: center;
+  gap: 14pt;
+  margin-bottom: 8pt;
+  font-weight: 700;
+  font-size: 9pt;
+  letter-spacing: 0.04em;
+  color: #102a52;
+}
+
+.adoc__brand img {
+  width: 28pt;
+  height: 28pt;
+}
+
+.adoc__title {
+  margin: 0 0 8pt;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 20pt;
+  color: #111111;
+}
+
+.adoc .agreement-section {
+  margin-top: 10pt;
+}
+
+.adoc .agreement-section__heading {
+  margin: 0 0 4pt;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 11.5pt;
+  color: #102a52;
+}
+
+.adoc .agreement-section__callout {
+  margin: 0 0 6pt;
+  padding: 7pt 10pt;
+  background: #e9f0f8;
+  font-size: 10pt;
+  color: #102a52;
+}
+
+.adoc__note {
+  font-size: 8.5pt;
+  color: #5b6b80;
+}
+
+.adoc__mark-line {
+  display: flex;
+  gap: 6pt;
+  font-size: 8.5pt;
+}
+
+.adoc__mark {
+  flex: none;
+  width: 26pt;
+  border-bottom: 1px solid #1f2a37;
+  text-align: center;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.adoc__lines {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 12pt 0.7in;
+  margin: 12pt 0 6pt;
+}
+
+.adoc__lines--sign {
+  margin-top: 16pt;
+  break-inside: avoid;
+}
+
+.adoc__line {
+  display: grid;
+  gap: 2pt;
+}
+
+.adoc__line-value {
+  display: flex;
+  align-items: flex-end;
+  min-height: 16pt;
+  padding: 0 2pt 2pt;
+  border-bottom: 1px solid #1f2a37;
+  font-size: 10pt;
+}
+
+.adoc__lines--sign .adoc__line:nth-child(3) .adoc__line-value {
+  min-height: 46pt;
+}
+
+.adoc__line-label {
+  font-size: 8pt;
+  color: #5b6b80;
+}
+
+@media print {
+  .adoc__page--next {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+    break-before: page;
+  }
+
+  .adoc .agreement-section__callout {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

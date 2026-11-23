@@ -43,7 +43,7 @@ npm run preview   # serve the production build locally (no api/ routes)
 | Design tokens (colors, fonts, spacing, motion timings) | `src/styles/base.css` |
 | Scroll reveals (sections fading in once) | `src/motion/reveal.ts` |
 | Winter training survey at `/winter-survey` (unlisted): questions, page, server, emails | `src/winter-survey/`, `server/winterSurvey.ts`, `server/emails/winterSurveyEmails.ts` |
-| Facility waiver at `/waiver` (unlisted): wording, fields, signing page, server, emails, admin printout | `src/waiver/`, `server/waiver.ts`, `server/emails/waiverEmails.ts`, `src/admin/WaiversView.tsx`, `src/admin/WaiverPrint.tsx` |
+| Waivers at `/waiver` (unlisted): facility waiver and ElevatePro agreement — wording, fields, signing page, server, emails, admin printouts | `src/waiver/`, `server/waiver.ts`, `server/emails/waiverEmails.ts`, `src/admin/WaiversView.tsx`, `src/admin/WaiverPrint.tsx`, `src/admin/AgreementPrint.tsx` |
 
 The privacy policy describes what the site actually collects and who handles it (Stripe, Resend,
 Vercel, the Gmail inbox). If you add a form field, a service, analytics or cookies, update
@@ -267,12 +267,26 @@ a fresh survey with the parent's contact details kept.
 - **Admin:** the **Winter survey** tab lists responses (newest first) with age, team level, nights and
   sessions per week; **Details** shows every answer, and **Download CSV** exports them all.
 
-## Facility waiver (`/waiver`)
+## Waivers (`/waiver`)
 
-The USA Internacional waiver the facility requires before a player's first session, signed online:
+Two documents signed together online, one per player, before the first session:
 **https://www.elevateprosoccer.com/waiver**. Send families the link; it's **unlisted** like the
-winter survey (`noindex, nofollow`, not linked, not in the sitemap or `robots.txt`). One per player;
-**Sign a waiver for another player** keeps the family's contact details and address.
+winter survey (`noindex, nofollow`, not linked, not in the sitemap or `robots.txt`). Three steps:
+player details (asked once), the facility's waiver, then ElevatePro's player agreement.
+**Sign for another player** keeps the family's contact details, address, emergency contact and
+signer name.
+
+**ElevatePro's player agreement** (step 3, `src/waiver/agreementForm.ts`) is ElevatePro's own
+wording, word for word from `ElevatePro-Player-Participation-and-Release.pdf`. It only asks what the
+facility waiver didn't: the emergency contact (in step 1), the optional photo and video choice, the
+statement for the signer's role, and the parent's printed name. The player's name, age, contact
+phone and date come from the waiver, and it's signed with the signature already given in step 2
+(or signed separately). Online it shows only the terms for the signer's role — the parent section
+and concussion policy for under-18s, the adult release for 18 and over — and leaves out the paper
+instructions ("initial one choice", "signs on page 2"); the printed copy has everything. The two are
+saved as separate records (`waivers` and `player_agreements`) in one transaction.
+
+### The facility waiver
 
 - **Wording:** `src/waiver/waiverForm.ts` holds the facility's text word for word from their form
   (`registration_LCA.pdf`), with its bold phrases and original spelling. Don't edit it. If the
@@ -286,10 +300,12 @@ winter survey (`noindex, nofollow`, not linked, not in the sitemap or `robots.tx
   exact wording, the signatures, the signing time, and the signer's IP address and browser as the
   e-signature record. Saving must work, or the parent is told to try again. The league inbox gets a
   short "Waiver signed" email, and the email on the form gets a copy of the full wording signed.
-- **Admin → Waivers:** every signed waiver, newest first. **View / print** shows it laid out like
-  the facility's paper form, filled in and signed, with an e-signature line at the bottom; use
-  **Print or save as PDF** to print it or keep a PDF. **Print all** puts every waiver in one print
-  job, each starting on a new page. **Download CSV** lists the details.
+- **Admin → Waivers:** every player, newest first, with emergency contact and photo permission,
+  and two separate documents. **Print for facility** shows the facility waiver laid out like the
+  facility's paper form, filled in and signed, to give the owner. **View / print** under ElevatePro
+  agreement shows ElevatePro's two-page form, filled in, for your records. Both have an e-signature
+  line at the bottom; use **Print or save as PDF**. **Print all facility waivers** and **Print all
+  ElevatePro agreements** print each kind separately. **Download CSV** lists the details.
 
 ## Motion
 

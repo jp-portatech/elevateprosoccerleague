@@ -19,6 +19,8 @@ import {
   type AdminRegistration,
   type AdminSurveyResponse,
   type AdminTeam,
+  type AdminAgreementDoc,
+  type AdminAgreementSummary,
   type AdminWaiver,
   type AdminWaiverDoc,
 } from '../src/admin/model.js'
@@ -93,9 +95,22 @@ const text = (value: unknown) => (typeof value === 'string' ? value : '')
 const parseFields = (value: unknown): Record<string, string> =>
   typeof value === 'string' ? JSON.parse(value) : ((value ?? {}) as Record<string, string>)
 
-const WAIVER_LIST_COLUMNS =
-  'id, signed_at, waiver_version, participant_name, date_of_birth, email, phone, fields, guardian_signature IS NOT NULL AS guardian_signed'
+// Each waiver with the ElevatePro agreement signed alongside it (if any), without signature images.
+const WAIVER_LIST_QUERY = `SELECT w.id, w.signed_at, w.waiver_version, w.participant_name, w.date_of_birth, w.email, w.phone,
+    w.fields, w.guardian_signature IS NOT NULL AS guardian_signed,
+    a.id AS agreement_id, a.signer_role, a.signer_name, a.emergency_contact, a.emergency_phone, a.media_permission
+  FROM waivers w LEFT JOIN player_agreements a ON a.waiver_id = w.id
+  ORDER BY w.signed_at DESC`
 const parseJson = (value: unknown) => (typeof value === 'string' ? JSON.parse(value) : value)
+
+const agreementSummary = (a: Row, id: unknown): AdminAgreementSummary => ({
+  id: text(id),
+  signerRole: a.signer_role === 'adult' ? 'adult' : 'guardian',
+  signerName: text(a.signer_name),
+  emergencyContact: text(a.emergency_contact),
+  emergencyPhone: text(a.emergency_phone),
+  mediaPermission: a.media_permission === 'yes' || a.media_permission === 'no' ? a.media_permission : '',
+})
 
 const waiverListItem = (w: Row): AdminWaiver => ({
   id: text(w.id),
@@ -107,7 +122,31 @@ const waiverListItem = (w: Row): AdminWaiver => ({
   phone: text(w.phone),
   fields: cleanWaiverFields(parseJson(w.fields)),
   guardianSigned: Boolean(w.guardian_signed),
+  agreement: w.agreement_id ? agreementSummary(w, w.agreement_id) : null,
 })
+
+/** ElevatePro agreements with signatures and audit details, for printing, by waiver id (all when empty). */
+async function agreementDocs(db: Db, waiverIds: string[]): Promise<AdminAgreementDoc[]> {
+  const rows = waiverIds.length
+    ? await db.query(`SELECT * FROM player_agreements WHERE waiver_id = ANY($1::uuid[]) ORDER BY signed_at DESC`, [waiverIds])
+    : await db.query(`SELECT * FROM player_agreements ORDER BY signed_at DESC LIMIT 500`)
+  return rows.map((a) => ({
+    ...agreementSummary(a, a.id),
+    waiverId: text(a.waiver_id),
+    version: text(a.agreement_version),
+    signedAt: iso(a.signed_at) ?? '',
+    playerName: text(a.player_name),
+    dob: text(a.date_of_birth),
+    playerAge: a.player_age === null || a.player_age === undefined ? null : Number(a.player_age),
+    contactPhone: text(a.contact_phone),
+    roleAcknowledged: Boolean(a.role_acknowledged),
+    signature: cleanSignature(parseJson(a.signature)) ?? { kind: 'typed', name: '' },
+    signatureSource: text(a.signature_source),
+    agreementText: text(a.agreement_text),
+    signerIp: text(a.signer_ip),
+    userAgent: text(a.user_agent),
+  }))
+}
 
 /** Waivers with their signatures and audit details, for printing. All of them when `ids` is empty. */
 async function waiverDocs(db: Db, ids: string[]): Promise<AdminWaiverDoc[]> {
@@ -132,7 +171,7 @@ async function loadData(db: Db): Promise<AdminData> {
     db.query(`SELECT * FROM leads ORDER BY created_at DESC`),
     db.query(`SELECT * FROM winter_survey_responses ORDER BY created_at DESC`),
     // Without the signature images, which are only fetched for printing.
-    db.query(`SELECT ${WAIVER_LIST_COLUMNS} FROM waivers ORDER BY signed_at DESC`),
+    db.query(WAIVER_LIST_QUERY),
   ])
   return {
     registrations: registrations.map(
@@ -438,6 +477,11 @@ export async function handleAdmin(request: Request, env: AdminEnv): Promise<Resp
       case 'waiverDocs': {
         const ids = Array.isArray(body.ids) ? body.ids.filter((id): id is string => typeof id === 'string' && UUID.test(id)) : []
         return json({ waivers: await waiverDocs(db, ids) })
+      }
+
+      case 'agreementDocs': {
+        const ids = Array.isArray(body.waiverIds) ? body.waiverIds.filter((id): id is string => typeof id === 'string' && UUID.test(id)) : []
+        return json({ agreements: await agreementDocs(db, ids) })
       }
 
       default:

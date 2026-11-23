@@ -211,3 +211,126 @@ ol.waiver-terms__list {
 .waiver-consent {
   margin-top: 1.75rem;
 }
+
+/* ---------- step 1: emergency contact ---------- */
+
+.waiver-subheading {
+  margin-top: 2rem;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: 0.04em;
+  color: var(--navy);
+}
+
+.waiver-subheading__note {
+  margin-bottom: 1rem;
+}
+
+/* ---------- step 3: ElevatePro's agreement ---------- */
+
+.agreement-terms + .agreement-media,
+.agreement-media + .agreement-terms,
+.agreement-terms + .agreement-sign {
+  margin-top: 1.5rem;
+}
+
+.agreement-terms__brand {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  color: var(--steel);
+}
+
+.agreement-terms__for {
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.agreement-terms__page {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4a5a70;
+}
+
+.agreement-section {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.agreement-section__heading {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+  color: var(--navy);
+}
+
+.agreement-section__callout {
+  padding: 0.75rem 0.9rem;
+  background: var(--pale);
+}
+
+.agreement-sign {
+  display: grid;
+  gap: 1rem;
+}
+
+.agreement-sign__phone {
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.agreement-reuse {
+  display: grid;
+  align-content: start;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.agreement-reuse:focus {
+  outline: none;
+}
+
+.agreement-reuse:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 4px;
+}
+
+.agreement-reuse__box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 7rem;
+  padding: 0.5rem 1rem;
+  border: 2px dashed #9aaac0;
+  border-radius: var(--radius);
+  background: var(--white);
+}
+
+.agreement-reuse__box--empty {
+  justify-content: flex-start;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.agreement-reuse--error .agreement-reuse__box {
+  border-color: var(--error);
+  border-left: 5px solid var(--error);
+}
+
+.agreement-reuse__image {
+  max-width: 100%;
+  max-height: 6rem;
+}
+
+.agreement-reuse__typed {
+  font-family: 'Segoe Script', 'Snell Roundhand', 'Brush Script MT', cursive;
+  font-size: 1.6rem;
+  color: #0b1b33;
+}
+

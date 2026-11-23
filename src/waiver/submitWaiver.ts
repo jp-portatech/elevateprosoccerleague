@@ -1,9 +1,10 @@
-/** Browser side of the facility waiver: POSTs to /api/waiver (server/waiver.ts). */
+/** Browser side of the waiver page: POSTs the facility waiver and ElevatePro's agreement to /api/waiver (server/waiver.ts). */
 import type { FormErrors, FormValues } from '../registration/forms'
+import type { AgreementInput } from './agreementForm'
 import type { Signatures } from './waiverForm'
 
 export type WaiverResult =
-  /** `confirmed`: the copy of the signed waiver was emailed to the address on the form. */
+  /** `confirmed`: the copy of both signed documents was emailed to the address on the form. */
   | { status: 'sent'; confirmed: boolean }
   | { status: 'invalid'; errors: FormErrors }
   | { status: 'error'; reason: 'network' | 'send' | 'too-fast' }
@@ -11,6 +12,7 @@ export type WaiverResult =
 export async function submitWaiver(
   values: FormValues,
   signatures: Signatures,
+  agreement: AgreementInput,
   consent: boolean,
   meta: { submissionId: string; elapsedMs: number; trap: string },
 ): Promise<WaiverResult> {
@@ -22,6 +24,7 @@ export async function submitWaiver(
       body: JSON.stringify({
         fields: values,
         signatures,
+        agreement,
         consent,
         submissionId: meta.submissionId,
         elapsedMs: meta.elapsedMs,

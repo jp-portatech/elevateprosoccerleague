@@ -2,6 +2,7 @@
 // server/admin.ts, so imports use `.js` extensions and nothing here may touch React or the DOM.
 import type { Locale } from '../i18n/locale.js'
 import { formFields } from '../registration/forms.js'
+import type { MediaPermission, SignerRole } from '../waiver/agreementForm.js'
 import type { Signature } from '../waiver/waiverForm.js'
 import type { SurveyValues } from '../winter-survey/surveyForm.js'
 
@@ -100,6 +101,38 @@ export interface AdminWaiver {
   /** Every answer on the form, by field name. */
   fields: Record<string, string>
   guardianSigned: boolean
+  /** ElevatePro's agreement signed with it; null for waivers signed before the agreement was added. */
+  agreement: AdminAgreementSummary | null
+}
+
+/** The ElevatePro agreement's answers, as listed with its waiver. */
+export interface AdminAgreementSummary {
+  id: string
+  signerRole: SignerRole
+  signerName: string
+  emergencyContact: string
+  emergencyPhone: string
+  /** Blank means no permission. */
+  mediaPermission: MediaPermission
+}
+
+/** An ElevatePro agreement with everything needed to print it. Fetched on demand (action "agreementDocs"). */
+export interface AdminAgreementDoc extends AdminAgreementSummary {
+  waiverId: string
+  version: string
+  signedAt: string
+  playerName: string
+  /** YYYY-MM-DD */
+  dob: string
+  playerAge: number | null
+  contactPhone: string
+  roleAcknowledged: boolean
+  signature: Signature
+  signatureSource: string
+  /** The exact wording signed, as plain text. */
+  agreementText: string
+  signerIp: string
+  userAgent: string
 }
 
 /** A waiver with everything needed to print it. Fetched one at a time (action "waiverDocs"). */

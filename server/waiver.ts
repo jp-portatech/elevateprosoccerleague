@@ -1,13 +1,15 @@
 /**
- * POST /api/waiver — the unlisted facility waiver (/waiver), signed online by a parent, one per
- * player. Same pattern as /api/winter-survey:
+ * POST /api/waiver — the unlisted waiver page (/waiver), signed online by a parent, one per player:
+ * the facility's waiver and ElevatePro's player agreement in one submission. Same pattern as
+ * /api/winter-survey:
  *
- *  1. Validates the form and signatures with the same rules the browser uses (src/waiver/waiverForm.ts).
- *  2. Saves the signed waiver to the database (table waivers) with the exact wording signed, the
- *     signing time, and the signer's IP address and browser as a record of the e-signature. This
- *     step must work: the admin dashboard is where waivers are printed from, so if saving fails the
- *     parent is told and can try again.
- *  3. Emails the league inbox, and sends the address on the form a copy of what they signed.
+ *  1. Validates both with the same rules the browser uses (src/waiver/waiverForm.ts and
+ *     agreementForm.ts).
+ *  2. Saves them as two separate records (tables waivers and player_agreements) in one
+ *     transaction, each with the exact wording signed, the signing time, and the signer's IP address
+ *     and browser as a record of the e-signature. This step must work: the admin dashboard is where
+ *     they're printed from, so if saving fails the parent is told and can try again.
+ *  3. Emails the league inbox, and sends the address on the form a copy of both documents.
  *     Failures here are logged, not shown.
  *
  * Spam: the same hidden "leave_this_empty" field, minimum fill time and one-time submission id as
@@ -15,9 +17,18 @@
  *
  * Needs DATABASE_URL; RESEND_API_KEY for the emails.
  */
+import { ageOn } from '../src/admin/model.js'
 import { league } from '../src/config/league.js'
+import {
+  agreementPlainText,
+  agreementSignature,
+  cleanAgreement,
+  CURRENT_AGREEMENT,
+  signerRole,
+  validateAgreement,
+} from '../src/waiver/agreementForm.js'
 import { cleanSignature, cleanWaiverFields, CURRENT_WAIVER, validateWaiver, waiverPlainText, type Signature } from '../src/waiver/waiverForm.js'
-import { getDb, saveWaiver, type DbEnv } from './db.js'
+import { getDb, saveWaiver, type AgreementRecord, type DbEnv } from './db.js'
 import { sendEmail } from './email.js'
 import { buildWaiverCopy, buildWaiverNotification, type SignedWaiver } from './emails/waiverEmails.js'
 
@@ -56,8 +67,28 @@ export async function handleWaiver(request: Request, env: WaiverEnv): Promise<Re
   const raw = body.signatures && typeof body.signatures === 'object' ? (body.signatures as Record<string, unknown>) : {}
   const signatures = { participant: cleanSignature(raw.participant), guardian: cleanSignature(raw.guardian) }
   const consent = body.consent === true
-  const errors = validateWaiver(fields, signatures, consent)
+  const agreementInput = cleanAgreement(body.agreement)
+  const errors = { ...validateWaiver(fields, signatures, consent), ...validateAgreement(fields, signatures, agreementInput) }
   if (Object.keys(errors).length > 0) return json({ error: 'invalid-fields', fields: errors }, 400)
+
+  const role = signerRole(fields.dob)
+  const agreement: AgreementRecord = {
+    version: CURRENT_AGREEMENT,
+    playerName: fields.name,
+    dateOfBirth: fields.dob,
+    playerAge: ageOn(fields.dob),
+    signerRole: role,
+    // Adult players sign for themselves; a parent or guardian gives their own name.
+    signerName: role === 'adult' ? fields.name : agreementInput.signerName,
+    contactPhone: fields.eveningPhone,
+    emergencyContact: agreementInput.emergencyContact,
+    emergencyPhone: agreementInput.emergencyPhone,
+    mediaPermission: agreementInput.mediaPermission,
+    roleAcknowledged: agreementInput.roleAcknowledged,
+    signature: agreementSignature(role, signatures, agreementInput) as Signature,
+    signatureSource: agreementInput.reuseSignature ? (role === 'guardian' ? 'waiver-guardian' : 'waiver-participant') : 'separate',
+    text: agreementPlainText(CURRENT_AGREEMENT),
+  }
 
   const db = getDb(env)
   if (!db) return json({ error: 'not-configured' }, 503)
@@ -66,17 +97,21 @@ export async function handleWaiver(request: Request, env: WaiverEnv): Promise<Re
     typeof body.submissionId === 'string' && SUBMISSION_ID.test(body.submissionId) ? body.submissionId : crypto.randomUUID()
   let saved: { id: string; signedAt: Date }
   try {
-    saved = await saveWaiver(db, {
-      submissionId,
-      version: CURRENT_WAIVER,
-      fields,
-      participantSignature: signatures.participant,
-      guardianSignature: signatures.guardian,
-      esignConsent: consent,
-      text: waiverPlainText(CURRENT_WAIVER),
-      signerIp: clientIp(request),
-      userAgent: (request.headers.get('user-agent') ?? '').slice(0, 300),
-    })
+    saved = await saveWaiver(
+      db,
+      {
+        submissionId,
+        version: CURRENT_WAIVER,
+        fields,
+        participantSignature: signatures.participant,
+        guardianSignature: signatures.guardian,
+        esignConsent: consent,
+        text: waiverPlainText(CURRENT_WAIVER),
+        signerIp: clientIp(request),
+        userAgent: (request.headers.get('user-agent') ?? '').slice(0, 300),
+      },
+      agreement,
+    )
   } catch (error) {
     console.error('Saving the waiver to the database failed:', error)
     return json({ error: 'send-failed' }, 500)
@@ -91,6 +126,7 @@ export async function handleWaiver(request: Request, env: WaiverEnv): Promise<Re
       participantSignature: signatures.participant as Signature,
       guardianSignature: signatures.guardian,
       signedAt: saved.signedAt,
+      agreement,
     }
     const [notified, copy] = await Promise.allSettled([
       league.email.notify.length

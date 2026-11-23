@@ -177,7 +177,7 @@ export function cleanSignature(raw: unknown): Signature | null {
   return null
 }
 
-function signatureProblem(sig: Signature): string | null {
+export function signatureProblem(sig: Signature): string | null {
   if (sig.kind === 'typed') return sig.name.length >= 2 && sig.name.length <= 100 ? null : 'Type your full name to sign.'
   return /^data:image\/png;base64,[A-Za-z0-9+/]+=*$/.test(sig.image) && sig.image.length <= MAX_IMAGE_CHARS
     ? null
