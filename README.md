@@ -43,6 +43,7 @@ npm run preview   # serve the production build locally (no api/ routes)
 | Design tokens (colors, fonts, spacing, motion timings) | `src/styles/base.css` |
 | Scroll reveals (sections fading in once) | `src/motion/reveal.ts` |
 | Winter training survey at `/winter-survey` (unlisted): questions, page, server, emails | `src/winter-survey/`, `server/winterSurvey.ts`, `server/emails/winterSurveyEmails.ts` |
+| Facility waiver at `/waiver` (unlisted): wording, fields, signing page, server, emails, admin printout | `src/waiver/`, `server/waiver.ts`, `server/emails/waiverEmails.ts`, `src/admin/WaiversView.tsx`, `src/admin/WaiverPrint.tsx` |
 
 The privacy policy describes what the site actually collects and who handles it (Stripe, Resend,
 Vercel, the Gmail inbox). If you add a form field, a service, analytics or cookies, update
@@ -265,6 +266,30 @@ a fresh survey with the parent's contact details kept.
   added to the Resend contact list. Same spam protection as the contact form.
 - **Admin:** the **Winter survey** tab lists responses (newest first) with age, team level, nights and
   sessions per week; **Details** shows every answer, and **Download CSV** exports them all.
+
+## Facility waiver (`/waiver`)
+
+The USA Internacional waiver the facility requires before a player's first session, signed online:
+**https://www.elevateprosoccer.com/waiver**. Send families the link; it's **unlisted** like the
+winter survey (`noindex, nofollow`, not linked, not in the sitemap or `robots.txt`). One per player;
+**Sign a waiver for another player** keeps the family's contact details and address.
+
+- **Wording:** `src/waiver/waiverForm.ts` holds the facility's text word for word from their form
+  (`registration_LCA.pdf`), with its bold phrases and original spelling. Don't edit it. If the
+  facility sends a new version, add it under a new key in `WAIVERS` and point `CURRENT_WAIVER` at
+  it; every signed waiver keeps the wording it was signed with.
+- **Signing:** the parent fills in the form's fields, then signs on the **Signature** and
+  **Parent/Guardian Signature** lines by drawing with a finger or mouse, or by typing their name.
+  The parent/guardian signature is required while the participant is under 18. The date fills in
+  itself, and the parent ticks a box agreeing to sign electronically.
+- **Where it goes** (`POST /api/waiver`, `server/waiver.ts`): saved to the `waivers` table with the
+  exact wording, the signatures, the signing time, and the signer's IP address and browser as the
+  e-signature record. Saving must work, or the parent is told to try again. The league inbox gets a
+  short "Waiver signed" email, and the email on the form gets a copy of the full wording signed.
+- **Admin → Waivers:** every signed waiver, newest first. **View / print** shows it laid out like
+  the facility's paper form, filled in and signed, with an e-signature line at the bottom; use
+  **Print or save as PDF** to print it or keep a PDF. **Print all** puts every waiver in one print
+  job, each starting on a new page. **Download CSV** lists the details.
 
 ## Motion
 

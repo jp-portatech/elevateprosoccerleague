@@ -1,6 +1,6 @@
 /**
  * Postgres (Neon, added through Vercel → Storage) for the admin dashboard: paid registrations,
- * teams, contact-form leads and winter training survey responses. Stripe stays the record of payments; this is the working copy
+ * teams, contact-form leads, winter training survey responses and signed facility waivers. Stripe stays the record of payments; this is the working copy
  * the league organizes teams from.
  *
  * Tables are created on first use (CREATE … IF NOT EXISTS), so there's no migration step.
@@ -115,6 +115,26 @@ const SCHEMA = [
     date_of_birth text NOT NULL,
     answers jsonb NOT NULL,
     created_at timestamptz NOT NULL DEFAULT now()
+  )`,
+  // Facility waivers signed online (/waiver). `fields` holds the form's answers; signatures are
+  // { kind: 'drawn', image: PNG data URL } or { kind: 'typed', name }. `waiver_text` is the exact
+  // wording signed, and the IP address and browser are kept as a record of the e-signature.
+  `CREATE TABLE IF NOT EXISTS waivers (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    submission_id text UNIQUE,
+    waiver_version text NOT NULL,
+    participant_name text NOT NULL,
+    date_of_birth text NOT NULL,
+    email text NOT NULL,
+    phone text NOT NULL,
+    fields jsonb NOT NULL,
+    participant_signature jsonb NOT NULL,
+    guardian_signature jsonb,
+    esign_consent boolean NOT NULL,
+    waiver_text text NOT NULL,
+    signer_ip text NOT NULL DEFAULT '',
+    user_agent text NOT NULL DEFAULT '',
+    signed_at timestamptz NOT NULL DEFAULT now()
   )`,
   `CREATE INDEX IF NOT EXISTS registrations_division ON registrations (division, kind)`,
   `CREATE INDEX IF NOT EXISTS admin_login_failures_ip ON admin_login_failures (ip, at)`,
@@ -254,4 +274,53 @@ export async function saveWinterSurveyResponse(db: Db, response: WinterSurveyRec
       JSON.stringify(a),
     ],
   )
+}
+
+export interface WaiverRecord {
+  submissionId: string
+  version: string
+  /** The form's answers, already cleaned and validated (src/waiver/waiverForm.ts). */
+  fields: Record<string, string>
+  participantSignature: unknown
+  guardianSignature: unknown | null
+  esignConsent: boolean
+  /** The exact waiver wording signed. */
+  text: string
+  signerIp: string
+  userAgent: string
+}
+
+/**
+ * Saves a signed waiver and returns its id and signing time. A repeat of the same submission
+ * returns the waiver already saved.
+ */
+export async function saveWaiver(db: Db, w: WaiverRecord): Promise<{ id: string; signedAt: Date }> {
+  await ensureSchema(db)
+  const params = [
+    w.submissionId,
+    w.version,
+    w.fields.name ?? '',
+    w.fields.dob ?? '',
+    w.fields.email ?? '',
+    w.fields.eveningPhone ?? '',
+    JSON.stringify(w.fields),
+    JSON.stringify(w.participantSignature),
+    w.guardianSignature ? JSON.stringify(w.guardianSignature) : null,
+    w.esignConsent,
+    w.text,
+    w.signerIp,
+    w.userAgent,
+  ]
+  const [inserted] = await db.query<{ id: string; signed_at: unknown }>(
+    `INSERT INTO waivers (submission_id, waiver_version, participant_name, date_of_birth, email, phone, fields,
+       participant_signature, guardian_signature, esign_consent, waiver_text, signer_ip, user_agent)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+     ON CONFLICT (submission_id) DO NOTHING
+     RETURNING id, signed_at`,
+    params,
+  )
+  const row =
+    inserted ??
+    (await db.query<{ id: string; signed_at: unknown }>(`SELECT id, signed_at FROM waivers WHERE submission_id = $1`, [w.submissionId]))[0]
+  return { id: String(row.id), signedAt: new Date(row.signed_at as string | Date) }
 }

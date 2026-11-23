@@ -2,6 +2,7 @@
 // server/admin.ts, so imports use `.js` extensions and nothing here may touch React or the DOM.
 import type { Locale } from '../i18n/locale.js'
 import { formFields } from '../registration/forms.js'
+import type { Signature } from '../waiver/waiverForm.js'
 import type { SurveyValues } from '../winter-survey/surveyForm.js'
 
 export interface AdminRegistration {
@@ -85,12 +86,41 @@ export interface AdminSurveyResponse {
   answers: SurveyValues
 }
 
+/** A facility waiver signed online (/waiver), as listed in the dashboard (no signature images). */
+export interface AdminWaiver {
+  id: string
+  signedAt: string
+  /** Which wording was signed (a key of WAIVERS in src/waiver/waiverForm.ts). */
+  version: string
+  name: string
+  /** YYYY-MM-DD */
+  dob: string
+  email: string
+  phone: string
+  /** Every answer on the form, by field name. */
+  fields: Record<string, string>
+  guardianSigned: boolean
+}
+
+/** A waiver with everything needed to print it. Fetched one at a time (action "waiverDocs"). */
+export interface AdminWaiverDoc extends AdminWaiver {
+  participantSignature: Signature
+  guardianSignature: Signature | null
+  /** The exact wording signed, as plain text. */
+  waiverText: string
+  esignConsent: boolean
+  signerIp: string
+  userAgent: string
+}
+
 export interface AdminData {
   registrations: AdminRegistration[]
   teams: AdminTeam[]
   leads: AdminLead[]
   /** Winter training survey responses, newest first. */
   surveys: AdminSurveyResponse[]
+  /** Signed facility waivers, newest first. */
+  waivers: AdminWaiver[]
 }
 
 export const LEAD_STATUSES: Array<{ value: LeadStatus; label: string }> = [

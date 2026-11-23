@@ -1,0 +1,213 @@
+/* Facility waiver (/waiver). The page frame comes from the winter survey's stylesheet and the
+   fields from src/registration/registration.css; this file adds the waiver's own parts. */
+
+/* ---------- participant details: laid out like the paper form on wider screens ---------- */
+
+.waiver-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .waiver-fields {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    column-gap: 1rem;
+    align-items: end;
+  }
+
+  .waiver-fields__item--2 {
+    grid-column: span 2;
+  }
+
+  .waiver-fields__item--3 {
+    grid-column: span 3;
+  }
+
+  .waiver-fields__item--4 {
+    grid-column: span 4;
+  }
+
+  .waiver-fields__item--6 {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ---------- the facility's text ---------- */
+
+.waiver-terms {
+  display: grid;
+  gap: 0.85rem;
+  padding: clamp(1.1rem, 0.8rem + 1.5vw, 1.6rem);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--navy);
+  background: #fbfdff;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.waiver-terms + .waiver-sign,
+.waiver-sign + .waiver-terms {
+  margin-top: 1.5rem;
+}
+
+.waiver-terms__title {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: 0.06em;
+  color: var(--navy);
+}
+
+.waiver-terms strong {
+  color: var(--navy);
+}
+
+/* Numbered 1–4, as on the facility's form (the site's base styles turn list markers off) */
+ol.waiver-terms__list {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding-left: 1.4rem;
+  list-style: decimal;
+}
+
+/* ---------- signatures ---------- */
+
+.waiver-sign {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .waiver-sign {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.signature {
+  display: block;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* A floated legend lays out like the label of the other fields */
+.signature > legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+}
+
+.signature > :not(legend) {
+  clear: both;
+}
+
+.signature > * + * {
+  margin-top: 0.3rem;
+}
+
+.signature:focus {
+  outline: none;
+}
+
+.signature:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 4px;
+}
+
+.signature__pad {
+  position: relative;
+  margin-top: 0.2rem;
+}
+
+.signature__canvas {
+  display: block;
+  width: 100%;
+  height: 170px;
+  border: 2px solid #7f95b2;
+  border-radius: var(--radius);
+  background: var(--white);
+  cursor: crosshair;
+  /* Drawing mustn't scroll or zoom the page */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.signature--error .signature__canvas,
+.signature--error .signature__typed {
+  border-color: var(--error);
+  border-left-width: 5px;
+}
+
+.signature__placeholder {
+  position: absolute;
+  left: 1rem;
+  bottom: 2.1rem;
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  color: #9aaac0;
+  pointer-events: none;
+}
+
+/* The line you sign on, as on the paper form */
+.signature__line {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1.75rem;
+  height: 1px;
+  background: #9aaac0;
+  pointer-events: none;
+}
+
+.signature__typed {
+  font-family: 'Segoe Script', 'Snell Roundhand', 'Brush Script MT', cursive;
+  font-size: 1.6rem;
+}
+
+.signature__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin-top: 0.15rem;
+}
+
+.signature__action {
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  color: var(--steel);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.signature__action:disabled {
+  color: #9aaac0;
+  text-decoration: none;
+  cursor: default;
+}
+
+.waiver-date__value {
+  min-height: 3rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid #9aaac0;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.waiver-consent {
+  margin-top: 1.75rem;
+}

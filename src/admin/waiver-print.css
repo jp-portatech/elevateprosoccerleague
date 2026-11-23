@@ -1,0 +1,259 @@
+/* Print view of signed waivers (WaiverPrint.tsx): a copy of the facility's paper form, filled in. */
+
+body.has-waiver-print {
+  overflow: hidden;
+}
+
+.waiver-print {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow: auto;
+  background: #e6ebf1;
+}
+
+.waiver-print__toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem var(--gutter);
+  background: var(--navy);
+  color: var(--white);
+}
+
+.waiver-print__toolbar p {
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.waiver-print__toolbar .admin-btn--ghost {
+  border-color: var(--white);
+  color: var(--white);
+}
+
+.waiver-print__pages {
+  display: grid;
+  justify-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem 0.75rem 3rem;
+}
+
+/* ---------- the sheet ---------- */
+
+.wdoc {
+  width: min(8.5in, 100%);
+  padding: clamp(0.35in, 5vw, 0.6in);
+  background: #ffffff;
+  box-shadow: 0 6px 24px rgb(0 20 50 / 0.15);
+  font-family: 'DejaVu Sans', Verdana, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 9pt;
+  line-height: 1.4;
+  color: #222222;
+}
+
+.wdoc__title {
+  margin: 0 0 14pt;
+  font-family: inherit;
+  font-weight: 300;
+  font-size: 21pt;
+  letter-spacing: 0.01em;
+  color: #222222;
+}
+
+.wdoc__title--second {
+  margin-top: 24pt;
+}
+
+.wdoc__boxes {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 8pt 10pt;
+}
+
+.wdoc__box {
+  display: grid;
+  gap: 2pt;
+}
+
+.wdoc__box-label {
+  font-size: 7.5pt;
+  color: #444444;
+}
+
+.wdoc__box-value {
+  min-height: 18pt;
+  padding: 3pt 5pt;
+  border: 1px solid #333333;
+  background: #fafafa;
+  font-size: 9.5pt;
+  overflow-wrap: anywhere;
+}
+
+.wdoc__terms p,
+.wdoc__terms ol {
+  margin: 0 0 6pt;
+}
+
+/* Numbered 1–4, as on the facility's form (the site's base styles turn list markers off) */
+.wdoc__terms ol {
+  padding-left: 22pt;
+  list-style: decimal;
+}
+
+.wdoc__terms strong {
+  font-weight: 700;
+}
+
+.wdoc__terms .waiver-terms__ack {
+  margin-top: 12pt;
+}
+
+.wdoc__plain {
+  font-family: inherit;
+  white-space: pre-wrap;
+}
+
+.wdoc__sign {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.6fr);
+  gap: 0 0.8in;
+  margin: 26pt 0 14pt;
+  break-inside: avoid;
+}
+
+.wdoc__sign-cell {
+  display: grid;
+  gap: 2pt;
+  text-align: center;
+  font-size: 7.5pt;
+}
+
+.wdoc__sign-line {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 46pt;
+  padding-bottom: 2pt;
+  border-bottom: 1px solid #222222;
+  font-size: 10pt;
+}
+
+.wdoc__sig-img {
+  max-width: 100%;
+  max-height: 46pt;
+}
+
+.wdoc__sig-typed {
+  font-family: 'Segoe Script', 'Snell Roundhand', 'Brush Script MT', cursive;
+  font-size: 18pt;
+  line-height: 1.1;
+}
+
+.wdoc__sig-typed small {
+  font-family: 'DejaVu Sans', Verdana, Arial, sans-serif;
+  font-size: 7pt;
+}
+
+.wdoc__office {
+  margin-top: 16pt;
+  font-size: 9.5pt;
+  break-inside: avoid;
+}
+
+.wdoc__office-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.6fr);
+  gap: 6pt 0.8in;
+  margin-top: 12pt;
+}
+
+.wdoc__office-cell {
+  display: grid;
+  gap: 2pt;
+  text-align: center;
+  font-size: 7.5pt;
+}
+
+.wdoc__office-cell--wide {
+  grid-column: 1;
+}
+
+.wdoc__office-cell:last-child {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.wdoc__office-box {
+  height: 24pt;
+  border-bottom: 1px solid #222222;
+  background: #d6d6d6;
+}
+
+.wdoc__audit {
+  margin-top: 18pt;
+  padding-top: 6pt;
+  border-top: 1px solid #cccccc;
+  font-size: 6.5pt;
+  line-height: 1.4;
+  color: #555555;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- printing: only the sheets, one waiver per page set ---------- */
+
+@media print {
+  @page {
+    size: letter;
+    margin: 0.5in;
+  }
+
+  body.has-waiver-print > *:not(.waiver-print) {
+    display: none !important;
+  }
+
+  body.has-waiver-print {
+    overflow: visible;
+    background: #ffffff;
+  }
+
+  .waiver-print {
+    position: static;
+    overflow: visible;
+    background: none;
+  }
+
+  .waiver-print__toolbar {
+    display: none;
+  }
+
+  .waiver-print__pages {
+    display: block;
+    padding: 0;
+  }
+
+  .wdoc {
+    width: auto;
+    padding: 0;
+    box-shadow: none;
+    break-after: page;
+  }
+
+  .wdoc:last-child {
+    break-after: auto;
+  }
+
+  .wdoc__box-value {
+    background: none;
+  }
+
+  .wdoc__office-box {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

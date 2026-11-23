@@ -15,6 +15,7 @@ function vercelApiDev(): Plugin {
     '/stripe-webhook': '/api/stripe-webhook.ts',
     '/contact': '/api/contact.ts',
     '/winter-survey': '/api/winter-survey.ts',
+    '/waiver': '/api/waiver.ts',
     '/admin': '/api/admin.ts',
   }
   const readBody = async (req: IncomingMessage) => {
@@ -69,9 +70,9 @@ export default defineConfig(({ mode, isSsrBuild }) => {
       // The homepage and privacy policy in English (/, /privacy) and Spanish (/es, /es/privacy),
       // the admin dashboard (/admin), and the advertising landing pages in both languages
       // (/join-as-a-player, /register-a-team, /es/join-as-a-player, /es/register-a-team), and the
-      // unlisted winter training survey (/winter-survey). Served without .html via cleanUrls in
-      // vercel.json. The second, server-side build (`vite build --ssr src/prerender.tsx`) uses its
-      // own entry instead; see package.json.
+      // unlisted winter training survey (/winter-survey) and facility waiver (/waiver). Served
+      // without .html via cleanUrls in vercel.json. The second, server-side build
+      // (`vite build --ssr src/prerender.tsx`) uses its own entry instead; see package.json.
       rolldownOptions: isSsrBuild
         ? {}
         : {
@@ -86,6 +87,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
               esJoinAsAPlayer: 'es/join-as-a-player.html',
               esRegisterATeam: 'es/register-a-team.html',
               winterSurvey: 'winter-survey.html',
+              waiver: 'waiver.html',
             },
           },
     },

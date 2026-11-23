@@ -8,6 +8,7 @@ import { Overview } from './Overview'
 import { PlayersView } from './PlayersView'
 import { TeamBuilder } from './TeamBuilder'
 import { TeamsView } from './TeamsView'
+import { WaiversView } from './WaiversView'
 import { WinterSurveyView } from './WinterSurveyView'
 import './admin.css'
 
@@ -18,6 +19,7 @@ const TABS = [
   { id: 'builder', label: 'Team builder' },
   { id: 'leads', label: 'Leads' },
   { id: 'survey', label: 'Winter survey' },
+  { id: 'waivers', label: 'Waivers' },
 ] as const
 type TabId = (typeof TABS)[number]['id']
 
@@ -157,6 +159,7 @@ export function AdminApp() {
         {visible && tab === 'builder' && <TeamBuilder data={visible} act={act} busy={busy} />}
         {visible && tab === 'leads' && <LeadsView data={visible} act={act} busy={busy} />}
         {visible && tab === 'survey' && <WinterSurveyView data={visible} />}
+        {visible && tab === 'waivers' && <WaiversView data={visible} />}
       </main>
     </div>
   )

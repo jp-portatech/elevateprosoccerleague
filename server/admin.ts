@@ -19,7 +19,10 @@ import {
   type AdminRegistration,
   type AdminSurveyResponse,
   type AdminTeam,
+  type AdminWaiver,
+  type AdminWaiverDoc,
 } from '../src/admin/model.js'
+import { cleanSignature, cleanWaiverFields } from '../src/waiver/waiverForm.js'
 import { cleanSurvey } from '../src/winter-survey/surveyForm.js'
 import { registrationFromMetadata } from './checkout.js'
 import { ensureSchema, getDb, saveRegistration, type Db, type DbEnv, type Row } from './db.js'
@@ -90,12 +93,46 @@ const text = (value: unknown) => (typeof value === 'string' ? value : '')
 const parseFields = (value: unknown): Record<string, string> =>
   typeof value === 'string' ? JSON.parse(value) : ((value ?? {}) as Record<string, string>)
 
+const WAIVER_LIST_COLUMNS =
+  'id, signed_at, waiver_version, participant_name, date_of_birth, email, phone, fields, guardian_signature IS NOT NULL AS guardian_signed'
+const parseJson = (value: unknown) => (typeof value === 'string' ? JSON.parse(value) : value)
+
+const waiverListItem = (w: Row): AdminWaiver => ({
+  id: text(w.id),
+  signedAt: iso(w.signed_at) ?? '',
+  version: text(w.waiver_version),
+  name: text(w.participant_name),
+  dob: text(w.date_of_birth),
+  email: text(w.email),
+  phone: text(w.phone),
+  fields: cleanWaiverFields(parseJson(w.fields)),
+  guardianSigned: Boolean(w.guardian_signed),
+})
+
+/** Waivers with their signatures and audit details, for printing. All of them when `ids` is empty. */
+async function waiverDocs(db: Db, ids: string[]): Promise<AdminWaiverDoc[]> {
+  const rows = ids.length
+    ? await db.query(`SELECT *, guardian_signature IS NOT NULL AS guardian_signed FROM waivers WHERE id = ANY($1::uuid[]) ORDER BY signed_at DESC`, [ids])
+    : await db.query(`SELECT *, guardian_signature IS NOT NULL AS guardian_signed FROM waivers ORDER BY signed_at DESC LIMIT 500`)
+  return rows.map((w) => ({
+    ...waiverListItem(w),
+    participantSignature: cleanSignature(parseJson(w.participant_signature)) ?? { kind: 'typed', name: '' },
+    guardianSignature: cleanSignature(parseJson(w.guardian_signature)),
+    waiverText: text(w.waiver_text),
+    esignConsent: Boolean(w.esign_consent),
+    signerIp: text(w.signer_ip),
+    userAgent: text(w.user_agent),
+  }))
+}
+
 async function loadData(db: Db): Promise<AdminData> {
-  const [registrations, teams, leads, surveys] = await Promise.all([
+  const [registrations, teams, leads, surveys, waivers] = await Promise.all([
     db.query(`SELECT * FROM registrations ORDER BY paid_at DESC NULLS LAST, created_at DESC`),
     db.query(`SELECT * FROM teams ORDER BY division, created_at`),
     db.query(`SELECT * FROM leads ORDER BY created_at DESC`),
     db.query(`SELECT * FROM winter_survey_responses ORDER BY created_at DESC`),
+    // Without the signature images, which are only fetched for printing.
+    db.query(`SELECT ${WAIVER_LIST_COLUMNS} FROM waivers ORDER BY signed_at DESC`),
   ])
   return {
     registrations: registrations.map(
@@ -162,6 +199,7 @@ async function loadData(db: Db): Promise<AdminData> {
         answers: cleanSurvey(typeof s.answers === 'string' ? JSON.parse(s.answers) : s.answers),
       }),
     ),
+    waivers: waivers.map(waiverListItem),
   }
 }
 
@@ -396,6 +434,11 @@ export async function handleAdmin(request: Request, env: AdminEnv): Promise<Resp
 
       case 'notifyTeam':
         return json(await notifyTeam(db, env, str(body.teamId, 40)))
+
+      case 'waiverDocs': {
+        const ids = Array.isArray(body.ids) ? body.ids.filter((id): id is string => typeof id === 'string' && UUID.test(id)) : []
+        return json({ waivers: await waiverDocs(db, ids) })
+      }
 
       default:
         return json({ error: 'bad-request' }, 400)
